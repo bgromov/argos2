@@ -7,7 +7,7 @@ function build_common() {
     echo "cmake ../../../common -DCMAKE_INSTALL_PREFIX=${PREFIX} -G 'Eclipse CDT4 - Unix Makefiles' -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} || { echo 'cmake failed' 1>&2; exit 1; }" | sh
     
     # compile
-    make || { echo "make failed" 1>&2; exit 1; }
+    make ${INSTALL}|| { echo "make failed" 1>&2; exit 1; }
 }
 
 function build_simulator() {
@@ -17,10 +17,10 @@ function build_simulator() {
     echo "cmake ../../simulator -DCMAKE_INSTALL_PREFIX=${PREFIX} -G 'Eclipse CDT4 - Unix Makefiles' -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} || { echo 'cmake failed' 1>&2; exit 1; }" | sh
     
     # compile
-    make || { echo "make failed" 1>&2; exit 1; }
+    make ${INSTALL} || { echo "make failed" 1>&2; exit 1; }
 }
 
-PREFIX="/usr/local"
+PREFIX=${PREFIX:="/usr/local"}
 BUILDTYPE="release"
 while [ $# -gt 0 ]; do
     OPTION="$1"
@@ -45,6 +45,11 @@ while [ $# -gt 0 ]; do
     fi
     if [ "${OPTION}" == "relwithdebinfo" ]; then
         export BUILDTYPE="relwithdebinfo"
+    fi
+    
+    # install
+    if [ "${OPTION}" == "install" ]; then
+        export INSTALL="install"
     fi
 done
 
