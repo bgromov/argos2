@@ -1,6 +1,12 @@
-if( NOT ARGOS_COMPILE_REAL_SWARMANOID )
+if( NOT ARGOS_COMPILE_REAL_SWARMANOID AND NOT ARGOS_COMPILE_REAL_EPUCK )
   find_package(GSL REQUIRED)
-endif( NOT ARGOS_COMPILE_REAL_SWARMANOID )
+endif( NOT ARGOS_COMPILE_REAL_SWARMANOID AND NOT ARGOS_COMPILE_REAL_EPUCK )
+
+find_package(Pthreads)
+if(NOT PTHREADS_FOUND)  
+  message(FATAL_ERROR "Required library pthread not found.")
+endif(NOT PTHREADS_FOUND)
+add_definitions(${PTHREADS_DEFINITIONS})
 
 set(argos2_common_utility_HEADERS_base
   PQi.h
@@ -15,6 +21,7 @@ set(argos2_common_utility_HEADERS_configuration
   configuration/argos_configuration.h
   configuration/base_configurable_resource.h
   configuration/memento.h
+  configuration/command_line_arg_parser.h
 )
 
 set(argos2_common_utility_HEADERS_datatypes
@@ -41,15 +48,18 @@ set(argos2_common_utility_HEADERS_math
   math/vector2.h
   math/vector3.h
   math/matrix3x3.h
+  math/matrix2x2.h
 )
 
 set(argos2_common_utility_HEADERS_math_shapes2
   math/shapes2/primitive2.h
 )
 
-set(argos2_common_utility_HEADERS_profiler
-  profiler/profiler.h
-)
+if(NOT WIN32)
+  set(argos2_common_utility_HEADERS_profiler
+    profiler/profiler.h
+  )
+endif(NOT WIN32)
 
 set(argos2_common_utility_HEADERS_tinyxml
   tinyxml-cpp/ticpp.h
@@ -65,12 +75,13 @@ set(argos2_common_utility_IMPLEMENTATIONS
   math/angles.cpp
   math/vector3.cpp
   math/matrix3x3.cpp
+  math/matrix2x2.cpp
   math/segment.cpp
   math/shapes2/primitive2.cpp
   logging/argos_log.cpp
   datatypes/color.cpp
   datatypes/byte_array.cpp
-  profiler/profiler.cpp
+  configuration/command_line_arg_parser.cpp
   tinyxml-cpp/tinyxml.cpp
   tinyxml-cpp/tinystr.cpp
   tinyxml-cpp/tinyxmlerror.cpp
@@ -78,18 +89,25 @@ set(argos2_common_utility_IMPLEMENTATIONS
   tinyxml-cpp/tinyxmlparser.cpp
 )
 
-if( NOT ARGOS_COMPILE_REAL_SWARMANOID )
+if(NOT WIN32)
+  set(argos2_common_utility_IMPLEMENTATIONS
+    ${argos2_common_utility_IMPLEMENTATIONS}
+    profiler/profiler.cpp
+  )
+endif(NOT WIN32)
+
+if( NOT ARGOS_COMPILE_REAL_SWARMANOID AND NOT ARGOS_COMPILE_REAL_EPUCK )
   add_definitions(${CMAKE_GSL_CXX_FLAGS})
   include_directories(${GSL_INCLUDE_DIR})
   link_directories(${GSL_LINK_DIRECTORIES})
-endif( NOT ARGOS_COMPILE_REAL_SWARMANOID )
+endif( NOT ARGOS_COMPILE_REAL_SWARMANOID AND NOT ARGOS_COMPILE_REAL_EPUCK )
 
 add_library(argos2_common_utility SHARED ${argos2_common_utility_IMPLEMENTATIONS})
 
-if( NOT ARGOS_COMPILE_REAL_SWARMANOID )
+if( NOT ARGOS_COMPILE_REAL_SWARMANOID AND NOT ARGOS_COMPILE_REAL_EPUCK )
   target_link_libraries(argos2_common_utility ${GSL_LIBRARIES})
   link_googleperftools_to(argos2_common_utility)
-endif( NOT ARGOS_COMPILE_REAL_SWARMANOID )
+endif( NOT ARGOS_COMPILE_REAL_SWARMANOID AND NOT ARGOS_COMPILE_REAL_EPUCK )
 
 install(FILES ${argos2_common_utility_HEADERS_base} DESTINATION include/argos2/common/utility)
 install(FILES ${argos2_common_utility_HEADERS_configuration} DESTINATION include/argos2/common/utility/configuration)

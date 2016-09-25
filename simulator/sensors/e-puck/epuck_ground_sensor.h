@@ -46,10 +46,11 @@ namespace argos {
          m_cSensorPosOffset[0].Set(0.03f, -0.009f);
          m_cSensorPosOffset[1].Set(0.03f,  0.0f   );
          m_cSensorPosOffset[2].Set(0.03f,  0.009f);
+         m_fNoiseLevel=0.0f;
       }
 
       virtual ~CEPuckGroundSensor() {}
-
+      virtual void Init(TConfigurationNode& t_tree);
       virtual void Update();
       virtual void Reset();
 
@@ -58,6 +59,14 @@ namespace argos {
       CSpace& m_cSpace;
       CVector2 m_cSensorPosOffset[3];
 
+      /* Random number generator */
+      CARGoSRandom::CRNG* m_pcRNG;
+
+      /* Noise parameter */
+      Real m_fNoiseLevel;
+
+      /* Adds noise to the sensor reading */
+      virtual void AddNoise(UInt32 un_sensor_index);
    };
 
 }

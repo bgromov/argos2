@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/e-puck/ci_epuck_leds_actuator.h>
+ * @file common/control_interface/e-puck/ci_epuck_leds_actuator.h
  *
  * @brief This file provides the definition of the e-puck LEDs actuator.
  *
@@ -62,13 +62,22 @@ namespace argos {
       /**
        * Switches on/off a single LED.
        */
-      virtual void SwitchSingleLed(UInt8 un_led_number,
-                                   bool b_switched_on);
+      virtual void SwitchSingleLed(UInt8 un_led_number,bool b_switched_on);
 
       /**
        * Switches on/off all LEDs.
        */
       virtual void SwitchAllLeds(bool b_switched_on);
+
+      /**
+       * Switches on/off body LED.
+       */
+      virtual void SwitchBodyLed(bool b_switched_on) = 0;
+
+      /**
+       * Switches on/off front LED.
+       */
+      virtual void SwitchFrontLed(bool b_switched_on) = 0;
 
    protected:
 

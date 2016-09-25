@@ -49,23 +49,29 @@ namespace argos {
 
       virtual void Init(TConfigurationNode& t_node);
 
-      inline virtual CRABEquippedEntity<2>& GetEntity() {
+      inline virtual CRABEquippedEntity& GetEntity() {
          return *m_pcRABEquippedEntity;
       }
       virtual void SetEntity(CEntity& c_entity);
 
-      virtual void SetData(const TEPuckRangeAndBearingReceivedPacket::TRangeAndBearingData& t_data);
+      inline virtual bool IsLastPacketSent() const { return true; }
 
-      virtual void SetDataInt(const UInt16& un_data);
+      inline virtual void SetData(const SEPuckRangeAndBearingReceivedPacket::TRangeAndBearingData& t_data) {
+         m_tData[0] = t_data[0];
+         m_tData[1] = t_data[1];
+      }
+
+      inline virtual void SetDataInt(UInt16 un_data) {
+         *reinterpret_cast<UInt16*>(m_tData) = un_data;
+      }
 
       virtual void Update();
       virtual void Reset();
 
-
    private:
 
-      CRABEquippedEntity<2>* m_pcRABEquippedEntity;
-      TEPuckRangeAndBearingReceivedPacket::TRangeAndBearingData m_tData;
+      CRABEquippedEntity* m_pcRABEquippedEntity;
+      SEPuckRangeAndBearingReceivedPacket::TRangeAndBearingData m_tData;
       Real m_fRange;
 
    };

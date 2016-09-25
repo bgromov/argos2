@@ -228,16 +228,15 @@ namespace argos {
       if(m_bAntiAliasing) {
          glDisable(GL_MULTISAMPLE);
       }
-      /* Draw the frame, either by swapping the buffers or flushing */
-
-      /* This seems to be wrong.  At least it causes problems on Mac
-	 OS X, and the documentation of QPainter::end() also claim
-	 that it takes care of swapping the buffers. --tc */
-#ifndef __APPLE__
-      if(doubleBuffer()) swapBuffers();
-      else glFlush();
-#endif
+      glPushMatrix();
+      m_cUserFunctions.DrawInWorld();
+      glPopMatrix();
       /* Execute overlay drawing */
+      glShadeModel(GL_FLAT);
+      glDisable(GL_LIGHTING);
+      glDisable(GL_CULL_FACE);
+      glDisable(GL_DEPTH_TEST);
+      glMatrixMode(GL_MODELVIEW);
       QPainter cPainter(this);
       if(m_bAntiAliasing) {
          cPainter.setRenderHint(QPainter::Antialiasing);

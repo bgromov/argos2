@@ -55,6 +55,7 @@ namespace argos {
       bool m_bShowRays;
       CRadians m_cSensorSpacing;
       CRadians m_cSensorHalfSpacing;
+      bool m_bCheckOcclusions;
 
       /* Random number generator */
       CARGoSRandom::CRNG* m_pcRNG;

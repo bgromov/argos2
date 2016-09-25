@@ -23,6 +23,8 @@
 
 #include "loop_functions.h"
 #include <argos2/simulator/factories/entities_factory.h>
+
+#include <argos2/simulator/space/entities/booth_entity.h>
 #include <argos2/simulator/space/entities/box_entity.h>
 #include <argos2/simulator/space/entities/cylinder_entity.h>
 #include <argos2/simulator/space/entities/light_entity.h>
@@ -101,6 +103,38 @@ namespace argos {
                        tControllerParameters);      
       /* Set the controller to the entity */
       cControllableEntity.SetController(*pcController);
+   }
+
+   /****************************************/
+   /****************************************/
+
+   CBoothEntity& CLoopFunctions::AddBooth(const std::string& str_id,
+		   const CVector3& c_position,
+		   const CQuaternion& c_orientation,
+		   const std::string& str_controller_id,
+		   const std::string& str_physics_id) {
+
+	   /* Get the angles in degrees from the quaternion */
+	   CRadians cX, cY, cZ;
+	   c_orientation.ToEulerAngles(cZ, cY, cX);
+	   CVector3 cOrientationAngles(ToDegrees(cZ).GetValue(),
+			   ToDegrees(cY).GetValue(),
+			   ToDegrees(cX).GetValue());
+
+	   /* Build the XML tree */
+	   TConfigurationNode tRootNode("booth");
+	   SetNodeAttribute(tRootNode, "id", str_id);
+	   SetNodeAttribute(tRootNode, "position", c_position);
+	   SetNodeAttribute(tRootNode, "orientation", cOrientationAngles);
+	   SetNodeAttribute(tRootNode, "controller", str_controller_id);
+	   /* Add the entity to the space */
+	   CBoothEntity& cEntity = AddEntityToSpace<CBoothEntity>(tRootNode);
+	   /* Add the entity to physics */
+	   AddEntityToPhysics(cEntity, std::vector<std::string>(1, str_physics_id));
+	   /* Assign the controller */
+	   AssignController(cEntity);
+	   /* Return the entity */
+	   return cEntity;
    }
 
    /****************************************/
@@ -301,37 +335,14 @@ namespace argos {
 
    void CLoopFunctions::SetOnlineControlParameters(UInt32 un_num_params,
                                                    const Real* pf_params) {
-      TEntityVector entities = m_cSpace.GetEntityVector();
-      for(UInt32 i = 0; i < entities.size(); ++i) {
       
-         // set control parameters for footbots
-         CFootBotEntity* pc_footbot = dynamic_cast<CFootBotEntity*>(entities[i]);
-         if( pc_footbot != NULL ) {
-            pc_footbot->GetControllableEntity().GetController().SetOnlineParameters(un_num_params, pf_params);
-            continue;
-         }
-
-         // set control parameters for eyebots
-         CEyeBotEntity* pc_eyebot = dynamic_cast<CEyeBotEntity*>(entities[i]);
-         if( pc_eyebot != NULL ) {
-            pc_eyebot->GetControllableEntity().GetController().SetOnlineParameters(un_num_params, pf_params);
-            continue;
-         }
-
-         //       // set control parameters for sbots
-         //       CSBotEntity* pc_sbot = dynamic_cast<CSBotEntity*>(entities[i]);
-         //       if( pc_sbot != NULL ) {
-         // 	pc_sbot->GetControllableEntity().GetController().SetOnlineParameters( un_num_params, pf_params );
-         // 	continue;
-         //       }
+      CSpace::TAnyEntityMap cEntities = m_cSpace.GetEntitiesByType("controllable_entity");
       
-         //       // set control parameters for handbots
-         //       CHandBotEntity* pc_handbot = dynamic_cast<CHandBotEntity*>(entities[i]);
-         //       if( pc_handbot != NULL ) {
-         // 	pc_handbot->GetControllableEntity().GetController().SetOnlineParameters( un_num_params, pf_params );
-         // 	continue;
-         //       }
+      for(CSpace::TAnyEntityMap::iterator it = cEntities.begin(); it != cEntities.end(); ++it) {
+            CControllableEntity* pcEntity = any_cast<CControllableEntity*>(it->second);
+            pcEntity->GetController().SetOnlineParameters(un_num_params,pf_params);
       }
+      
    }
 
    /****************************************/

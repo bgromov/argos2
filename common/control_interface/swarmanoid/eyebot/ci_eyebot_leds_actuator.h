@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <argos2/common/control_interface/eyebot/ci_eyebot_leds_actuator.h>
+ * @file argos2/common/control_interface/eyebot/ci_eyebot_leds_actuator.h
  *
  * @brief This file provides the definition of eyebot leds actuator
  *

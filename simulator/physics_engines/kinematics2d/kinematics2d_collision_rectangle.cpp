@@ -23,6 +23,7 @@
 #include "kinematics2d_engine.h"
 #include <argos2/common/utility/math/segment.h>
 #include <argos2/common/utility/math/ray.h>
+#include <argos2/simulator/space/entities/embodied_entity.h>
 
 namespace argos {
 
@@ -35,24 +36,35 @@ namespace argos {
     m_bEnabled = false;
     m_tCollisionType = KINEMATICS2D_COLLISION_RECTANGLE;
 
-    m_pcVertices[0] = m_cPosition + CVector2( m_cHalfSize.GetX(), m_cHalfSize.GetY());
-    m_pcVertices[1] = m_cPosition + CVector2(-m_cHalfSize.GetX(), m_cHalfSize.GetY());
-    m_pcVertices[2] = m_cPosition + CVector2(-m_cHalfSize.GetX(),-m_cHalfSize.GetY());
-    m_pcVertices[3] = m_cPosition + CVector2( m_cHalfSize.GetX(),-m_cHalfSize.GetY());
+    m_pcVertices[0] = CVector2( m_cHalfSize.GetX(), m_cHalfSize.GetY());
+    m_pcVertices[1] = CVector2(-m_cHalfSize.GetX(), m_cHalfSize.GetY());
+    m_pcVertices[2] = CVector2(-m_cHalfSize.GetX(),-m_cHalfSize.GetY());
+    m_pcVertices[3] = CVector2( m_cHalfSize.GetX(),-m_cHalfSize.GetY());
+
+    CMatrix2x2 rotation;
+    rotation.FromAngle(m_cOrientation);
+
+    m_pcVertices[0] = rotation*m_pcVertices[0] + m_cPosition;
+    m_pcVertices[1] = rotation*m_pcVertices[1] + m_cPosition;
+    m_pcVertices[2] = rotation*m_pcVertices[2] + m_cPosition;
+    m_pcVertices[3] = rotation*m_pcVertices[3] + m_cPosition;
   }
+
 
   /****************************************/
   /****************************************/
 
   bool CKinematics2DCollisionRectangle::CheckIntersectionWithRay(Real& f_distance, const CRay& c_ray) const {
     CSegment c_segment = c_ray.ProjectOntoXY();
-    Real min_distance = (c_segment.GetStart() - m_cPosition).Length();
+    Real inv_segment_length = 1/c_segment.GetLength();
+    Real min_distance = (c_segment.GetStart() - m_cPosition).Length()*inv_segment_length;
     bool b_intersect = false;
     for( UInt32 i = 0; i < 4; i++ ) {
       CSegment c_side(m_pcVertices[i], m_pcVertices[(i+1)%4]);
+
       CVector2 c_intersect;
       if( c_segment.Intersect(c_side, c_intersect) ) {
-	min_distance = Min(min_distance, (c_segment.GetStart() - c_intersect).Length());
+	min_distance = Min(min_distance, (c_segment.GetStart() - c_intersect).Length()*inv_segment_length);
 	b_intersect = true;
       }
     }
@@ -67,11 +79,19 @@ namespace argos {
   bool CKinematics2DCollisionRectangle::MoveTo(const CVector3& c_position, const CQuaternion& c_orientation, bool b_check_only ) {
     CKinematics2DEntity::MoveTo(c_position, c_orientation, b_check_only );
     
-    m_pcVertices[0] = m_cPosition + CVector2( m_cHalfSize.GetX(), m_cHalfSize.GetY());
-    m_pcVertices[1] = m_cPosition + CVector2(-m_cHalfSize.GetX(), m_cHalfSize.GetY());
-    m_pcVertices[2] = m_cPosition + CVector2(-m_cHalfSize.GetX(),-m_cHalfSize.GetY());
-    m_pcVertices[3] = m_cPosition + CVector2( m_cHalfSize.GetX(),-m_cHalfSize.GetY());
-    
+    m_pcVertices[0] = CVector2( m_cHalfSize.GetX(), m_cHalfSize.GetY());
+    m_pcVertices[1] = CVector2(-m_cHalfSize.GetX(), m_cHalfSize.GetY());
+    m_pcVertices[2] = CVector2(-m_cHalfSize.GetX(),-m_cHalfSize.GetY());
+    m_pcVertices[3] = CVector2( m_cHalfSize.GetX(),-m_cHalfSize.GetY());
+
+    CMatrix2x2 rotation;
+    rotation.FromAngle(m_cOrientation);
+
+    m_pcVertices[0] = rotation*m_pcVertices[0] + m_cPosition;
+    m_pcVertices[1] = rotation*m_pcVertices[1] + m_cPosition;
+    m_pcVertices[2] = rotation*m_pcVertices[2] + m_cPosition;
+    m_pcVertices[3] = rotation*m_pcVertices[3] + m_cPosition;
+
     return m_cEngine.CollisionsDetection(this);
   }
 
@@ -82,10 +102,18 @@ namespace argos {
   void CKinematics2DCollisionRectangle::Reset() {
     CKinematics2DEntity::Reset();
     
-    m_pcVertices[0] = m_cPosition + CVector2( m_cHalfSize.GetX(), m_cHalfSize.GetY());
-    m_pcVertices[1] = m_cPosition + CVector2(-m_cHalfSize.GetX(), m_cHalfSize.GetY());
-    m_pcVertices[2] = m_cPosition + CVector2(-m_cHalfSize.GetX(),-m_cHalfSize.GetY());
-    m_pcVertices[3] = m_cPosition + CVector2( m_cHalfSize.GetX(),-m_cHalfSize.GetY());
+    m_pcVertices[0] = CVector2( m_cHalfSize.GetX(), m_cHalfSize.GetY());
+    m_pcVertices[1] = CVector2(-m_cHalfSize.GetX(), m_cHalfSize.GetY());
+    m_pcVertices[2] = CVector2(-m_cHalfSize.GetX(),-m_cHalfSize.GetY());
+    m_pcVertices[3] = CVector2( m_cHalfSize.GetX(),-m_cHalfSize.GetY());
+
+    CMatrix2x2 rotation;
+    rotation.FromAngle(m_cOrientation);
+
+    m_pcVertices[0] = rotation*m_pcVertices[0] + m_cPosition;
+    m_pcVertices[1] = rotation*m_pcVertices[1] + m_cPosition;
+    m_pcVertices[2] = rotation*m_pcVertices[2] + m_cPosition;
+    m_pcVertices[3] = rotation*m_pcVertices[3] + m_cPosition;
   }
 
 

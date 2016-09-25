@@ -230,6 +230,7 @@ namespace argos {
       GetEntity().GetControllableEntity().AddIntersectionPoint(cOcclusionCheckRay, sIntersectionData.TOnRay);
       /* Buffer for calculating the LED--e-puck distance */
       CVector3 cLEDDistance;
+      UInt32 numLeds = 0;
       /* Go through the precalculated list of cells to visit */
       for(UInt32 unCell = 0; unCell < m_sCellsToVisit.size(); ++unCell) {
          /* Get a reference to the current cell to visit */
@@ -241,6 +242,7 @@ namespace argos {
                                       sCell.J+nCenterJ,
                                       sCell.K+nCenterK,
                                       tVisibleLEDs)) {
+            numLeds+=tVisibleLEDs.size();
             /* New candidate LEDs found
                Check for occlusions among the candidate elements */
             for(TLedEntitySet::iterator itLED = tVisibleLEDs.begin();
@@ -274,19 +276,34 @@ namespace argos {
                         /* The second one is the inclination */
                         pcAngles[1] = ATan2(cLEDDistance.GetZ(),
                         ::sqrt(cLEDDistance.GetX()*cLEDDistance.GetX()+cLEDDistance.GetY()*cLEDDistance.GetY())).SignedNormalize();
+
                         /* Verifies if the camera can see the led. If it is the case, the led is added to the camera. */
-                        if(pcAngles[0]<CAMERA_HALF_ANGULAR_HORIZONTAL_RANGE && pcAngles[0]> -CAMERA_HALF_ANGULAR_HORIZONTAL_RANGE){
-                           if(pcAngles[1]<CAMERA_HALF_ANGULAR_VERTICAL_RANGE && pcAngles[1]> -CAMERA_HALF_ANGULAR_VERTICAL_RANGE
-                              && ::sqrt(cLEDDistance.GetX()*cLEDDistance.GetX()+cLEDDistance.GetY()*cLEDDistance.GetY()+cLEDDistance.GetZ()*cLEDDistance.GetZ())
-                              <CAMERA_MAX_DISTANCE_RANGE) 
-                              if(m_bShowRays) GetEntity().GetControllableEntity().AddCheckedRay(true, cOcclusionCheckRay);
+
+                        //
+                        if (pcAngles[0] <  CAMERA_HALF_ANGULAR_HORIZONTAL_RANGE &&
+                            pcAngles[0] > -CAMERA_HALF_ANGULAR_HORIZONTAL_RANGE)
+                        {
+                           if (pcAngles[1] <  CAMERA_HALF_ANGULAR_VERTICAL_RANGE &&
+                               pcAngles[1] > -CAMERA_HALF_ANGULAR_VERTICAL_RANGE &&
+                               (cLEDDistance.GetX()*cLEDDistance.GetX()+cLEDDistance.GetY()*cLEDDistance.GetY()) < CAMERA_MAX_DISTANCE_RANGE*CAMERA_MAX_DISTANCE_RANGE)
+                           {
+                              if (m_bShowRays) {
+                                 GetEntity().GetControllableEntity().AddCheckedRay(true, cOcclusionCheckRay);
+                              }
                               ComputeView(cLEDDistance.Length() * 100,pcAngles,cLED.GetColor());
+                           }
+                        }
+                        else {
+                           if(m_bShowRays) {
+                              GetEntity().GetControllableEntity().AddCheckedRay(false, cOcclusionCheckRay);
+                           }
                         }
                         delete[] pcAngles;
                      }
                      else {
                         if(m_bShowRays) {
                            GetEntity().GetControllableEntity().AddCheckedRay(false, cOcclusionCheckRay);
+                           GetEntity().GetControllableEntity().AddIntersectionPoint(cOcclusionCheckRay, sIntersectionData.TOnRay);
                         }
                      }
                   }
@@ -299,8 +316,8 @@ namespace argos {
    /****************************************/
    /****************************************/
 
-   void CEPuckCameraSensor::ComputeView(Real f_distance, CRadians * pc_angle, CColor c_color){
-      
+   void CEPuckCameraSensor::ComputeView(Real f_distance, CRadians * pc_angle, CColor c_color)
+   {
       // shift from angle view to array position
       UInt16 unHorizontalAngle = Floor(-m_unWidth * pc_angle[0].GetValue() / CAMERA_HALF_ANGULAR_HORIZONTAL_RANGE.GetValue() + m_unWidth);
       /* Verify that unHorizontalAngle is an odd value */

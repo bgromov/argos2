@@ -119,7 +119,7 @@ namespace argos {
          return *m_pcDistanceScannerEquippedEntity;
       }
 
-      inline CRABEquippedEntity<10>& GetRABEquippedEntity() {
+      inline CRABEquippedEntity& GetRABEquippedEntity() {
          return *m_pcRABEquippedEntity;
       }
 
@@ -169,7 +169,7 @@ namespace argos {
       CControllableEntity*            m_pcControllableEntity;
       CLedEquippedEntity*             m_pcLEDEquippedEntity;
       CDistanceScannerEquippedEntity* m_pcDistanceScannerEquippedEntity;
-      CRABEquippedEntity<10>*         m_pcRABEquippedEntity;
+      CRABEquippedEntity*             m_pcRABEquippedEntity;
       bool                            m_bAttachedToCeiling;
       SMotionData                     m_sMotionData;
       Real                            m_fTargetAltitude;

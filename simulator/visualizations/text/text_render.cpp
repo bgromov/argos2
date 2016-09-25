@@ -33,7 +33,7 @@
 #include "simulator.h"
 #include <argos2/simulator/space/space.h>
 #include <argos2/simulator/space/entities/entity.h>
-#include <argos2/simulator/visitors/text_render_visitor_draw.h>
+#include <argos2/simulator/visualizations/text/text_render_visitor_draw.h>
 
 /****************************************/
 /****************************************/

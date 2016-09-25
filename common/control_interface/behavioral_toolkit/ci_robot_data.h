@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/behavioral_toolkit/ci_robot_data.h>
+ * @file common/control_interface/behavioral_toolkit/ci_robot_data.h
  *
  * @brief This file provides the robot data object, used for data sharing in the behavioral toolkit.
  * This class is used for sharing global data across a robot's different behaviors.

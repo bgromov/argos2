@@ -25,8 +25,11 @@
 #include "qtopengl_visitor.h"
 #include "qtopengl_widget.h"
 
+#include <argos2/simulator/space/entities/booth_entity.h>
 #include <argos2/simulator/space/entities/box_entity.h>
 #include <argos2/simulator/space/entities/cylinder_entity.h>
+#include <argos2/simulator/space/entities/tile_entity.h>
+#include <argos2/simulator/space/entities/bluebot_entity.h>
 #include <argos2/simulator/space/entities/footbot_entity.h>
 #include <argos2/simulator/space/entities/eyebot_entity.h>
 #include <argos2/simulator/space/entities/light_entity.h>
@@ -99,7 +102,15 @@ namespace argos {
          glEnable(GL_LIGHTING);
       }
    }
+   
+   /****************************************/
+   /****************************************/
 
+   void CQTOpenGLVisitor::Visit(CBoothEntity& c_entity) {
+      DrawElement(c_entity);
+      m_cUserFunctions.Draw(c_entity);
+   }
+   
    /****************************************/
    /****************************************/
 
@@ -122,8 +133,17 @@ namespace argos {
    /****************************************/
    /****************************************/
 
+   void CQTOpenGLVisitor::Visit(CTileEntity& c_entity) {
+      DrawElement(c_entity);
+      m_cUserFunctions.Draw(c_entity);
+   }
+
+   /****************************************/
+   /****************************************/
+
    void CQTOpenGLVisitor::Visit(CFloorEntity& c_entity) {
       DrawElement(c_entity);
+      m_cUserFunctions.Draw(c_entity);
    }
 
    /****************************************/
@@ -156,6 +176,24 @@ namespace argos {
       DrawElement(c_entity);
       m_cUserFunctions.Draw(c_entity);
    }
+   
+   /****************************************/
+   /****************************************/
+
+   void CQTOpenGLVisitor::Visit(CBluebotEntity& c_entity) {
+      DrawElement(c_entity);
+      m_cUserFunctions.Draw(c_entity);
+   }
+   
+   /****************************************/
+   /****************************************/
+
+   void CQTOpenGLVisitor::DrawElement(CBoothEntity& c_entity) {
+	  /* Perform standard rotation and translation */
+	  DrawPositionalEntity(c_entity.GetEmbodiedEntity());
+	  /* Render the body */
+	  m_cBoothModel.Draw(c_entity);
+   }
 
    /****************************************/
    /****************************************/
@@ -179,6 +217,28 @@ namespace argos {
       DrawPositionalEntity(c_entity.GetEmbodiedEntity());
       /* Render the body */
       m_cCylinderModel.Draw(c_entity);
+   }
+
+   /****************************************/
+   /****************************************/
+
+   void CQTOpenGLVisitor::DrawElement(CTileEntity& c_entity) {
+      /* Perform standard rotation and translation */
+      DrawPositionalEntity(c_entity);
+      /* Render the body */
+      m_cTileModel.Draw(c_entity);
+   }
+
+   /****************************************/
+   /****************************************/
+
+   void CQTOpenGLVisitor::DrawElement(CBluebotEntity& c_entity) {
+      /* Draw rays */
+      DrawRays(c_entity.GetControllableEntity());
+      /* Perform standard rotation and translation */
+      DrawPositionalEntity(c_entity.GetEmbodiedEntity());
+      /* Render the object */
+      m_cBluebotModel.Draw(c_entity);
    }
 
    /****************************************/

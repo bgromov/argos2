@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/ci_robot.cpp>
+ * @file common/control_interface/ci_robot.cpp
  *
  * @brief This file provides the implementation of
  *

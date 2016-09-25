@@ -38,6 +38,10 @@ namespace argos {
       virtual bool CheckIntersectionWithRay(Real& f_t_on_ray,
                                             const CRay& c_ray) const;
 
+      virtual bool MoveTo(const CVector3& c_position,
+                          const CQuaternion& c_orientation,
+                          bool b_check_only = false);
+
       virtual void Reset();
 
       virtual void UpdateEntityStatus();

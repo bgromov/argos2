@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/e-puck/ci_epuck_leds_actuator.cpp>
+ * @file common/control_interface/e-puck/ci_epuck_leds_actuator.cpp
  *
  * @brief This file provides the definition of the e-puck LEDs actuator.
  *

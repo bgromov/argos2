@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/footbot/ci_footbot_leds_actuator.h>
+ * @file common/control_interface/footbot/ci_footbot_leds_actuator.h
  *
  * @brief This file provides the definition of footbot LEDs actuator.
  *

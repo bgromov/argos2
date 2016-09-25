@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/ci_sensor.h>
+ * @file common/control_interface/ci_sensor.h
  *
  * @brief This file provides the control interface for all sensors
  *

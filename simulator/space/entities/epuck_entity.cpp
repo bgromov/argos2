@@ -91,7 +91,7 @@ namespace argos {
       m_pcControllableEntity(new CControllableEntity(this)),
       m_pcWheeledEntity(new CWheeledEntity<2>(this)),
       m_pcLEDEquippedEntity(new CLedEquippedEntity(this)),
-      m_pcRABEquippedEntity(new CRABEquippedEntity<2>(this)) {
+      m_pcRABEquippedEntity(new CRABEquippedEntity(this, 2)) {
       /* Left wheel position */
       m_pcWheeledEntity->SetWheelPosition(0, CVector3(0.0f,  EPUCK_HALF_INTERWHEEL_DISTANCE, 0.0f));
       /* Right wheel position */
@@ -174,7 +174,7 @@ namespace argos {
       else if(str_component == "led_equipped_entity") {
          return *m_pcLEDEquippedEntity;
       }
-      else if(str_component == "rab_equipped_entity<2>"){
+      else if(str_component == "rab_equipped_entity"){
          return *m_pcRABEquippedEntity;
       }
       else {
@@ -190,7 +190,7 @@ namespace argos {
               str_component == "controllable_entity"   ||
               str_component == "wheeled_entity<2>"     ||
               str_component == "led_equipped_entity"   ||
-              str_component == "rab_equipped_entity<2>");
+              str_component == "rab_equipped_entity");
    }
 
    /****************************************/

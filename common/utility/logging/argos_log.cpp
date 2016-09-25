@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/logging/argos_log.cpp>
+ * @file common/logging/argos_log.cpp
  *
  * @brief This file provides the implementation of class CARGoSLog.
  *
@@ -27,7 +27,7 @@
 
 namespace argos {
 
-   CARGoSLog LOG(std::cout, SLogColor(ARGOS_LOG_ATTRIBUTE_DIM, ARGOS_LOG_COLOR_GREEN, ARGOS_LOG_COLOR_BLACK));
-   CARGoSLog LOGERR(std::cerr, SLogColor(ARGOS_LOG_ATTRIBUTE_DIM, ARGOS_LOG_COLOR_RED, ARGOS_LOG_COLOR_BLACK));
+   CARGoSLog LOG(std::cout, SLogColor(ARGOS_LOG_ATTRIBUTE_BRIGHT, ARGOS_LOG_COLOR_GREEN));
+   CARGoSLog LOGERR(std::cerr, SLogColor(ARGOS_LOG_ATTRIBUTE_BRIGHT, ARGOS_LOG_COLOR_RED));
 
 }

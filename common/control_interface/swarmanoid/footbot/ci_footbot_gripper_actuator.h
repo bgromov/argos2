@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/footbot/ci_footbot_gripper_actuator.h>
+ * @file common/control_interface/footbot/ci_footbot_gripper_actuator.h
  *
  * @brief This file provides the definition of the gripper actuator.
 
@@ -65,6 +65,21 @@ namespace argos {
        * @param c_aperture desired aperture.
        */
       virtual void SetAperture(const CRadians& c_aperture) = 0;
+
+
+      /**
+       *
+       * @brief Disables the ASEBA routine that checks for a gripped object each time the gripper is opened
+       *
+       */
+      virtual void DisableCheckForObjectGrippedRoutine() = 0;
+
+      /**
+       *
+       * @brief Enables the ASEBA routine that checks for a gripped object each time the gripper is opened
+       *
+       */
+      virtual void EnableCheckForObjectGrippedRoutine() = 0;
 
       /**
        * @brief Sets gripper aperture to lock, positive direction.

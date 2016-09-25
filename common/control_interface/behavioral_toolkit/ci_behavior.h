@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/behavioral_toolkit/ci_behavior.h>
+ * @file common/control_interface/behavioral_toolkit/ci_behavior.h
  *
  * @brief This file provides the control interface definition for a robot behavior.
  * A behavior can be composed by other behaviors.

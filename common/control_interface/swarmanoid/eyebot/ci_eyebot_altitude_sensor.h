@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/eyebot/ci_eyebot_distance_Scanner_sensor.h>
+ * @file common/control_interface/eyebot/ci_eyebot_distance_Scanner_sensor.h
  *
  * @brief This file provides the definition of the long range distance scanner 
  * 

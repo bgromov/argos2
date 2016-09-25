@@ -1,9 +1,12 @@
 add_subdirectory(chipmunk-physics)
 
 set(argos2_simulator_physics_engines_dynamics2d_HEADERS
+  dynamics2d_booth_entity.h
   dynamics2d_box_entity.h
   dynamics2d_cylinder_entity.h
+  dynamics2d_tile_entity.h
   dynamics2d_epuck_entity.h
+  dynamics2d_bluebot_entity.h
   dynamics2d_footbot_entity.h
   dynamics2d_eyebot_entity.h
   dynamics2d_add_visitor.h
@@ -12,9 +15,12 @@ set(argos2_simulator_physics_engines_dynamics2d_HEADERS
   dynamics2d_engine.h)
 
 set(argos2_simulator_physics_engines_dynamics2d_IMPLEMENTATIONS
+  dynamics2d_booth_entity.cpp
   dynamics2d_box_entity.cpp
   dynamics2d_cylinder_entity.cpp
+  dynamics2d_tile_entity.cpp
   dynamics2d_epuck_entity.cpp
+  dynamics2d_bluebot_entity.cpp
   dynamics2d_footbot_entity.cpp
   dynamics2d_eyebot_entity.cpp
   dynamics2d_add_visitor.cpp

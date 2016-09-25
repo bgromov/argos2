@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/handbot/ci_handbot_arm_encoders_sensor.h>
+ * @file common/control_interface/handbot/ci_handbot_arm_encoders_sensor.h
  *
  * @brief This file provides the definition of the handbot arms encoders sensor.
  *

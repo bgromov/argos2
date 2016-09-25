@@ -27,7 +27,8 @@ namespace argos {
    class CKinematics2DEngine;
 }
 
-#include <argos2/simulator/visitors/entity_visitor.h>
+#include <argos2/simulator/space/entities/entity_visitor.h>
+#include <argos2/common/utility/configuration/argos_exception.h>
 
 namespace argos {
 
@@ -39,14 +40,17 @@ namespace argos {
          m_cEngine(c_engine) {}
       virtual ~CKinematics2DAddVisitor() {}
 
+      virtual void Visit(CBoothEntity& c_entity) {THROW_ARGOSEXCEPTION("adding floor entity not implemented");}
       virtual void Visit(CBoxEntity& c_entity);
-      virtual void Visit(CCylinderEntity& c_entity) {}
-      virtual void Visit(CFloorEntity& c_entity) {}
+      virtual void Visit(CCylinderEntity& c_entity);
+      virtual void Visit(CTileEntity& c_entity) {}
+      virtual void Visit(CBluebotEntity& c_entity) {}
+      virtual void Visit(CFloorEntity& c_entity) {THROW_ARGOSEXCEPTION("adding floor entity not implemented");}
       virtual void Visit(CFootBotEntity& c_entity);
       virtual void Visit(CEyeBotEntity& c_entity);
-      virtual void Visit(CEPuckEntity& c_entity) {}
-      virtual void Visit(CLightEntity& c_entity) {}
-      virtual void Visit(CWiFiMediumEntity& c_entity) {}
+      virtual void Visit(CEPuckEntity& c_entity);
+      virtual void Visit(CLightEntity& c_entity) {THROW_ARGOSEXCEPTION("adding light entity not implemented");}
+      virtual void Visit(CWiFiMediumEntity& c_entity) {THROW_ARGOSEXCEPTION("adding wifi medium entity not implemented");}
 
    private:
 

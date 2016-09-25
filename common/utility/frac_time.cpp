@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/utility_classes/frac_time.cpp>
+ * @file common/utility_classes/frac_time.cpp
  *
  * @brief This file provides the implementation of a class that implements
  * time with a finer granularity than the simulation clock tick.

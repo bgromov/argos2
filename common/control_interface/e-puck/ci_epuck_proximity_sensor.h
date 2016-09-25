@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/epuck/ci_epuck_proximity_sensor.h>
+ * @file common/control_interface/epuck/ci_epuck_proximity_sensor.h
  *
  * @brief This file provides the definition of the epuck proximity sensor.
  *
@@ -50,7 +50,7 @@ namespace argos {
 
 namespace argos {
 
-   class CCI_EPuckProximitySensor : public CCI_Sensor {
+   class CCI_EPuckProximitySensor : virtual public CCI_Sensor {
 
    public:
 
@@ -78,8 +78,8 @@ namespace argos {
          return m_tReadings;
       }
 
-      inline virtual const Real& GetReadings(UInt16 un_counter) const {
-         return m_tReadings[un_counter].Value;
+      inline virtual const SReading& GetReading(UInt16 un_counter) const {
+         return m_tReadings[un_counter];
       }
 
    protected:

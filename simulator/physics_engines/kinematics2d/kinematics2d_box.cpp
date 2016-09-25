@@ -33,8 +33,11 @@ namespace argos {
     CKinematics2DCollisionRectangle(c_engine, c_box.GetEmbodiedEntity(), c_box.GetSize()),
     m_cBoxEntity(c_box) {
     
-    if( c_box.IsMovable() ) {
-      THROW_ARGOSEXCEPTION("[ERROR] Kineamtics2D engine cannot handle movable boxes");
+     if( c_box.GetEmbodiedEntity().IsMovable() ) {
+      THROW_ARGOSEXCEPTION("[ERROR] Kinematics2D engine cannot handle movable boxes");
+    }
+    else {
+       
     }
   }
 }

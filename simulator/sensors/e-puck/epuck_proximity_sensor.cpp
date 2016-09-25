@@ -152,6 +152,8 @@ namespace argos {
 	 if( m_fNoiseLevel > 0.0f ) {
 	    AddNoise(i);
 	 }
+	 m_tReadings[i].Value = EPUCK_PROXIMITY_SENSORS_READINGS_RANGE.NormalizeValue(m_tReadings[i].Value);
+       //  LOG<<"VALUE "<<m_tReadings[i].Value<<"\n";
       }
    }
 

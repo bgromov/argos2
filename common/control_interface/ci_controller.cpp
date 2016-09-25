@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/ci_controller.h>
+ * @file common/control_interface/ci_controller.h
  *
  * @brief This file provides the definition of
  *

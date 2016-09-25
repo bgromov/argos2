@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <argos2/common/control_interface/footbot/ci_footbot_camera_sensor.h>
+ * @file argos2/common/control_interface/footbot/ci_footbot_camera_sensor.h
  *
  * @brief This file provides the definition of the FootBot omnidirectional camera sensor.
  *
@@ -29,7 +29,7 @@ namespace argos {
 	class CCI_FootBotOmnidirectionalCameraSensor;
 }
 
-#include <argos2/common/control_interface/swarmanoid/ci_camera_sensor.h>
+#include <argos2/common/control_interface/ci_camera_sensor.h>
 
 namespace argos {
 
@@ -44,16 +44,12 @@ namespace argos {
 			/**
 			 * Constructor
 			 */
-			CCI_FootBotOmnidirectionalCameraSensor() :
-				CCI_CameraSensor() {
-			}
+			CCI_FootBotOmnidirectionalCameraSensor() {}
 
 			/**
 			 * Destructor
 			 */
-			virtual ~CCI_FootBotOmnidirectionalCameraSensor() {
-
-			}
+			virtual ~CCI_FootBotOmnidirectionalCameraSensor() {}
 	};
 
 } /* namespace argos */

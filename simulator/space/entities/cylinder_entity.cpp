@@ -87,8 +87,9 @@ namespace argos {
          /* Parse XML to get the height */
          GetNodeAttribute(t_tree, "height", m_fHeight);
          /* Parse XML to get the movable attribute */
-         GetNodeAttribute(t_tree, "movable", m_bMovable);
-         if(m_bMovable) {
+         bool bMovable;
+         GetNodeAttribute(t_tree, "movable", bMovable);
+         if(bMovable) {
             /* Parse XML to get the mass */
             GetNodeAttribute(t_tree, "mass", m_fMass);
          }
@@ -117,6 +118,7 @@ namespace argos {
          /* Create embodied entity using parsed data */
          m_pcEmbodiedEntity = new CCylinderEmbodiedEntity(this, m_fRadius, m_fHeight);
          m_pcEmbodiedEntity->Init(t_tree);
+         m_pcEmbodiedEntity->SetMovable(bMovable);
 
          UpdateComponents();
       }

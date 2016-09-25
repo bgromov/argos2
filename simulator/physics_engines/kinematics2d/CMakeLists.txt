@@ -1,6 +1,8 @@
 set(argos2_simulator_physics_engines_kinematics2d_HEADERS
   kinematics2d_box.h
+  kinematics2d_cylinder.h
   kinematics2d_footbot.h
+  kinematics2d_epuck.h
   kinematics2d_eyebot.h
   kinematics2d_add_visitor.h
   kinematics2d_remove_visitor.h
@@ -11,7 +13,9 @@ set(argos2_simulator_physics_engines_kinematics2d_HEADERS
 
 set(argos2_simulator_physics_engines_kinematics2d_IMPLEMENTATIONS
   kinematics2d_box.cpp
+  kinematics2d_cylinder.cpp
   kinematics2d_footbot.cpp
+  kinematics2d_epuck.cpp
   kinematics2d_eyebot.cpp
   kinematics2d_add_visitor.cpp
   kinematics2d_remove_visitor.cpp

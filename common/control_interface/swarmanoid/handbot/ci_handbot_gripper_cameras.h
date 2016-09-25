@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/handbot/ci_handbot_gripper_cameras.h>
+ * @file common/control_interface/handbot/ci_handbot_gripper_cameras.h
  *
  * @brief This file provides the definition of the handbot cameras in the grippers
  * The cameras in the hand-bot's gripper are RGB cameras, that can capture an image of

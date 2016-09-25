@@ -38,7 +38,9 @@ namespace argos {
       m_cLEDSpaceHash(m_cSpace.GetLEDEntitiesSpaceHash()),
       m_nCameraElevation(m_cLEDSpaceHash.SpaceToHashTable(FOOTBOT_HEIGHT, 2)),
       m_fApertureSlope(0.0f),
-      m_bShowRays(false) {
+      m_pcRNG(NULL),
+      m_bShowRays(false),
+      m_bCheckOcclusions(true) {
    }
 
    /****************************************/
@@ -56,6 +58,13 @@ namespace argos {
          CalculateCellsToAnalyze();
          /* Show rays? */
          GetNodeAttributeOrDefault(t_tree, "show_rays", m_bShowRays, m_bShowRays);
+	 /* Check occlusions? */
+	 GetNodeAttributeOrDefault(t_tree, "check_occlusions", m_bCheckOcclusions, m_bCheckOcclusions);
+         /* Blob distance noise std dev */
+         GetNodeAttributeOrDefault<Real>(t_tree, "blob_noise_std_dev", m_fBlobDistanceNoiseStdDev, 0.0f);
+         if(m_fBlobDistanceNoiseStdDev > 0.0f) {
+            m_pcRNG = CARGoSRandom::CreateRNG("argos");
+         }
       }
       catch(CARGoSException& ex) {
          THROW_ARGOSEXCEPTION_NESTED("Initialization error in foot-bot omnidirectional camera.", ex);
@@ -179,21 +188,27 @@ namespace argos {
                      cOcclusionCheckRay.SetEnd(cLED.GetPosition());
                      /* Is there an embodied entity along this ray?
                         One is enough, so just tell me closest */
-                     if(! m_cSpace.GetClosestEmbodiedEntityIntersectedByRay(sIntersectionData,
-                                                                            cOcclusionCheckRay,
-                                                                            tIgnoreEntities)) {
+                     if( !m_bCheckOcclusions || !m_cSpace.GetClosestEmbodiedEntityIntersectedByRay(sIntersectionData,
+												   cOcclusionCheckRay,
+												   tIgnoreEntities) ) {
                         /* The LED is not obstructed */
                         if(m_bShowRays) GetEntity().GetControllableEntity().AddCheckedRay(false, cOcclusionCheckRay);
                         /* This LED is OK, create a reading for it */
                         /* Create the distance vector from the center of the robot to the LED */
                         cLEDDistance.Set(cLED.GetPosition().GetX() - cFootBotPosition.GetX(),
                                          cLED.GetPosition().GetY() - cFootBotPosition.GetY());
+                        /* If noise was setup, add it */
+                        if(m_fBlobDistanceNoiseStdDev > 0.0f) {
+                           cLEDDistance += CVector2(
+                              m_pcRNG->Gaussian(m_fBlobDistanceNoiseStdDev),
+                              m_pcRNG->Uniform(CRadians::UNSIGNED_RANGE));
+                        }
                         /* Add the blob */
                         m_sCameraReadings.BlobList.push_back(
                            new SBlob(
                               cLED.GetColor(),
                               (cLEDDistance.Angle() - cOrientationZ).SignedNormalize(),
-                              cLEDDistance.Length() * 100,
+                              cLEDDistance.Length() * 100.0f,
                               0.0f, // TODO: transform cm into pixel
                               0.0f // TODO: calculate area
                               ));
@@ -260,8 +275,72 @@ namespace argos {
                    "      ...\n"
                    "    </my_controller>\n"
                    "    ...\n"
-                   "  </controllers>\n",
-                   "Under development"
+                   "  </controllers>\n\n"
+                   "It is possible to turn off che occlusion check done to see if objects are\n"
+		   "visible, with the attribute 'check_occlusions=\"false\"' in the\n"
+                   "XML as in this example:\n\n"
+                   "  <controllers>\n"
+                   "    ...\n"
+                   "    <my_controller ...>\n"
+                   "      ...\n"
+                   "      <sensors>\n"
+                   "        ...\n"
+                   "        <footbot_omnidirectional_camera implementation=\"rot_z_only\"\n"
+                   "                                        check_occlusions=\"true\" />\n"
+                   "        ...\n"
+                   "      </sensors>\n"
+                   "      ...\n"
+                   "    </my_controller>\n"
+                   "    ...\n"
+                   "  </controllers>\n\n"
+                   "In addition, it is possible to tweak the camera aperture. In ARGoS, the camera\n"
+                   "aperture is defined as half of the viewing cone tip angle. The real foot-bot\n"
+                   "omnidirectional camera has an aperture of 80 degrees. For testing purposes,\n"
+                   "you can change this value with the \"aperture\" attribute as in this example\n"
+                   "(the passed value is in degrees):\n\n"
+                   "  <controllers>\n"
+                   "    ...\n"
+                   "    <my_controller ...>\n"
+                   "      ...\n"
+                   "      <sensors>\n"
+                   "        ...\n"
+                   "        <footbot_omnidirectional_camera implementation=\"rot_z_only\"\n"
+                   "                                        aperture=\"60\" />\n"
+                   "        ...\n"
+                   "      </sensors>\n"
+                   "      ...\n"
+                   "    </my_controller>\n"
+                   "    ...\n"
+                   "  </controllers>\n\n"
+                   "Finally, you can add noise to the camera readings. Currently, the camera only\n"
+                   "returns colored blobs, and you can add noise to their data. Each blob\n"
+                   "corresponds to a visible LED in the environment. For each visible LED, the\n"
+                   "vector V connecting the LED to the robot is calculated. Noise is a random 3D\n"
+                   "vector R added to V. R is calculated as follows: the elevation and azimuth\n"
+                   "angles are drawn at random from a uniform distribution over [0:2pi], while the\n"
+                   "length is taken from a gaussian distribution with zero mean and a standard\n"
+                   "deviation chosen by the user. By default, the standard deviation is zero, which\n"
+                   "means that no noise is added. If the standard deviation is set to any value\n"
+                   "greater than zero, noise is added to the blob data. This noise impacts on the\n"
+                   "distance and angle of each returned blob, but not on its color. Also, currently\n"
+                   "all visible LEDs are returned, while on real cameras it may happen that sometimes\n"
+                   "a LED does not result in a blob. To add noise to the camera, you must set the\n"
+                   "attribute \"blob_noise_std_dev\" as shown:\n\n"
+                   "  <controllers>\n"
+                   "    ...\n"
+                   "    <my_controller ...>\n"
+                   "      ...\n"
+                   "      <sensors>\n"
+                   "        ...\n"
+                   "        <footbot_omnidirectional_camera implementation=\"rot_z_only\"\n"
+                   "                                        blob_noise_std_dev=\"1\" />\n"
+                   "        ...\n"
+                   "      </sensors>\n"
+                   "      ...\n"
+                   "    </my_controller>\n"
+                   "    ...\n"
+                   "  </controllers>\n\n",
+                   "Usable"
       );
 
 }

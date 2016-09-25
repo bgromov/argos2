@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/ci_clock_sensor.h>
+ * @file common/control_interface/ci_clock_sensor.h
  *
  * @brief This file provides the definition of a clock sensor.
  *

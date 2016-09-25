@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/behavioral_toolkit/swarmanoid/ci_swarmanoid_robot_state.h>
+ * @file common/control_interface/behavioral_toolkit/swarmanoid/ci_swarmanoid_robot_state.h
  *
  * @brief This file provides the definition for the behavioral toolkit state of the swarmanoid robots.
  * It is intended to provide all the functionalities that are shared by the swarmanoid robots, such

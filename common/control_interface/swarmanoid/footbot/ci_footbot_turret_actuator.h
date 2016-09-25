@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/footbot/ci_footbot_turret_actuator.h>
+ * @file common/control_interface/footbot/ci_footbot_turret_actuator.h
  *
  * @brief This file provides the common interface definition of the turret actuator.
 

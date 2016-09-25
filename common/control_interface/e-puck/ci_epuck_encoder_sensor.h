@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/e-puck/ci_epuck_encoder_sensor.h>
+ * @file common/control_interface/e-puck/ci_epuck_encoder_sensor.h
  *
  * @brief This file provides the definition of the epuck encoder sensor. It
 
@@ -36,7 +36,7 @@ namespace argos {
 
 namespace argos {
 
-   class CCI_EPuckEncoderSensor : public CCI_Sensor {
+   class CCI_EPuckEncoderSensor : virtual public CCI_Sensor {
 
    public:
 
@@ -59,13 +59,6 @@ namespace argos {
          }
 
       };
-
-      /**
-       * Constructor
-       */
-      CCI_EPuckEncoderSensor() :
-         m_sReading() {
-      }
 
       /**
        * Destructor

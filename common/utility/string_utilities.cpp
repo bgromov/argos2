@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/utility_classes/string_utilities.cpp>
+ * @file common/utility_classes/string_utilities.cpp
  *
  * @brief This file provides the implementation of
  *

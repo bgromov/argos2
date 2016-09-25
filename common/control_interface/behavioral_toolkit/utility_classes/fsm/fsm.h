@@ -40,7 +40,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 /**
- * @file <common/control_interface/behvaioral_toolkit/utility_classes/fsm/state.h>
+ * @file common/control_interface/behvaioral_toolkit/utility_classes/fsm/state.h
  *
  * @brief This file provides the definition of the finite state machine, which is derived
  * by all behaviors.
@@ -375,7 +375,7 @@ namespace btfsm {
     {
 
         typename std::list< State<InputType>* >::iterator itStateList = m_listStates.begin();
-        argos::SInt32 nStateListSize = m_listStates.size();
+        argos::UInt32 nStateListSize = m_listStates.size();
 
         for (argos::UInt32 i = 0; i < nStateListSize; i++) {
             State<InputType>* pcState = *itStateList;

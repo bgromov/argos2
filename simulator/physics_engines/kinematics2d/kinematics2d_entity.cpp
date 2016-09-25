@@ -90,7 +90,7 @@ namespace argos {
       m_cPreviousPosition = m_cPosition;
       m_cPreviousOrientation = m_cOrientation;
 
-      GetEmbodiedEntity().ResetCollisionDetected();
+      GetEmbodiedEntity().ClearCollisionDetected();
     }
   }
 

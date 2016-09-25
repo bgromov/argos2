@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/footbot/ci_footbot_base_leds_actuator.cpp>
+ * @file common/control_interface/footbot/ci_footbot_base_leds_actuator.cpp
  *
  * @brief This file provides the implementation of footbot base LEDs actuator.
  *

@@ -31,11 +31,12 @@ namespace argos {
 #include <argos2/common/control_interface/e-puck/ci_epuck_range_and_bearing_sensor.h>
 #include <argos2/simulator/space/entities/rab_equipped_entity.h>
 #include <argos2/simulator/space/space.h>
+#include <argos2/common/utility/argos_random.h>
 
 namespace argos {
 
-   class CEPuckRangeAndBearingSensor : public CSimulatedSensor,
-                                  public CCI_EPuckRangeAndBearingSensor {
+   class CEPuckRangeAndBearingSensor : virtual public CSimulatedSensor,
+                                       virtual public CCI_EPuckRangeAndBearingSensor {
 
    public:
 
@@ -52,20 +53,21 @@ namespace argos {
       virtual void Update();
       virtual void Reset();
 
-      inline virtual UInt16 PacketToInt(const TEPuckRangeAndBearingReceivedPacket& t_packet){
-          const UInt8 * unData = t_packet.Data;
-          return 256*unData[0] + unData[1];
+      inline virtual UInt16 PacketToInt(const SEPuckRangeAndBearingReceivedPacket& t_packet) {
+         return *reinterpret_cast<const UInt16*>(t_packet.Data);
       }
-
 
    private:
 
       CSpace& m_cSpace;
       CSpaceHash<CEmbodiedEntity, CEmbodiedEntitySpaceHashUpdater>& m_cEmbodiedSpaceHash;
+      CSpaceHash<CRABEquippedEntity, CRABEquippedEntitySpaceHashUpdater>& m_cRABEquippedSpaceHash;
       CEntity* m_pcEntity;
-      CRABEquippedEntity<2>* m_pcRABEquippedEntity;
+      CRABEquippedEntity* m_pcRABEquippedEntity;
       CEmbodiedEntity* m_pcEmbodiedEntity;
       CControllableEntity* m_pcControllableEntity;
+      CARGoSRandom::CRNG* m_pcRNG;
+      Real m_fDistanceNoiseStdDev;
 
       bool m_bShowRays;
       bool m_bCheckOcclusions;

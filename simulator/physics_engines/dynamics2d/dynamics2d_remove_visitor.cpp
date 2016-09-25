@@ -20,14 +20,27 @@
  */
 
 #include "dynamics2d_remove_visitor.h"
+#include "dynamics2d_booth_entity.h"
 #include "dynamics2d_box_entity.h"
 #include "dynamics2d_cylinder_entity.h"
+#include "dynamics2d_tile_entity.h"
+#include "dynamics2d_bluebot_entity.h"
 #include "dynamics2d_footbot_entity.h"
 #include "dynamics2d_eyebot_entity.h"
 #include "dynamics2d_epuck_entity.h"
 #include "dynamics2d_engine.h"
 
 namespace argos {
+
+   /****************************************/
+   /****************************************/
+
+   void CDynamics2DRemoveVisitor::Visit(CBoothEntity& c_entity) {
+      c_entity.GetEmbodiedEntity().RemovePhysicsEngineEntity(m_cEngine.GetId());
+      c_entity.GetEmbodiedEntity().RemovePhysicsEngine(m_cEngine);
+      m_cEngine.RemovePhysicsEntity(c_entity.GetId());
+      m_cEngine.RemoveControllableEntity(c_entity.GetId());
+   }
 
    /****************************************/
    /****************************************/
@@ -45,6 +58,25 @@ namespace argos {
       c_entity.GetEmbodiedEntity().RemovePhysicsEngineEntity(m_cEngine.GetId());
       c_entity.GetEmbodiedEntity().RemovePhysicsEngine(m_cEngine);
       m_cEngine.RemovePhysicsEntity(c_entity.GetId());
+   }
+
+   /****************************************/
+   /****************************************/
+
+   void CDynamics2DRemoveVisitor::Visit(CTileEntity& c_entity) {
+      c_entity.RemovePhysicsEngineEntity(m_cEngine.GetId());
+      c_entity.RemovePhysicsEngine(m_cEngine);
+      m_cEngine.RemovePhysicsEntity(c_entity.GetId());
+   }
+
+   /****************************************/
+   /****************************************/
+
+   void CDynamics2DRemoveVisitor::Visit(CBluebotEntity& c_entity) {
+      c_entity.GetEmbodiedEntity().RemovePhysicsEngineEntity(m_cEngine.GetId());
+      c_entity.GetEmbodiedEntity().RemovePhysicsEngine(m_cEngine);
+      m_cEngine.RemovePhysicsEntity(c_entity.GetId());
+      m_cEngine.RemoveControllableEntity(c_entity.GetId());
    }
 
    /****************************************/

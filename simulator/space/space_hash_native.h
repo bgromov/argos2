@@ -34,11 +34,18 @@ namespace argos {
 
          struct SBucketData {
             Element* Elem;
+            SInt32 I,J,K;
             SBucketData* Next;
          
             SBucketData(Element& c_element,
+                        SInt32 n_i,
+                        SInt32 n_j,
+                        SInt32 n_k,
                         SBucketData* ps_next = NULL) :
                Elem(&c_element),
+               I(n_i),
+               J(n_j),
+               K(n_k),
                Next(ps_next) {}
 
          };
@@ -71,15 +78,24 @@ namespace argos {
             }
          }
 
-         inline void Add(Element& c_element) {
-            if(Empty()) ElementList = new SBucketData(c_element);
-            else ElementList = new SBucketData(c_element, ElementList);
+         inline void Add(Element& c_element,
+                         SInt32 n_i,
+                         SInt32 n_j,
+                         SInt32 n_k) {
+            if(Empty()) ElementList = new SBucketData(c_element, n_i, n_j, n_k);
+            else ElementList = new SBucketData(c_element, n_i, n_j, n_k, ElementList);
          }
-
-         inline bool Exists(const Element& c_element) {
+         
+         inline bool Exists(const Element& c_element,
+                            SInt32 n_i,
+                            SInt32 n_j,
+                            SInt32 n_k) {
             SBucketData* psCur = ElementList;
             while(psCur) {
-               if(psCur->Elem == &c_element) return true;
+               if(psCur->Elem == &c_element &&
+                  psCur->I == n_i &&
+                  psCur->J == n_j &&
+                  psCur->K == n_k) return true;
                psCur = psCur->Next;
             }
             return false;
@@ -104,7 +120,7 @@ namespace argos {
          }
       }
 
-      inline virtual void SetSize(UInt32 un_size) {
+      inline virtual void SetSize(size_t un_size) {
          CSpaceHash<Element,Updater>::SetSize(un_size);
          m_psBuckets = new SBucket[CSpaceHash<Element,Updater>::GetSize()];
          // TODO: rehash!
@@ -128,8 +144,8 @@ namespace argos {
          /* Check if the bucket's content is obsolete */
          if(sBucket.StoreTimestamp == m_unCurrentStoreTimestamp) {
             /* Add the current element to the bucket */
-            if(! sBucket.Exists(c_element)) {
-               sBucket.Add(c_element);
+            if(! sBucket.Exists(c_element, n_i, n_j, n_k)) {
+               sBucket.Add(c_element, n_i, n_j, n_k);
             }
          }
          else {
@@ -138,7 +154,7 @@ namespace argos {
             /* Set the store timestamp to the current time */
             sBucket.StoreTimestamp = m_unCurrentStoreTimestamp;
             /* Add the current element to the bucket */
-            sBucket.Add(c_element);
+            sBucket.Add(c_element, n_i, n_j, n_k);
          }
       }
 
@@ -158,13 +174,18 @@ namespace argos {
           */
          if((sBucket.StoreTimestamp == m_unCurrentStoreTimestamp) && /* 1. */
             !sBucket.Empty()) /* 2. */ {
-            /* New elements to add to the list */
-            bNewElements = true;
-            /* Add the bucket's elements to the list */
+            /* Check the bucket's elements */
             for(typename SBucket::SBucketData* psCur = sBucket.ElementList;
                 psCur;
                 psCur = psCur->Next) {
-               t_elements.insert(psCur->Elem);
+               /* Check that the element is in the wanted cell */
+               if(n_i == psCur->I &&
+                  n_j == psCur->J &&
+                  n_k == psCur->K) {
+                  /* We have a new element to add to the list */
+                  bNewElements = true;
+                  t_elements.insert(psCur->Elem);
+               }
             }
          }
          return bNewElements;

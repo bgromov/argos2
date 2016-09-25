@@ -28,6 +28,7 @@ namespace argos {
 }
 
 #include <argos2/simulator/physics_engines/dynamics3d/dynamics3d_entity.h>
+#include <argos2/simulator/physics_engines/dynamics3d/dynamics3d_engine.h>
 #include <argos2/simulator/space/entities/cylinder_entity.h>
 
 namespace argos {
@@ -45,8 +46,9 @@ namespace argos {
 
    private:
 
-      CCylinderEntity& m_cCylinderEntity;
-      dGeomID          m_tGeom;
+      CCylinderEntity&           m_cCylinderEntity;
+      dGeomID                    m_tGeom;
+      SDynamics3DEngineGeomData  m_sGeomData;
    };
 
 }

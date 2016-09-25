@@ -27,7 +27,8 @@ namespace argos {
    class CKinematics2DEngine;
 }
 
-#include <argos2/simulator/visitors/entity_visitor.h>
+#include <argos2/simulator/space/entities/entity_visitor.h>
+#include <argos2/common/utility/configuration/argos_exception.h>
 
 namespace argos {
 
@@ -38,15 +39,18 @@ namespace argos {
       CKinematics2DRemoveVisitor(CKinematics2DEngine& c_engine) :
          m_cEngine(c_engine) {}
       virtual ~CKinematics2DRemoveVisitor() {}
-
-      virtual void Visit(CBoxEntity& c_entity) {}
-      virtual void Visit(CCylinderEntity& c_entity) {}
-      virtual void Visit(CFloorEntity& c_entity) {}
-      virtual void Visit(CFootBotEntity& c_entity) {}
+      
+      virtual void Visit(CBoothEntity& c_entity) {THROW_ARGOSEXCEPTION("removing booth entity not implemented");}
+      virtual void Visit(CBoxEntity& c_entity);
+      virtual void Visit(CCylinderEntity& c_entity);
+      virtual void Visit(CTileEntity& c_entity) {}
+      virtual void Visit(CBluebotEntity& c_entity) {}
+      virtual void Visit(CFloorEntity& c_entity) {THROW_ARGOSEXCEPTION("removing floor entity not implemented");}
+      virtual void Visit(CFootBotEntity& c_entity);
       virtual void Visit(CEyeBotEntity& c_entity);
-      virtual void Visit(CEPuckEntity& c_entity) {}
-      virtual void Visit(CLightEntity& c_entity) {}
-      virtual void Visit(CWiFiMediumEntity& c_entity) {}
+      virtual void Visit(CEPuckEntity& c_entity);
+      virtual void Visit(CLightEntity& c_entity) {THROW_ARGOSEXCEPTION("removing light entity not implemented");}
+      virtual void Visit(CWiFiMediumEntity& c_entity) {THROW_ARGOSEXCEPTION("removing wifi medium entity not implemented");}
 
    private:
 

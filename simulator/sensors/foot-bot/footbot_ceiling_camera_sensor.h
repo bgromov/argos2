@@ -37,6 +37,7 @@ namespace argos {
 #include <argos2/simulator/space/entities/footbot_entity.h>
 #include <argos2/simulator/space/entities/embodied_entity.h>
 #include <argos2/simulator/space/entities/led_equipped_entity.h>
+#include <argos2/common/utility/argos_random.h>
 
 namespace argos {
 
@@ -89,6 +90,8 @@ namespace argos {
       SInt32 m_nArenaHeight;
       CRadians m_cApertureAngle;
       Real m_fApertureSlope;
+      CARGoSRandom::CRNG* m_pcRNG;
+      Real m_fBlobDistanceNoiseStdDev;
 
       bool m_bShowRays;
 

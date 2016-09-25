@@ -44,7 +44,7 @@ namespace argos {
    public:
 
       CEPuckProximitySensor();
-      virtual ~CEPuckProximitySensor() {delete m_pcRNG;}
+      virtual ~CEPuckProximitySensor() {}
 
       virtual void Init(TConfigurationNode& t_tree);
 

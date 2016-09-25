@@ -33,6 +33,14 @@ class QPoint;
 #include <argos2/common/utility/math/vector3.h>
 #include <argos2/common/utility/configuration/argos_configuration.h>
 
+#ifdef __APPLE__
+#include <gl.h>
+#include <glu.h>
+#else
+#include <GL/gl.h>
+#include <GL/glu.h>
+#endif
+
 namespace argos {
 
    class CQTOpenGLCamera : public QObject {

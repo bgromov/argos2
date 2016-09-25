@@ -57,6 +57,7 @@ namespace argos {
          return "composable_entity";
       }
 
+      virtual void UpdateComponents() = 0;
    };
 }
 

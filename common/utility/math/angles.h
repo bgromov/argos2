@@ -302,14 +302,16 @@ namespace argos {
          return is;
       }
 
-   private:
+   public:
 
-      Real m_fValue;            /**< Actual angle value in radians */
       static const CRange<CRadians> SIGNED_RANGE; /**< The signed normalization range [-PI:PI] */
       static const CRange<CRadians> UNSIGNED_RANGE; /**< The unsigned normalization range [0:TWO_PI] */
       static const CRange<SInt32> ASEBA_RANGE; /**< The Aseba normalization range [-32768:32767] */
       static const Real RADIANS_TO_DEGREES; /**< Constant to convert from radians to degrees */
 
+   private:
+
+      Real m_fValue;            /**< Actual angle value in radians */
    };
 
    /****************************************/

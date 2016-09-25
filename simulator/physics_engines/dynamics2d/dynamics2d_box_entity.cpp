@@ -50,7 +50,7 @@ namespace argos {
       const CVector3& cPosition = GetEmbodiedEntity().GetPosition();
       CRadians cXAngle, cYAngle, cZAngle;
       GetEmbodiedEntity().GetOrientation().ToEulerAngles(cZAngle, cYAngle, cXAngle);
-      if(c_entity.IsMovable()) {
+      if(c_entity.GetEmbodiedEntity().IsMovable()) {
          /* The box is movable */
          /* Create the body */
          m_ptBody =
@@ -83,16 +83,16 @@ namespace argos {
                                                   m_ptBody,
                                                   cpvzero,
                                                   cpvzero));
-         m_ptLinearFriction->biasCoef = 0.0f; // disable joint correction
-         m_ptLinearFriction->maxForce = 0.1f; // emulate linear friction
+         m_ptLinearFriction->maxBias = 0.0f; // disable joint correction
+         m_ptLinearFriction->maxForce = 1.49f; // emulate linear friction (this is just slightly smaller than FOOTBOT_MAX_FORCE)
          m_ptAngularFriction =
             cpSpaceAddConstraint(m_cEngine.GetPhysicsSpace(),
                                  cpGearJointNew(m_cEngine.GetGroundBody(),
                                                 m_ptBody,
                                                 0.0f,
                                                 1.0f));
-         m_ptAngularFriction->biasCoef = 0.0f; // disable joint correction
-         m_ptAngularFriction->maxForce = 0.1f; // emulate angular friction
+         m_ptAngularFriction->maxBias = 0.0f; // disable joint correction
+         m_ptAngularFriction->maxForce = 1.49f; // emulate angular friction (this is just slightly smaller than FOOTBOT_MAX_TORQUE)
       }
       else {
          /* The box is not movable */
@@ -134,7 +134,7 @@ namespace argos {
       }
       else {
          cpSpaceRemoveStaticShape(m_cEngine.GetPhysicsSpace(), m_ptShape);
-         cpSpaceRehashStatic(m_cEngine.GetPhysicsSpace());
+         cpSpaceReindexStatic(m_cEngine.GetPhysicsSpace());
       }
       cpShapeFree(m_ptShape);
    }
@@ -163,6 +163,61 @@ namespace argos {
       else {
          return false;
       }
+   }
+
+   /****************************************/
+   /****************************************/
+
+   bool CDynamics2DBoxEntity::MoveTo(const CVector3& c_position,
+                                         const CQuaternion& c_orientation,
+                                         bool b_check_only) {
+      SInt32 nCollision;
+      /* Check whether the box is movable or not */
+      if(m_cBoxEntity.GetEmbodiedEntity().IsMovable()) {
+         /* The box is movable */
+         /* Save body position and orientation */
+         cpVect tOldPos = m_ptBody->p;
+         cpFloat fOldA = m_ptBody->a;
+         /* Move the body to the desired position */
+         m_ptBody->p = cpv(c_position.GetX(), c_position.GetY());
+         CRadians cXAngle, cYAngle, cZAngle;
+         c_orientation.ToEulerAngles(cZAngle, cYAngle, cXAngle);
+         cpBodySetAngle(m_ptBody, cZAngle.GetValue());
+         /* Create a shape sensor to test the movement */
+         /* First construct the vertices */
+         CVector3 cHalfSize = m_cBoxEntity.GetSize() * 0.5f;
+         cpVect tVertices[] = {
+            cpv(-cHalfSize.GetX(), -cHalfSize.GetY()),
+            cpv(-cHalfSize.GetX(),  cHalfSize.GetY()),
+            cpv( cHalfSize.GetX(),  cHalfSize.GetY()),
+            cpv( cHalfSize.GetX(), -cHalfSize.GetY())
+         };
+         /* Then create the shape itself */
+         cpShape* ptTestShape = cpPolyShapeNew(m_ptBody,
+                                               4,
+                                               tVertices,
+                                               cpvzero);
+         /* Check if there is a collision */
+         nCollision = cpSpaceShapeQuery(m_cEngine.GetPhysicsSpace(), ptTestShape, NULL, NULL);
+         /* Dispose of the sensor shape */
+         cpShapeFree(ptTestShape);
+         if(b_check_only || nCollision) {
+            /* Restore old body state if there was a collision or
+               it was only a check for movement */
+            m_ptBody->p = tOldPos;
+            cpBodySetAngle(m_ptBody, fOldA);
+         }
+         else {
+            /* Update the active space hash if the movement is actual */
+            cpSpaceReindexShape(m_cEngine.GetPhysicsSpace(), m_ptShape);
+         }
+      }
+      else {
+         /* The box is not movable, so you can't move it :-) */
+         nCollision = 1;
+      }
+      /* The movement is allowed if there is no collision */
+      return !nCollision;
    }
 
    /****************************************/

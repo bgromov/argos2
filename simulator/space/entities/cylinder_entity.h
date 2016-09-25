@@ -83,10 +83,6 @@ namespace argos {
          m_fMass = f_mass;
       }
 
-      inline bool IsMovable() const {
-         return m_bMovable;
-      }
-
       inline bool IsVisible() const {
          return m_bVisible;
       }
@@ -107,7 +103,6 @@ namespace argos {
       Real                  m_fRadius;
       Real                  m_fHeight;
       Real                  m_fMass;
-      bool                  m_bMovable;
       bool                  m_bVisible;
 
    };

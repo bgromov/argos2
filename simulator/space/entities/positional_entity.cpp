@@ -16,7 +16,6 @@
 #include "positional_entity.h"
 #include <argos2/simulator/space/space.h>
 #include <simulator.h>
-#include <visitors/entity_visitor.h>
 #include <argos2/common/utility/string_utilities.h>
 
 namespace argos {

@@ -48,7 +48,7 @@ namespace argos {
 
       virtual void Init(TConfigurationNode& t_node);
 
-      inline virtual CRABEquippedEntity<10>& GetEntity() {
+      inline virtual CRABEquippedEntity& GetEntity() {
          return *m_pcRABEquippedEntity;
       }
       virtual void SetEntity(CEntity& c_entity);
@@ -60,7 +60,7 @@ namespace argos {
 
    private:
 
-      CRABEquippedEntity<10>* m_pcRABEquippedEntity;
+      CRABEquippedEntity* m_pcRABEquippedEntity;
       TRangeAndBearingReceivedPacket::TRangeAndBearingData m_tData;
       Real m_fRange;
 

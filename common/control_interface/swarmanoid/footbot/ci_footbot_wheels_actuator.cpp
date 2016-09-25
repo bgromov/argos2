@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/footbot/ci_footbot_wheels_actuator.cpp>
+ * @file common/control_interface/footbot/ci_footbot_wheels_actuator.cpp
  *
  * @brief This file provides the definition of the footbot wheels actuator.
  *
@@ -40,11 +40,14 @@ namespace argos {
     /****************************************/
 
     // minimal and maximal linear speed for the wheels in cm/sec
-    Real CCI_FootBotWheelsActuator::MAX_VELOCITY_CM_SEC =  30.0;
-    Real CCI_FootBotWheelsActuator::MIN_VELOCITY_CM_SEC = -30.0;
+  //    Real CCI_FootBotWheelsActuator::MAX_VELOCITY_CM_SEC =  30.0;
+  //  Real CCI_FootBotWheelsActuator::MIN_VELOCITY_CM_SEC = -30.0;
 
-    // period of the PID speed controller, in seconds
-    Real CCI_FootBotWheelsActuator::T_PID = 0.005;
+  Real CCI_FootBotWheelsActuator::MAX_VELOCITY_CM_SEC =  1000.0;
+  Real CCI_FootBotWheelsActuator::MIN_VELOCITY_CM_SEC = -1000.0;
+
+  // period of the PID speed controller, in seconds
+  Real CCI_FootBotWheelsActuator::T_PID = 0.005;
     // conversion factors got from experimental data
     Real CCI_FootBotWheelsActuator::CM_TO_PULSE = 24156.0 / 50.0; // [pulse / cm]
     Real CCI_FootBotWheelsActuator::PULSE_TO_CM = 1.0 / CM_TO_PULSE; // [cm / pulse]

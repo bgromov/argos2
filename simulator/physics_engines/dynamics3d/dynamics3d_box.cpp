@@ -31,9 +31,10 @@ namespace argos {
    CDynamics3DBox::CDynamics3DBox(CDynamics3DEngine& c_engine,
                                   CBoxEntity& c_box) :
       CDynamics3DEntity(c_engine, c_box.GetEmbodiedEntity()),
-      m_cBoxEntity(c_box) {
+      m_cBoxEntity(c_box),
+      m_sGeomData(GEOM_NORMAL) {
       /* Check whether the box is movable or not */
-      if(c_box.IsMovable()) {
+      if(c_box.GetEmbodiedEntity().IsMovable()) {
          /* Movable box */
          /* Set the body to its initial position and orientation */
          const CQuaternion& cOrient = GetEmbodiedEntity().GetOrientation();
@@ -44,6 +45,9 @@ namespace argos {
          /* Create the geometry and the mass */
          const CVector3& cBoxSize = c_box.GetSize();
          m_tGeom = dCreateBox(m_tEntitySpace, cBoxSize.GetX(), cBoxSize.GetY(), cBoxSize.GetZ());
+         /* Set Geom gripping properties. */
+         m_sGeomData.Type = GEOM_GRIPPABLE;
+         dGeomSetData(m_tGeom, &m_sGeomData);
          /* Create its mass */
          dMassSetBoxTotal(&m_tMass, c_box.GetMass(), cBoxSize.GetX(), cBoxSize.GetY(), cBoxSize.GetZ());
          /* Associate the body to the geom */
@@ -57,6 +61,7 @@ namespace argos {
          /* Create the geometry */
          const CVector3& cBoxSize = c_box.GetSize();
          m_tGeom = dCreateBox(m_tEntitySpace, cBoxSize.GetX(), cBoxSize.GetY(), cBoxSize.GetZ());
+         dGeomSetData(m_tGeom, &m_sGeomData);
          /* Set the geom to its position and orientation */
          const CQuaternion& cOrient = GetEmbodiedEntity().GetOrientation();
          dQuaternion tQuat = { cOrient.GetW(), cOrient.GetX(), cOrient.GetY(), cOrient.GetZ() };
@@ -72,7 +77,7 @@ namespace argos {
    /****************************************/
 
    void CDynamics3DBox::Reset() {
-      if(m_cBoxEntity.IsMovable()) {      
+      if(m_cBoxEntity.GetEmbodiedEntity().IsMovable()) {      
          /* Reset box position and orientation */
          CDynamics3DEntity::Reset();
       }
@@ -82,7 +87,7 @@ namespace argos {
    /****************************************/
 
    void CDynamics3DBox::UpdateEntityStatus() {
-      if(m_cBoxEntity.IsMovable()) {      
+      if(m_cBoxEntity.GetEmbodiedEntity().IsMovable()) {      
          /* Update box position and orientation */
          CDynamics3DEntity::UpdateEntityStatus();
          /* Update components */

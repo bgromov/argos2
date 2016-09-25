@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 2.6)
 project(argos2_simulator)
 
+if(EXISTS ${CMAKE_SOURCE_DIR}/../user/my_user/cmake/user_config.cmake)
+  include(${CMAKE_SOURCE_DIR}/../user/my_user/cmake/user_config.cmake)
+endif(EXISTS ${CMAKE_SOURCE_DIR}/../user/my_user/cmake/user_config.cmake)  
+
 execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
 if (GCC_VERSION VERSION_GREATER 4.2 OR GCC_VERSION VERSION_EQUAL 4.2)
   message(STATUS "GCC/G++ version >= 4.2")
@@ -16,6 +20,9 @@ set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "ARGoS2 simulator package")
 include(CPack)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_SOURCE_DIR}/../common/cmake)
+if(NOT APPLE)
+  set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-as-needed")
+endif(NOT APPLE)
 
 if( NOT ARGOS_COMPILE_REAL_SWARMANOID )
   find_package(GSL REQUIRED)
@@ -32,40 +39,38 @@ add_definitions(${PTHREADS_DEFINITIONS})
 
 find_package(GooglePerfTools)
 
-include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/..)
+include_directories(${CMAKE_SOURCE_DIR} 
+  ${CMAKE_SOURCE_DIR}/..
+  ${CMAKE_SOURCE_DIR}/../..)
 add_definitions(-DTIXML_USE_TICPP)
 include(${CMAKE_SOURCE_DIR}/../common/cmake/SimulationConfig.cmake)
-if(EXISTS ${CMAKE_SOURCE_DIR}/../user/my_user/cmake/user_config.cmake)
-  include(${CMAKE_SOURCE_DIR}/../user/my_user/cmake/user_config.cmake)
-endif(EXISTS ${CMAKE_SOURCE_DIR}/../user/my_user/cmake/user_config.cmake)  
+
+link_directories(
+  ${CMAKE_BINARY_DIR}/../common/simulator/utility
+  ${CMAKE_BINARY_DIR}/../common/simulator/control_interface)
 
 add_subdirectory(libs)
-add_subdirectory(configuration)
 add_subdirectory(actuators)
 add_subdirectory(sensors)
 add_subdirectory(physics_engines)
 add_subdirectory(visualizations)
 add_subdirectory(space)
 add_subdirectory(factories)
-add_subdirectory(visitors)
 add_subdirectory(dynamic_linking)
 
 set(argos2_simulator_HEADERS
+  argos_command_line_arg_parser.h
   simulator.h)
 
 set(argos2_simulator_IMPLEMENTATIONS
+  argos_command_line_arg_parser.cpp
   simulator.cpp)
-
-link_directories(
-  ${CMAKE_BINARY_DIR}/../common/simulator/utility
-  ${CMAKE_BINARY_DIR}/../common/simulator/control_interface)
 
 add_library(argos2_simulator SHARED ${argos2_simulator_IMPLEMENTATIONS})
 set_target_properties(argos2_simulator PROPERTIES VERSION 2.0)
 target_link_libraries(argos2_simulator
   argos2_common_utility
   argos2_common_control_interface
-  argos2_simulator_configuration
   argos2_simulator_factories
   argos2_simulator_actuators
   argos2_simulator_sensors

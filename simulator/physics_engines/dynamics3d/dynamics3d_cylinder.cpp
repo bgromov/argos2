@@ -31,9 +31,10 @@ namespace argos {
    CDynamics3DCylinder::CDynamics3DCylinder(CDynamics3DEngine& c_engine,
                                             CCylinderEntity& c_cylinder) :
       CDynamics3DEntity(c_engine, c_cylinder.GetEmbodiedEntity()),
-      m_cCylinderEntity(c_cylinder) {
+      m_cCylinderEntity(c_cylinder),
+      m_sGeomData(GEOM_NORMAL) {
       /* Check whether the cylinder is movable or not */
-      if(c_cylinder.IsMovable()) {
+      if(c_cylinder.GetEmbodiedEntity().IsMovable()) {
          /* Movable cylinder */
          /* Set the body to its initial position and orientation */
          const CQuaternion& cOrient = GetEmbodiedEntity().GetOrientation();
@@ -43,6 +44,9 @@ namespace argos {
          dBodySetPosition(m_tBody, cPos.GetX(), cPos.GetY(), cPos.GetZ());
          /* Create the geometry and the mass */
          m_tGeom = dCreateCylinder(m_tEntitySpace, m_cCylinderEntity.GetRadius(), m_cCylinderEntity.GetHeight());
+         /* Set Geom gripping properties. */
+         m_sGeomData.Type = GEOM_GRIPPABLE;
+         dGeomSetData(m_tGeom, &m_sGeomData);
          /* Create its mass */
          dMassSetCylinderTotal(&m_tMass, c_cylinder.GetMass(), 3, m_cCylinderEntity.GetRadius(), m_cCylinderEntity.GetHeight());
          /* Associate the body to the geom */
@@ -55,6 +59,7 @@ namespace argos {
          dBodyDestroy(m_tBody);
          /* Create the geometry */
          m_tGeom = dCreateCylinder(m_tEntitySpace, m_cCylinderEntity.GetRadius(), m_cCylinderEntity.GetHeight());
+         dGeomSetData(m_tGeom, &m_sGeomData);
          /* Set the geom to its position and orientation */
          const CQuaternion& cOrient = GetEmbodiedEntity().GetOrientation();
          dQuaternion tQuat = { cOrient.GetW(), cOrient.GetX(), cOrient.GetY(), cOrient.GetZ() };
@@ -70,7 +75,7 @@ namespace argos {
    /****************************************/
    
    void CDynamics3DCylinder::Reset() {
-      if(m_cCylinderEntity.IsMovable()) {      
+      if(m_cCylinderEntity.GetEmbodiedEntity().IsMovable()) {      
          /* Reset cylinder position and orientation */
          CDynamics3DEntity::Reset();
       }
@@ -80,7 +85,7 @@ namespace argos {
    /****************************************/
 
    void CDynamics3DCylinder::UpdateEntityStatus() {
-      if(m_cCylinderEntity.IsMovable()) {      
+      if(m_cCylinderEntity.GetEmbodiedEntity().IsMovable()) {      
          /* Update cylinder position and orientation */
          CDynamics3DEntity::UpdateEntityStatus();
          /* Update components */

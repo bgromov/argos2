@@ -71,7 +71,7 @@ namespace argos {
          return *m_pcLEDEquippedEntity;
       }
 
-      inline CRABEquippedEntity<2>& GetRABEquippedEntity() {
+      inline CRABEquippedEntity& GetRABEquippedEntity() {
          return *m_pcRABEquippedEntity;
       }
 
@@ -93,7 +93,7 @@ namespace argos {
       CControllableEntity*            m_pcControllableEntity;
       CWheeledEntity<2>*              m_pcWheeledEntity;
       CLedEquippedEntity*             m_pcLEDEquippedEntity;
-      CRABEquippedEntity<2>*          m_pcRABEquippedEntity;
+      CRABEquippedEntity*             m_pcRABEquippedEntity;
 
    };
 

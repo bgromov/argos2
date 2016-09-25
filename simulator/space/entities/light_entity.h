@@ -56,6 +56,10 @@ namespace argos {
          m_cLEDEquippedEntity.SetLedPosition(0, c_position);
       }
 
+      inline virtual void SetColor(const CColor& c_color) {
+         m_cLEDEquippedEntity.SetLedColor(0, c_color);
+      }
+
       inline virtual void Accept(CEntityVisitor& visitor) {
          visitor.Visit(*this);
       }
@@ -75,8 +79,9 @@ namespace argos {
    protected:
 
       CLedEquippedEntity m_cLEDEquippedEntity;
+      Real m_fInitIntensity;
       Real m_fIntensity;
-      CColor m_cColor;
+      CColor m_cInitColor;
 
    };
 

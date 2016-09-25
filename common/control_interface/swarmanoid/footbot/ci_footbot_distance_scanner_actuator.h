@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/footbot/ci_footbot_distance_scanner_actuator.h>
+ * @file common/control_interface/footbot/ci_footbot_distance_scanner_actuator.h
  *
  * @brief This file provides the definition of the distance scanner sensor.
  *

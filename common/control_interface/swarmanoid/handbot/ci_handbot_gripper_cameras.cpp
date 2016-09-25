@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/handbot/ci_handbot_gripper_cameras.cpp>
+ * @file common/control_interface/handbot/ci_handbot_gripper_cameras.cpp
  *
  * @brief This file provides the implementation of the handbot gripper cameras.
  *

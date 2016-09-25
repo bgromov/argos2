@@ -82,7 +82,7 @@ namespace argos {
          return *m_pcDistanceScannerEquippedEntity;
       }
 
-      inline CRABEquippedEntity<10>& GetRABEquippedEntity() {
+      inline CRABEquippedEntity& GetRABEquippedEntity() {
          return *m_pcRABEquippedEntity;
       }
 
@@ -134,7 +134,7 @@ namespace argos {
       CLedEquippedEntity*             m_pcLEDEquippedEntity;
       CGripperEquippedEntity*         m_pcGripperEquippedEntity;
       CDistanceScannerEquippedEntity* m_pcDistanceScannerEquippedEntity;
-      CRABEquippedEntity<10>*         m_pcRABEquippedEntity;
+      CRABEquippedEntity*             m_pcRABEquippedEntity;
       CWiFiEquippedEntity*            m_pcWiFiEquippedEntity;
 
       CRadians                        m_cTurretRotation;

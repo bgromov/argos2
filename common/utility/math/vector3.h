@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/utility/math/vector3.h>
+ * @file common/utility/math/vector3.h
  *
  * @brief This file provides the definition of
  *

@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/epuck/ci_epuck_light_sensor.h>
+ * @file common/control_interface/epuck/ci_epuck_light_sensor.h
  *
  * @brief This file provides the implementation of the epuck light sensor.
  *
@@ -52,7 +52,7 @@ namespace argos {
 
 namespace argos {
 
-   class CCI_EPuckLightSensor : public CCI_Sensor {
+   class CCI_EPuckLightSensor : virtual public CCI_Sensor {
 
    public:
 
@@ -81,12 +81,8 @@ namespace argos {
          return m_tReadings;
       }
 
-      inline virtual const Real& GetReading(UInt16 un_counter) const {
-         return m_tReadings[un_counter].Value;
-      }
-
-      inline virtual const CRadians& GetAngle(UInt16 un_counter) const {
-         return m_tReadings[un_counter].Angle;
+      inline virtual const SReading& GetReading(UInt16 un_counter) const {
+         return m_tReadings[un_counter];
       }
 
    protected:

@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/swarmanoid/footbot/ci_footbot_gripper_sensor.h>
+ * @file common/control_interface/swarmanoid/footbot/ci_footbot_gripper_sensor.h
  *
  * @brief This file provides the common interface  definition of the gripper sensor.
  *

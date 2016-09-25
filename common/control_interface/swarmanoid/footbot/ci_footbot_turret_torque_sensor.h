@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/footbot/ci_footbot_turret_torque_sensor.h>
+ * @file common/control_interface/footbot/ci_footbot_turret_torque_sensor.h
  *
  * @brief This file provides the common interface definition of the footbot turret torque
  * sensor. The sensor provides measures of the torque and traction applied to the turret.

@@ -44,11 +44,48 @@ std::map<std::string, CCI_Controller_Maker *, std::less<std::string> > mapContro
 
 /* The map of loop functions */
 std::map<std::string, CLoopFunctions_Maker *, std::less<std::string> > mapLoopFunctionFactory;
-   
+
 namespace argos {
 
+   /****************************************/
+   /****************************************/
+
+#ifdef __APPLE__
+   static const std::string DL_EXTENSION = ".dylib";
+#else
+   static const std::string DL_EXTENSION = ".so";
+#endif
+   
    const std::string CONFIGURATION_LIBRARY_PATH = "library_path";
    const std::string CONFIGURATION_LIBRARY_NAME = "library_name";
+
+   /****************************************/
+   /****************************************/
+
+   void* CDynamicLinkingManager::LoadDynamicLibrary(const std::string& str_path) {
+      void* pvoidDynamicLibrary;
+      /* Load the controller handle and add it to the list of handles */
+      pvoidDynamicLibrary = ::dlopen(str_path.c_str(), RTLD_GLOBAL | RTLD_NOW);
+      if(pvoidDynamicLibrary == NULL) {
+         /* Error with the base name, let's try adding the extension */
+         std::string strFirstError = ::dlerror();
+         pvoidDynamicLibrary = ::dlopen((str_path+DL_EXTENSION).c_str(), RTLD_GLOBAL | RTLD_NOW);
+         if(pvoidDynamicLibrary == NULL) {
+            /* Also the extension gives an error, bomb out */
+            THROW_ARGOSEXCEPTION("Failed opening library \""
+                                 << str_path
+                                 << "\" ("
+                                 << strFirstError
+                                 << ") and library \""
+                                 << str_path+DL_EXTENSION
+                                 << "\" ("
+                                 << dlerror()
+                                 << "). Sorry, I give up trying."
+                                 << std::endl);
+         }
+      }
+      return pvoidDynamicLibrary;
+   }
 
    /****************************************/
    /****************************************/
@@ -137,21 +174,21 @@ namespace argos {
 
    void CDynamicLinkingManager::LoadController(const std::string& str_controller_library,
                                                const std::string& str_controller_name) {
-      /* Add the name and library to the lists, taking care of the $ARGOSINSTALLDIR variable */
-      std::string strControllerLibrary(ExpandARGoSInstallDir(str_controller_library));
+      /* Add the name and library to the lists, taking care of the
+         $ARGOSINSTALLDIR variable */
+      std::string strControllerLibrary(
+         ExpandARGoSInstallDir(str_controller_library));
       m_vecControllerLibraries.push_back(strControllerLibrary);
       m_vecControllerNames.push_back(str_controller_name);
-
-      /* Load the controller handle and add it to the list of handles */
       
-      dl_controller = dlopen(strControllerLibrary.c_str(), RTLD_LOCAL | RTLD_NOW);
-      if(dl_controller == NULL) {
-         THROW_ARGOSEXCEPTION(
-               "Failed opening controller library \""
-               << strControllerLibrary << "\": " << dlerror()
-               << std::endl);
+      /* Load the controller handle and add it to the list of handles */
+      try {
+         dl_controller = LoadDynamicLibrary(strControllerLibrary);
+         m_vecDLControllerHandles.push_back(dl_controller);
       }
-      m_vecDLControllerHandles.push_back(dl_controller);
+      catch(CARGoSException& ex) {
+         THROW_ARGOSEXCEPTION_NESTED("Error loading library for controller \"" << str_controller_name << "\"", ex);
+      }
    }
 
    /****************************************/
@@ -162,22 +199,22 @@ namespace argos {
       CLoopFunctions* pcLoopFunctions;
 
       if (str_library_name != "") {
-
-         /* Load the library handle, taking care of the $ARGOSINSTALLDIR variable */
-         dl_loop_functions = dlopen(ExpandARGoSInstallDir(str_library_name).c_str(), RTLD_LOCAL | RTLD_LAZY);
-         if(dl_loop_functions == NULL) {
-            THROW_ARGOSEXCEPTION("Failed opening loop function library \""
-                                 << str_library_name << "\": " << dlerror()
-                                 << std::endl);
+         try {
+            /* Load the library handle,
+               taking care of the $ARGOSINSTALLDIR variable */
+            dl_loop_functions = LoadDynamicLibrary(
+               ExpandARGoSInstallDir(str_library_name));         
+            /* Create the loop functions */
+            if(mapLoopFunctionFactory.find(str_label) == mapLoopFunctionFactory.end()) {
+               THROW_ARGOSEXCEPTION("Unknown loop function type \"" << str_label
+                                    << "\", probably your loop functions have been registered with a different name."
+                                    << std::endl);
+            }
+            pcLoopFunctions = mapLoopFunctionFactory[str_label]();
          }
-         
-         /* Create the loop functions */
-         if(mapLoopFunctionFactory.find(str_label) == mapLoopFunctionFactory.end()) {
-            THROW_ARGOSEXCEPTION("Unknown loop function type \"" << str_label
-                                 << "\", probably your loop functions have been registered with a different name."
-                                 << std::endl);
+         catch(CARGoSException& ex) {
+            THROW_ARGOSEXCEPTION_NESTED("Error loading library for loop functions \"" << str_label << "\"", ex);
          }
-         pcLoopFunctions = mapLoopFunctionFactory[str_label]();
       }
 
       else {

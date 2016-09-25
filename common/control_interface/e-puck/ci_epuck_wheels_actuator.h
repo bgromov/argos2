@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/epuck/ci_epuck_wheels_actuator.h>
+ * @file common/control_interface/epuck/ci_epuck_wheels_actuator.h
  *
  * @brief This file provides the definition of the epuck wheels actuator.
  *
@@ -48,32 +48,12 @@ namespace argos {
 
     public:
 
-        // minimal and maximal linear speed for the wheels in cm/sec
-        static Real MAX_VELOCITY_CM_SEC;
-        static Real MIN_VELOCITY_CM_SEC;
-
-        virtual ~CCI_EPuckWheelsActuator() {
-        }
-
         virtual void SetLinearVelocity(Real f_left_velocity,
                                        Real f_right_velocity) = 0;
 
     protected:
 
-        // period of the PID speed controller, in ms
-        static Real T_PID;
-        // conversion factors got from experimental data
-        static Real CM_TO_PULSE;
-        static Real PULSE_TO_CM;
-        // speed conversion factors
-        static Real PULSE_TPID_TO_CM_SEC;
-        static Real CM_SEC_TO_PULSE_TPID;
-
         Real m_fCurrentVelocity[2];
-
-        friend class CCI_EPuckWheelSpeedSensor;
-        friend class CRealEPuckWheelSpeedSensor;
-
     };
 
 }

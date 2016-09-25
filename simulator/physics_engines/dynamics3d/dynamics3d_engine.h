@@ -32,15 +32,48 @@ namespace argos {
 #include <argos2/simulator/physics_engines/dynamics3d/dynamics3d_add_visitor.h>
 #include <argos2/simulator/physics_engines/dynamics3d/dynamics3d_remove_visitor.h>
 #include <argos2/simulator/space/entities/controllable_entity.h>
+#include <argos2/simulator/space/entities/gripper_equipped_entity.h>
 #include <argos2/common/utility/argos_random.h>
 #include <ode/ode.h>
 
 namespace argos {
 
+   enum EGeomType {
+      GEOM_NORMAL = 0,           /* A Geom that is not either gribbable or a gripper */
+      GEOM_GRIPPABLE,            /* A grippable Geom */
+      GEOM_MAGNETIC_GRIPPER,     /* A magnetic gripper Geom */
+   };
+
+   struct SDynamics3DEngineGripperData {
+      CGripperEquippedEntity& GripperEntity;
+      bool                    BodyGripped;
+      dJointID                GrippingJointID;
+
+      SDynamics3DEngineGripperData(CGripperEquippedEntity& c_entity, bool b_object_gripped = false):
+         GripperEntity(c_entity),
+         BodyGripped(b_object_gripped) {};
+      ~SDynamics3DEngineGripperData() {};
+   };
+
+   /* This structure defines a container for the user defined Geom data. 
+    * The default behaviour of the CDynamics3DEngine is to treat as a 
+    * GEOM_NORMAL every Geom with an associated null Geom data pointer. */
+   struct SDynamics3DEngineGeomData {
+      EGeomType Type;            /* Type of the Geom */
+      void*     Data;            /* User defined data for the particular Geom type */
+
+      SDynamics3DEngineGeomData(EGeomType e_type, void* pv_data = NULL) {
+         Type = e_type;
+         Data = pv_data;
+      };
+
+      ~SDynamics3DEngineGeomData() {};
+   };
+
    class CDynamics3DEngine : public CPhysicsEngine {
 
    public:
-
+      
       CDynamics3DEngine();
       virtual ~CDynamics3DEngine();
 
@@ -79,6 +112,7 @@ namespace argos {
 
       void ManageCloseGeomsAddingContactJoints(SGeomCheckData* ps_data, dGeomID t_geom1, dGeomID t_geom2);
       void ManageCloseGeomsCheckContactsOnly(SGeomCheckData* ps_data, dGeomID t_geom1, dGeomID t_geom2);
+      void ManageCloseGeomsGrippingBody(SGeomCheckData* ps_data, dGeomID t_geom_gripper, dGeomID t_geom_grippable);
 
 
       friend void ManageCloseGeomsAddingContactJointsCallback(void* pt_data, dGeomID t_geom1, dGeomID t_geom2);

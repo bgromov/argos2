@@ -31,8 +31,7 @@ namespace argos {
 
 #include <argos2/common/control_interface/e-puck/ci_epuck_encoder_sensor.h>
 #include <argos2/simulator/sensors/e-puck/epuck_sensor.h>
-#include <argos2/simulator/space/entities/epuck_entity.h>
-#include <argos2/simulator/space/entities/wheeled_entity.h>
+#include <argos2/common/utility/math/quaternion.h>
 
 namespace argos {
 
@@ -49,18 +48,24 @@ namespace argos {
       CEPuckEncoderSensor();
       virtual ~CEPuckEncoderSensor() {}
 
-      inline virtual void SetEntity(CEntity& c_entity) {
-         CEPuckSensor::SetEntity(c_entity);
-         m_pcWheeledEntity = &(GetEntity().GetWheeledEntity());
-      }
+      virtual void SetEntity(CEntity& c_entity);
 
       virtual void Update();
       virtual void Reset();
 
    private:
 
+      void CalculateWheelPosition(CVector2* pc_wheel_pos,
+                                  const CVector3& c_robot_pos,
+                                  const CQuaternion& c_robot_orient);
+
+   private:
+
+      CEmbodiedEntity* m_pcEmbodiedEntity;
       CWheeledEntity<2>* m_pcWheeledEntity;
-      Real m_fWheelSpeed[2];
+      CVector3 m_cOldPosition, m_cNewPosition;
+      CQuaternion m_cOldOrientation, m_cNewOrientation;
+      CVector2 m_cOldWheelPosition[2], m_cNewWheelPosition[2];
 
    };
 

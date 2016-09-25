@@ -29,6 +29,7 @@ namespace argos {
    class CQTOpenGLVisitor;
    class CQTOpenGLWidget;
    class CPositionalEntity;
+   class CBooothEntity;
    class CBoxEntity;
    class CCylinderEntity;
    class CFootBotEntity;
@@ -36,9 +37,12 @@ namespace argos {
    class CQTOpenGLUserFunctions;
 }
 
-#include <argos2/simulator/visitors/entity_visitor.h>
+#include <argos2/simulator/space/entities/entity_visitor.h>
+#include <argos2/simulator/visualizations/qt-opengl/models/qtopengl_booth.h>
 #include <argos2/simulator/visualizations/qt-opengl/models/qtopengl_box.h>
 #include <argos2/simulator/visualizations/qt-opengl/models/qtopengl_cylinder.h>
+#include <argos2/simulator/visualizations/qt-opengl/models/qtopengl_tile.h>
+#include <argos2/simulator/visualizations/qt-opengl/models/qtopengl_bluebot.h>
 #include <argos2/simulator/visualizations/qt-opengl/models/qtopengl_footbot.h>
 #include <argos2/simulator/visualizations/qt-opengl/models/qtopengl_eyebot.h>
 #include <argos2/simulator/visualizations/qt-opengl/models/qtopengl_light.h>
@@ -54,8 +58,11 @@ namespace argos {
                        CQTOpenGLUserFunctions& c_user_functions);
       virtual ~CQTOpenGLVisitor() {}
 
+      virtual void Visit(CBoothEntity& c_entity);
       virtual void Visit(CBoxEntity& c_entity);
       virtual void Visit(CCylinderEntity& c_entity);
+      virtual void Visit(CTileEntity& c_entity);
+      virtual void Visit(CBluebotEntity& c_entity);
       virtual void Visit(CFloorEntity& c_entity);
       virtual void Visit(CFootBotEntity& c_entity);
       virtual void Visit(CEyeBotEntity& c_entity);
@@ -65,8 +72,11 @@ namespace argos {
 
    protected:
 
+      virtual void DrawElement(CBoothEntity& c_entity);
       virtual void DrawElement(CBoxEntity& c_entity);
       virtual void DrawElement(CCylinderEntity& c_entity);
+      virtual void DrawElement(CTileEntity& c_entity);
+      virtual void DrawElement(CBluebotEntity& c_entity);
       virtual void DrawElement(CFloorEntity& c_entity);
       virtual void DrawElement(CFootBotEntity& c_entity);
       virtual void DrawElement(CEyeBotEntity& c_entity);
@@ -77,8 +87,11 @@ namespace argos {
 
       CQTOpenGLWidget& m_cWidget;
       CQTOpenGLUserFunctions& m_cUserFunctions;
+      CQTOpenGLBooth m_cBoothModel;
       CQTOpenGLBox m_cBoxModel;
       CQTOpenGLCylinder m_cCylinderModel;
+      CQTOpenGLTile m_cTileModel;
+      CQTOpenGLBluebot m_cBluebotModel;
       CQTOpenGLEPuck m_cEPuckModel;
       CQTOpenGLFootBot m_cFootBotModel;
       CQTOpenGLEyeBot m_cEyeBotModel;

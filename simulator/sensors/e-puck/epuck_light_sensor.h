@@ -55,6 +55,9 @@ namespace argos {
 
    private:
 
+      /* Radings default range */
+      static const CRange<Real> EPUCK_LIGHT_SENSORS_READINGS_RANGE;
+
       CSpace& m_cSpace;
       bool m_bShowRays;
       /* Random number generator */

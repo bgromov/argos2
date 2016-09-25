@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/e-puck/ci_range_and_bearing_actuator.h>
+ * @file common/control_interface/e-puck/ci_range_and_bearing_actuator.h
  *
  * @brief This file provides the definition of the actuator part of the
  *        range and bearing system.
@@ -53,7 +53,7 @@
 
 /* To avoid dependency problems when including */
 namespace argos {
-    class CCI_EPuckRangeAndBearingActuator;
+   class CCI_EPuckRangeAndBearingActuator;
 }
 
 #include <string>
@@ -65,36 +65,23 @@ namespace argos {
 
 namespace argos {
 
-    class CCI_EPuckRangeAndBearingActuator : virtual public CCI_Actuator {
+   class CCI_EPuckRangeAndBearingActuator : virtual public CCI_Actuator {
 
-    public:
+   public:
 
-        CCI_EPuckRangeAndBearingActuator() :
-            m_bBufferFree(true) {
-        }
+      virtual ~CCI_EPuckRangeAndBearingActuator() {}
 
-        virtual ~CCI_EPuckRangeAndBearingActuator() {
-        }
+      /* Checks if the last packet has been sent already. */
+      //virtual bool IsLastPacketSent() const = 0;
 
-        /* Checks if the last packet has been sent already. */
-        inline virtual bool IsLastPacketSent() const
-        {
-            return m_bBufferFree;
-        }
+      /* Set the data to send. This will be ignored if the last packet has not been sent yet. */
+      virtual void SetData(const SEPuckRangeAndBearingReceivedPacket::TRangeAndBearingData& t_data) = 0;
 
-        /* Set the data to send. This will be ignored if the last packet has not been sent yet. */
-        virtual void SetData(const TEPuckRangeAndBearingReceivedPacket::TRangeAndBearingData& t_data) = 0;
+      /* Set the data to send. This will be ignored if the last packet has not been sent yet.
+         Parameter is a integer to make a easier transmission. */
+      //virtual void SetData(UInt16 un_data) = 0;
 
-        /* Set the data to send. This will be ignored if the last packet has not been sent yet. 
-           Parameter is a integer to make a easier transmission. */
-        virtual void SetDataInt(const UInt16& un_data)=0;
-
-
-    protected:
-
-        bool m_bBufferFree;
-
-    };
+   };
 
 }
 

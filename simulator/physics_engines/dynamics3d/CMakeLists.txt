@@ -1,6 +1,7 @@
 set(argos2_simulator_physics_engines_dynamics3d_HEADERS
   dynamics3d_box.h
   dynamics3d_cylinder.h
+  dynamics3d_footbot.h
   dynamics3d_eyebot.h
   dynamics3d_add_visitor.h
   dynamics3d_remove_visitor.h
@@ -10,6 +11,7 @@ set(argos2_simulator_physics_engines_dynamics3d_HEADERS
 set(argos2_simulator_physics_engines_dynamics3d_IMPLEMENTATIONS
   dynamics3d_box.cpp
   dynamics3d_cylinder.cpp
+  dynamics3d_footbot.cpp
   dynamics3d_eyebot.cpp
   dynamics3d_add_visitor.cpp
   dynamics3d_remove_visitor.cpp

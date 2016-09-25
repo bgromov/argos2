@@ -168,6 +168,8 @@ namespace argos {
          vec_controller_names = m_vecControllerNames;
       }
 
+      static void* LoadDynamicLibrary(const std::string& str_path);
+
    protected:
 
       /**

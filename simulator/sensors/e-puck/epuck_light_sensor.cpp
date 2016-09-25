@@ -26,6 +26,9 @@
 
 namespace argos {
 
+   const CRange<Real> CEPuckLightSensor::EPUCK_LIGHT_SENSORS_READINGS_RANGE(0,4096);
+   static const Real EPUCK_HEIGHT = 0.086f;
+	
    /****************************************/
    /****************************************/
 
@@ -57,7 +60,7 @@ namespace argos {
          GetNodeAttributeOrDefault(t_tree, "show_rays", m_bShowRays, m_bShowRays);
          /* Getting noise */
          GetNodeAttributeOrDefault(t_tree, "noise_level", m_fNoiseLevel, m_fNoiseLevel);
-         m_fNoiseLevel *= 1024.0f;
+         //m_fNoiseLevel *= 1024.0f;
          /* Random number generator*/
          m_pcRNG = CARGoSRandom::CreateRNG("argos");
       }
@@ -76,11 +79,11 @@ namespace argos {
    }
 
    static Real ComputeReading(Real f_distance) {
-      if(f_distance > 2.5f) {
+      if(f_distance > 5.0f) {
          return 0.0f;
       }
       else {
-         return 1024.0f * ::exp(-f_distance * 2.0f);
+         return 4096.0f * ::exp(-f_distance * 1.5f);
       }
    }
 
@@ -95,17 +98,19 @@ namespace argos {
          m_tReadings[i].Value = 0.0f;
       }
       /* Get e-puck position */
-      const CVector3& cEPuckPosition = GetEntity().GetEmbodiedEntity().GetPosition();
+      CVector3 cEPuckTop = GetEntity().GetEmbodiedEntity().GetPosition();
+      cEPuckTop.SetZ(EPUCK_HEIGHT);
       /* Get e-puck orientation */
       CRadians cTmp1, cTmp2, cOrientationZ;
       GetEntity().GetEmbodiedEntity().GetOrientation().ToEulerAngles(cOrientationZ, cTmp1, cTmp2);
+      cOrientationZ.UnsignedNormalize();
       /* Buffer for calculating the light--e-puck distance */
       CVector3 cLightDistance;
       /* Buffer for the angle of the sensor wrt to the e-puck */
       CRadians cLightAngle;
       /* Initialize the occlusion check ray start to the baseline of the e-puck */
       CRay cOcclusionCheckRay;
-      cOcclusionCheckRay.SetStart(cEPuckPosition);
+      cOcclusionCheckRay.SetStart(cEPuckTop);
       /* Buffer to store the intersection data */
       CSpace::SEntityIntersectionItem<CEmbodiedEntity> sIntersectionData;
       /* Ignore the sensing ropuck when checking for occlusions */
@@ -146,19 +151,25 @@ namespace argos {
                   cLightAngle = cLightDistance.GetZAngle();
                   cLightAngle -= cOrientationZ;
                   /* Transform it into counter-clockwise rotation */
-                  cLightAngle.Negate().UnsignedNormalize();
+                  cLightAngle.UnsignedNormalize();
                   /* Find reading corresponding to the sensor */
-                  SInt16 nMin = 0;
-                  for(SInt16 i = 1; i < NUM_READINGS; ++i){
-                     if((cLightAngle - m_tReadings[i].Angle).GetAbsoluteValue() < (cLightAngle - m_tReadings[nMin].Angle).GetAbsoluteValue())
-                        nMin = i;
+                  SInt32 nReadingIdx = 0;
+                  CRadians cAngleDiff, cMinAngleDiff(Abs(cLightAngle - m_tReadings[0].Angle));
+                  for(size_t i = 1; i < NUM_READINGS; ++i){
+                     cAngleDiff = Abs(cLightAngle - m_tReadings[i].Angle);
+                     if(cAngleDiff < cMinAngleDiff) {
+                        nReadingIdx = i;
+                        cMinAngleDiff = cAngleDiff;
+                     }
                   }
                   /* Set the actual readings */
                   Real fReading = cLightDistance.Length();
-                  m_tReadings[Modulo((SInt16)(nMin-1), NUM_READINGS)].Value += ComputeReading(fReading * Cos(cLightAngle - m_tReadings[Modulo(nMin-1, NUM_READINGS)].Angle));
-                  m_tReadings[  nMin                                ].Value += ComputeReading(fReading);
-                  m_tReadings[Modulo((SInt16)(nMin+1), NUM_READINGS)].Value += ComputeReading(fReading * Cos(cLightAngle - m_tReadings[Modulo(nMin+1, NUM_READINGS)].Angle));
+                  m_tReadings[Modulo(nReadingIdx-1, NUM_READINGS)].Value += ComputeReading(fReading * 1.5);
+                  
+                  m_tReadings[nReadingIdx                        ].Value += ComputeReading(fReading);
+                  m_tReadings[Modulo(nReadingIdx+1, NUM_READINGS)].Value += ComputeReading(fReading * 1.5);
                }
+//
                else {
                   /* The ray is occluded */
                   if(m_bShowRays) {
@@ -175,12 +186,14 @@ namespace argos {
 
       /* Now go through the sensors, add noise and clamp their values if above 1024 or under 1024 */
       for(size_t i = 0; i < m_tReadings.size(); ++i) {
-         if(m_fNoiseLevel>0.0f)
-            AddNoise(i);
-         if(m_tReadings[i].Value > 1024.0f)
-            m_tReadings[i].Value = 1024.0f;
-         if(m_tReadings[i].Value < 0.0f)
-            m_tReadings[i].Value = 0.0f;
+         if(m_fNoiseLevel>0.0f){
+            AddNoise(i);         
+         }
+		 m_tReadings[i].Value = EPUCK_LIGHT_SENSORS_READINGS_RANGE.NormalizeValue(m_tReadings[i].Value);
+//         if(m_tReadings[i].Value > 4096.0f)
+//            m_tReadings[i].Value = 4096.0f;
+//         if(m_tReadings[i].Value < 0.0f)
+//            m_tReadings[i].Value = 0.0f;
       }
    }
 
@@ -197,7 +210,7 @@ namespace argos {
    /****************************************/
 
    void CEPuckLightSensor::AddNoise(UInt16 un_sensor_index) {
-      m_tReadings[un_sensor_index].Value += m_pcRNG->Uniform(CRange<Real>(-m_fNoiseLevel, m_fNoiseLevel));
+      m_tReadings[un_sensor_index].Value += m_tReadings[un_sensor_index].Value * m_pcRNG->Uniform(CRange<Real>(-m_fNoiseLevel, m_fNoiseLevel));
    }
 
    /****************************************/

@@ -26,7 +26,7 @@
 
 #include <string>
 #include <map>
-
+#include <argos2/common/utility/argos_random.h>
 namespace argos {
    class CEPuckWheelsActuator;
 }
@@ -65,8 +65,14 @@ namespace argos {
       virtual void Reset();
 
    private:
-
+/** Random number generator */
+      CARGoSRandom::CRNG* m_pcRNG;
       CWheeledEntity<2>* m_pcWheeledEntity;
+      /** Noise parameters, at the moment noise is Gaussian */
+      Real m_fNoiseStdDeviation;
+      
+      /** Adds noise to the wheels velocity */
+      virtual void AddGaussianNoise();
    };
 
 }

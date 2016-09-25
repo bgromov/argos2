@@ -19,6 +19,8 @@
  * @author Carlo Pinciroli - <cpinciro@ulb.ac.be>
  */
 
+#include <argos2/simulator/simulator.h>
+#include <argos2/simulator/space/space.h>
 #include <argos2/simulator/space/entities/embodied_entity.h>
 #include <argos2/simulator/space/entities/gripper_equipped_entity.h>
 #include "dynamics2d_eyebot_entity.h"
@@ -45,7 +47,8 @@ namespace argos {
                                                     CEyeBotEntity& c_entity) :
       CDynamics2DEntity(c_engine, c_entity.GetEmbodiedEntity()),
       m_cEyeBotEntity(c_entity),
-      m_fMass(1.6f) {
+      m_fMass(1.6f),
+      m_fArenaHeight(CSimulator::GetInstance().GetSpace().GetArenaSize().GetZ()) {
       /* Create the actual body with initial position and orientation */
       m_ptActualBody =
          cpSpaceAddBody(m_cEngine.GetPhysicsSpace(),
@@ -78,14 +81,14 @@ namespace argos {
                                                m_ptControlBody,
                                                cpvzero,
                                                cpvzero));
-      m_ptControlLinearMotion->biasCoef = 0.0f; /* disable joint correction */
+      m_ptControlLinearMotion->maxBias = 0.0f; /* disable joint correction */
       m_ptControlLinearMotion->maxForce = EYEBOT_MAX_FORCE; /* limit the dragging force */
       m_ptControlAngularMotion = cpSpaceAddConstraint(m_cEngine.GetPhysicsSpace(),
                                                cpGearJointNew(m_ptActualBody,
                                                               m_ptControlBody,
                                                               0.0f,
                                                               1.0f));
-      m_ptControlAngularMotion->biasCoef = 0.0f; /* disable joint correction */
+      m_ptControlAngularMotion->maxBias = 0.0f; /* disable joint correction */
       m_ptControlAngularMotion->maxForce = EYEBOT_MAX_TORQUE; /* limit the dragging torque */
    }
 
@@ -145,20 +148,23 @@ namespace argos {
       c_orientation.ToEulerAngles(cZAngle, cYAngle, cXAngle);
       cpBodySetAngle(m_ptActualBody, cZAngle.GetValue());
       /* Create a shape sensor to test the movement */
-      cpShape* ptSensorShape = cpCircleShapeNew(m_ptActualBody,
-                                                EYEBOT_RADIUS,
-                                                cpvzero);
-      ptSensorShape->sensor = 1;
+      cpShape* ptTestShape = cpCircleShapeNew(m_ptActualBody,
+                                              EYEBOT_RADIUS,
+                                              cpvzero);
       /* Check if there is a collision */
-      int nCollision = checkCollision(m_cEngine.GetPhysicsSpace(), ptSensorShape);
-      /* Restore old body state if there was a collision or
-         it was only a check for movement */
+      SInt32 nCollision = cpSpaceShapeQuery(m_cEngine.GetPhysicsSpace(), ptTestShape, NULL, NULL);
+      /* Dispose of the sensor shape */
+      cpShapeFree(ptTestShape);
       if(b_check_only || nCollision) {
+         /* Restore old body state if there was a collision or
+            it was only a check for movement */
          m_ptActualBody->p = tOldPos;
          cpBodySetAngle(m_ptActualBody, fOldA);
       }
-      /* Dispose of the sensor shape */
-      cpShapeFree(ptSensorShape);
+      else {
+         /* Update the active space hash if the movement is actual */
+         cpSpaceReindexShape(m_cEngine.GetPhysicsSpace(), m_ptShape);
+      }
       /* The movement is allowed if there is no collision */
       return !nCollision;
    }

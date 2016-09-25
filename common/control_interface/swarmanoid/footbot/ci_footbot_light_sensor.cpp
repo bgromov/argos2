@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/footbot/ci_footbot_light_sensor.cpp>
+ * @file common/control_interface/footbot/ci_footbot_light_sensor.cpp
  *
  * @brief This file provides the implementation of the footbot light sensor.
  *

@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <argos2/common/utility/math/matrix3x3.h>
+ * @file argos2/common/utility/math/matrix3x3.h
  *
  * The matrix goes like this:
  *

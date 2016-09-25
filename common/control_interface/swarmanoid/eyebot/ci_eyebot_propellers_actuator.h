@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/eyebot/ci_eyebot_propellers_actuator.h>
+ * @file common/control_interface/eyebot/ci_eyebot_propellers_actuator.h
  *
  * @brief This file provides the definition of the eyebot propellers actuator.
  *

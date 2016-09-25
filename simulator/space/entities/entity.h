@@ -37,7 +37,7 @@ namespace argos {
 #include <argos2/common/utility/datatypes/datatypes.h>
 #include <argos2/common/utility/configuration/argos_configuration.h>
 #include <argos2/common/utility/configuration/base_configurable_resource.h>
-#include <argos2/simulator/visitors/entity_visitor.h>
+#include <argos2/simulator/space/entities/entity_visitor.h>
 
 #include <vector>
 #include <map>
@@ -63,6 +63,10 @@ namespace argos {
 
       inline virtual void SetId(const std::string& str_id) {
          m_strId = str_id;
+      }
+
+      inline bool HasParent() {
+         return (m_pcParent != NULL);
       }
 
       inline CEntity& GetParent() {

@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/ci_robot.h>
+ * @file common/control_interface/ci_robot.h
  *
  * @brief This file provides the definition of
  *

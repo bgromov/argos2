@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/behavioral_toolkit/eyebot/ci_eyebot_state.cpp>
+ * @file common/control_interface/behavioral_toolkit/eyebot/ci_eyebot_state.cpp
  *
  * @brief This file provides the control interface for an eyebot state. Check
  * file ci_robot_state.h for the full explanation.
@@ -56,6 +56,9 @@ namespace argos{
         SENSOR_INIT_HELPER(DISTANCE_SCANNER_SENSOR_XML_NAME,    CCI_EyeBotDistanceScannerSensor,    m_pcDistanceScannerSensor,  m_bIsUsingDistanceScannerSensor);
         SENSOR_INIT_HELPER(PAN_AND_TILT_CAMERA_SENSOR_XML_NAME, CCI_EyeBotPanAndTiltCameraSensor,   m_pcPanAndTiltCameraSensor, m_bIsUsingPanAndTiltCameraSensor);
         SENSOR_INIT_HELPER(ALTITUDE_SENSOR_XML_NAME,            CCI_EyeBotAltitudeSensor,           m_pcAltitudeSensor,         m_bIsUsingAltitudeSensor);
+
+        if(m_bIsUsingPanAndTiltCameraSensor)
+        	m_pcPanAndTiltCameraSensor->Enable();
 
         ///////////////////////////////////////////////////////////////////
         //   INITIALIZE ALL THE ACTUATORS DECLARED IN THE XML CONFIGURATION

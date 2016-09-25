@@ -28,12 +28,11 @@
 #include <argos2/common/utility/logging/argos_log.h>
 #include <argos2/common/utility/argos_random.h>
 #include <argos2/simulator/simulator.h>
-#include <argos2/simulator/space/space_hash_tr1.h>
 #include <argos2/simulator/space/space_hash_native.h>
-#include <argos2/simulator/space/entities/entity.h>
+#include <argos2/simulator/space/entities/entity_visitor.h>
 #include <argos2/simulator/factories/entities_factory.h>
-#include <argos2/simulator/visitors/space_visitor_add.h>
-#include <argos2/simulator/visitors/space_visitor_remove.h>
+#include <argos2/simulator/space/space_visitor_add.h>
+#include <argos2/simulator/space/space_visitor_remove.h>
 #include <cstring>
 #include "space.h"
 
@@ -80,12 +79,13 @@ namespace argos {
       m_unSimulationClock(0),
       m_pcEmbodiedEntitiesSpaceHash(NULL),
       m_pcLEDEntitiesSpaceHash(NULL),
+      m_pcRABEquippedEntitiesSpaceHash(NULL),
       m_pcFloorEntity(NULL),
       m_bUseSpaceHash(true),
       m_pcRayEmbodiedEntityIntersectionMethod(NULL),
       m_ptPhysicsEngines(NULL) {
    }
-   
+
    /****************************************/
    /****************************************/
 
@@ -95,35 +95,32 @@ namespace argos {
       GetNodeAttribute(t_tree, "size", m_cArenaSize);
 
       /* Should we use the space hash, and, if so, which one? */
-      std::string strHashing;
-      GetNodeAttributeOrDefault(t_tree, "hashing", strHashing, std::string("tr1"));
-      if(strHashing == "off") {
-         LOG << "[INFO] Space hashing is off." << std::endl;
-         m_bUseSpaceHash = false;
-         m_pcRayEmbodiedEntityIntersectionMethod = new CRayEmbodiedEntityIntersectionEntitySweep(*this);
+      GetNodeAttributeOrDefault(t_tree, "hashing", m_bUseSpaceHash, true);
+      if(m_bUseSpaceHash) {
+         m_pcRayEmbodiedEntityIntersectionMethod = new CRayEmbodiedEntityIntersectionSpaceHash(*this);
+         m_pcEmbodiedEntitiesSpaceHash = new CSpaceHashNative<CEmbodiedEntity, CEmbodiedEntitySpaceHashUpdater>;
+         m_pcLEDEntitiesSpaceHash = new CSpaceHashNative<CLedEntity, CLEDEntitySpaceHashUpdater>;
+         m_pcRABEquippedEntitiesSpaceHash = new CSpaceHashNative<CRABEquippedEntity, CRABEquippedEntitySpaceHashUpdater>;
       }
       else {
-         m_bUseSpaceHash = true;
-         m_pcRayEmbodiedEntityIntersectionMethod = new CRayEmbodiedEntityIntersectionSpaceHash(*this);
-         if(strHashing == "tr1") {
-            LOG << "[INFO] Space hashing method set to \"tr1\"." << std::endl;
-            m_pcEmbodiedEntitiesSpaceHash = new CSpaceHashTR1<CEmbodiedEntity, CEmbodiedEntitySpaceHashUpdater>;
-            m_pcLEDEntitiesSpaceHash = new CSpaceHashTR1<CLedEntity, CLEDEntitySpaceHashUpdater>;
-         }
-         else if(strHashing == "native") {
-            LOG << "[INFO] Space hashing method set to \"native\"." << std::endl;
-            m_pcEmbodiedEntitiesSpaceHash = new CSpaceHashNative<CEmbodiedEntity, CEmbodiedEntitySpaceHashUpdater>;
-            m_pcLEDEntitiesSpaceHash = new CSpaceHashNative<CLedEntity, CLEDEntitySpaceHashUpdater>;
-         }
-         else {
-            THROW_ARGOSEXCEPTION("Unknown hashing method '" << strHashing << "'");
-         }
+         LOG << "[INFO] Space hashing is off." << std::endl;
+         m_pcRayEmbodiedEntityIntersectionMethod = new CRayEmbodiedEntityIntersectionEntitySweep(*this);
       }
 
       /* Add and initialize all entities in XML */
 
-      /* Start from the entities placed manually */
       TConfigurationNodeIterator itArenaItem;
+
+      /* Place the entities to distribute automatically */
+      for(itArenaItem = itArenaItem.begin(&t_tree);
+          itArenaItem != itArenaItem.end();
+          ++itArenaItem) {
+         if(itArenaItem->Value() == "distribute") {
+            Distribute(*itArenaItem);
+         }
+      }
+
+      /* Place the entities placed manually */
       for(itArenaItem = itArenaItem.begin(&t_tree);
           itArenaItem != itArenaItem.end();
           ++itArenaItem) {
@@ -143,22 +140,26 @@ namespace argos {
          }
       }
 
-      /* Place the entities to distribute automatically */
-      for(itArenaItem = itArenaItem.begin(&t_tree);
-          itArenaItem != itArenaItem.end();
-          ++itArenaItem) {
-         if(itArenaItem->Value() == "distribute") {
-            Distribute(*itArenaItem);
-         }
-      }
-
       if(IsUsingSpaceHash()) {
          /* Initialize the space hash */
          /* TODO make this automatic, using the average bb size */
-      	 m_pcEmbodiedEntitiesSpaceHash->SetSize(100000);
-         m_pcEmbodiedEntitiesSpaceHash->SetCellSize(CVector3(0.2, 0.2, 0.3));
-         m_pcLEDEntitiesSpaceHash->SetCellSize(CVector3(0.2, 0.2, 0.3));
-         m_pcLEDEntitiesSpaceHash->SetSize(100000);
+         size_t unBuckets;
+         CVector3 cCellSize;
+         GetNodeAttributeOrDefault<size_t>(t_tree, "embodied_entity_space_hash_buckets", unBuckets, 100000u);
+         GetNodeAttributeOrDefault(t_tree, "embodied_entity_space_hash_cell_size", cCellSize, CVector3(0.2, 0.2, 0.3));
+      	 m_pcEmbodiedEntitiesSpaceHash->SetSize(unBuckets);
+         m_pcEmbodiedEntitiesSpaceHash->SetCellSize(cCellSize);
+         LOG << "[INFO] Embodied entity space hash: " << unBuckets << " buckets, cell size = <" << cCellSize << ">." << std::endl;
+         GetNodeAttributeOrDefault<size_t>(t_tree, "led_entity_space_hash_buckets", unBuckets, 100000u);
+         GetNodeAttributeOrDefault(t_tree, "led_entity_space_hash_cell_size", cCellSize, CVector3(0.2, 0.2, 0.3));
+         m_pcLEDEntitiesSpaceHash->SetSize(unBuckets);
+         m_pcLEDEntitiesSpaceHash->SetCellSize(cCellSize);
+         LOG << "[INFO] LED entity space hash: " << unBuckets << " buckets, cell size = <" << cCellSize << ">." << std::endl;
+         GetNodeAttributeOrDefault<size_t>(t_tree, "rab_equipped_entity_space_hash_buckets", unBuckets, 100000u);
+         GetNodeAttributeOrDefault(t_tree, "rab_equipped_entity_space_hash_cell_size", cCellSize, CVector3(1, 1, 1));
+         m_pcRABEquippedEntitiesSpaceHash->SetSize(unBuckets);
+         m_pcRABEquippedEntitiesSpaceHash->SetCellSize(cCellSize);
+         LOG << "[INFO] RAB equipped entity space hash: " << unBuckets << " buckets, cell size = <" << cCellSize << ">." << std::endl;
       }
    }
 
@@ -191,6 +192,7 @@ namespace argos {
       /* Get rid of the space hashes, if used */
       delete m_pcEmbodiedEntitiesSpaceHash;
       delete m_pcLEDEntitiesSpaceHash;
+      delete m_pcRABEquippedEntitiesSpaceHash;
    }
 
    /****************************************/
@@ -211,14 +213,15 @@ namespace argos {
 
    static void CleanupFoundEntities(TEmbodiedEntitySet& set_found_entities,
                                     const TEmbodiedEntitySet& set_ignored_entities) {
-      TEmbodiedEntitySet setEntities;
-      for(TEmbodiedEntitySet::iterator it = set_found_entities.begin();
-          it != set_found_entities.end(); ++it) {
-         if(set_ignored_entities.find(*it) == set_ignored_entities.end()) {
-            setEntities.insert(*it);
+      if(set_ignored_entities.size() == 1) {
+         set_found_entities.erase(*set_ignored_entities.begin());
+      }
+      else {
+         for(TEmbodiedEntitySet::const_iterator it = set_ignored_entities.begin();
+             it != set_ignored_entities.end(); ++it) {
+            set_found_entities.erase(*it);
          }
       }
-      setEntities.swap(set_found_entities);
    }
 
    /****************************************/
@@ -669,7 +672,7 @@ namespace argos {
       std::string strCoordinates;
       GetNodeAttribute(t_tree, "coordinates", strCoordinates);
       Real fScale;
-      GetNodeAttributeOrDefault(t_tree, "scale", fScale, 1.0f);
+      GetNodeAttributeOrDefault<Real>(t_tree, "scale", fScale, 1.0f);
       Real fBoxWidth;
       GetNodeAttribute(t_tree, "boxwidth", fBoxWidth);
       Real fBoxHeight;

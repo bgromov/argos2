@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/handbot/ci_handbot_leds_actuator.h>
+ * @file common/control_interface/handbot/ci_handbot_leds_actuator.h
  *
  * @brief This file provides the common interface implementation of handbot LEDs actuator.
  *

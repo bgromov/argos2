@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/handbot/ci_handbot_proximity_sensor.h>
+ * @file common/control_interface/handbot/ci_handbot_proximity_sensor.h
  *
  * @brief This file provides the definition of the handbot gripper proximity sensor.
  * There are in total 24 sensors, spread over the two grippers and their claws.

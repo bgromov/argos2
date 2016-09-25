@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/footbot/ci_footbot_gripper_actuator.cpp>
+ * @file common/control_interface/footbot/ci_footbot_gripper_actuator.cpp
  *
  * @brief This file provides the definition of the gripper actuator.
 

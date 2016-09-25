@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/utility/math/shapes2/primitive2.h>
+ * @file common/utility/math/shapes2/primitive2.h
  *
  * @brief This file provides the definition of
  *

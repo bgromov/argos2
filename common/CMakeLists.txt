@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 2.6)
 project(argos2_common)
 
+if(EXISTS ${CMAKE_SOURCE_DIR}/../user/my_user/cmake/user_config.cmake)
+  include(${CMAKE_SOURCE_DIR}/../user/my_user/cmake/user_config.cmake)
+endif(EXISTS ${CMAKE_SOURCE_DIR}/../user/my_user/cmake/user_config.cmake)  
+
 execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
 if (GCC_VERSION VERSION_GREATER 4.2 OR GCC_VERSION VERSION_EQUAL 4.2)
   message(STATUS "GCC/G++ version >= 4.2")
@@ -17,12 +21,13 @@ include(CPack)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 add_definitions(-DTIXML_USE_TICPP)
+if(NOT APPLE)
+  set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-as-needed")
+endif(NOT APPLE)
 include(${CMAKE_SOURCE_DIR}/cmake/SimulationConfig.cmake)
-if(EXISTS ${CMAKE_SOURCE_DIR}/../user/my_user/cmake/user_config.cmake)
-  include(${CMAKE_SOURCE_DIR}/../user/my_user/cmake/user_config.cmake)
-endif(EXISTS ${CMAKE_SOURCE_DIR}/../user/my_user/cmake/user_config.cmake)  
 include_directories(${CMAKE_SOURCE_DIR}/..)
-
+include_directories(${CMAKE_SOURCE_DIR}/../../)
+message("cmake_source_dir ${CMAKE_SOURCE_DIR}")
 if( ARGOS_COMPILE_REAL_SWARMANOID )
 
   set(ARGOSINSTALLDIR $ENV{ARGOSINSTALLDIR})
@@ -31,12 +36,15 @@ if( ARGOS_COMPILE_REAL_SWARMANOID )
   configure_file(${CMAKE_SOURCE_DIR}/cmake/EclipseRealSwarmanoidProjectFile.xml ${CMAKE_BINARY_DIR}/.project)
   configure_file(${CMAKE_SOURCE_DIR}/cmake/EclipseRealSwarmanoidCProjectFile.xml ${CMAKE_BINARY_DIR}/.cproject)
 
-else( ARGOS_COMPILE_REAL_SWARMANOID )
+elseif( ARGOS_COMPILE_REAL_EPUCK )
 
-  find_package(GSL REQUIRED)
-  add_definitions(${CMAKE_GSL_CXX_FLAGS})
-  include_directories(${GSL_INCLUDE_DIR})
-  link_directories(${GSL_LINK_DIRECTORIES})
+  set(ARGOSINSTALLDIR $ENV{ARGOSINSTALLDIR})
+  include(${CMAKE_SOURCE_DIR}/../real_robot/swarmanoid/cmake/moboard.cmake)
+  add_definitions(-DCROSSCOMPILING)
+  configure_file(${CMAKE_SOURCE_DIR}/cmake/EclipseRealSwarmanoidProjectFile.xml ${CMAKE_BINARY_DIR}/.project)
+  configure_file(${CMAKE_SOURCE_DIR}/cmake/EclipseRealSwarmanoidCProjectFile.xml ${CMAKE_BINARY_DIR}/.cproject)
+
+else( ARGOS_COMPILE_REAL_SWARMANOID )
 
   find_package(GooglePerfTools)
 

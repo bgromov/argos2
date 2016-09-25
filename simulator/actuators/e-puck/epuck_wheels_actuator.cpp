@@ -31,51 +31,66 @@ namespace argos {
    /****************************************/
 
    CEPuckWheelsActuator::CEPuckWheelsActuator() :
-      m_pcWheeledEntity(NULL) {
+      m_pcWheeledEntity(NULL), m_fNoiseStdDeviation(0.0) {
       m_fCurrentVelocity[EPUCK_LEFT_WHEEL] = 0.0f;
       m_fCurrentVelocity[EPUCK_RIGHT_WHEEL] = 0.0f;
    }
-   
+
    /****************************************/
    /****************************************/
 
    void CEPuckWheelsActuator::Init(TConfigurationNode& t_tree) {
       try {
          CCI_EPuckWheelsActuator::Init(t_tree);
+         /* Parse noise std deviation */
+         GetNodeAttributeOrDefault<Real>(t_tree, "noise_std_dev", m_fNoiseStdDeviation, 0.0f);
       }
       catch(CARGoSException& ex) {
          THROW_ARGOSEXCEPTION_NESTED("Initialization error in e-puck wheels actuator.", ex);
       }
+      /* Thread safe random number generator*/
+      m_pcRNG = CARGoSRandom::CreateRNG("argos");
    }
 
    /****************************************/
    /****************************************/
-   
+
    void CEPuckWheelsActuator::SetLinearVelocity(Real f_left_velocity,
                                                 Real f_right_velocity) {
       /* The speed is passed in cm/sec, so we have to transform it into m/sec */
       m_fCurrentVelocity[EPUCK_LEFT_WHEEL] = f_left_velocity * 0.01f;
       m_fCurrentVelocity[EPUCK_RIGHT_WHEEL] = f_right_velocity * 0.01f;
+
+      if(m_fNoiseStdDeviation != 0.0f) {
+         AddGaussianNoise();
+      }
    }
-   
+
    /****************************************/
    /****************************************/
-   
+
    void CEPuckWheelsActuator::Update() {
       m_pcWheeledEntity->SetSpeed(m_fCurrentVelocity);
    }
 
    /****************************************/
    /****************************************/
-   
+
    void CEPuckWheelsActuator::Reset() {
       m_fCurrentVelocity[EPUCK_LEFT_WHEEL]  = 0.0f;
       m_fCurrentVelocity[EPUCK_RIGHT_WHEEL] = 0.0f;
    }
-   
    /****************************************/
    /****************************************/
-   
+
+   void CEPuckWheelsActuator::AddGaussianNoise() {
+      m_fCurrentVelocity[EPUCK_LEFT_WHEEL]  += m_fCurrentVelocity[EPUCK_LEFT_WHEEL] * m_pcRNG->Gaussian(m_fNoiseStdDeviation);
+      m_fCurrentVelocity[EPUCK_RIGHT_WHEEL] += m_fCurrentVelocity[EPUCK_RIGHT_WHEEL] * m_pcRNG->Gaussian(m_fNoiseStdDeviation);
+
+   }
+   /****************************************/
+   /****************************************/
+
    REGISTER_ACTUATOR(CEPuckWheelsActuator,
                      "epuck_wheels", "default",
                      "The e-puck wheels actuator",
@@ -98,10 +113,10 @@ namespace argos {
                      "  </controllers>\n\n"
                      "OPTIONAL XML CONFIGURATION\n\n"
                      "It is possible to specify noisy speed in order to match the characteristics\n"
-                     "of the real ropuck. This can be done with the xml parameter: 'noise_std_dev',\n" 
+                     "of the real ropuck. This can be done with the xml parameter: 'noise_std_dev',\n"
                      "which indicates the standard deviation of a gaussian noise applied to the\n"
                      "desired velocity of the wheels.",
                      "Under development"
       );
-   
+
 }

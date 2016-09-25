@@ -27,8 +27,7 @@ namespace argos {
    class CPointMass3DEngine;
 }
 
-#include <argos2/simulator/visitors/entity_visitor.h>
-
+#include <argos2/simulator/space/entities/entity_visitor.h>
 namespace argos {
 
    class CPointMass3DRemoveVisitor : public CEntityVisitor {
@@ -39,8 +38,11 @@ namespace argos {
          m_cEngine(c_engine) {}
       virtual ~CPointMass3DRemoveVisitor() {}
 
+      virtual void Visit(CBoothEntity& c_entity) {}
       virtual void Visit(CBoxEntity& c_entity) {}
       virtual void Visit(CCylinderEntity& c_entity) {}
+      virtual void Visit(CTileEntity& c_entity) {}
+      virtual void Visit(CBluebotEntity& c_entity) {}
       virtual void Visit(CFloorEntity& c_entity) {}
       virtual void Visit(CFootBotEntity& c_entity) {}
       virtual void Visit(CEyeBotEntity& c_entity);

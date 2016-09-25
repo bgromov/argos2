@@ -68,7 +68,7 @@ namespace argos {
          }
       }
 
-      inline UInt32 GetSize() {
+      inline size_t GetSize() {
          return m_unSize;
       }
 
@@ -80,7 +80,7 @@ namespace argos {
          return m_cInvCellSize;
       }
 
-      inline virtual void SetSize(UInt32 un_size) {
+      inline virtual void SetSize(size_t un_size) {
          m_unSize = un_size;
       }
 
@@ -137,7 +137,7 @@ namespace argos {
    private:
 
       TElementList m_tElements;
-      UInt32 m_unSize;
+      size_t m_unSize;
       CVector3 m_cCellSize;
       CVector3 m_cInvCellSize;
 

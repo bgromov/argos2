@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/e-puck/ci_epuck_range_and_bearing_sensor.h>
+ * @file common/control_interface/e-puck/ci_epuck_range_and_bearing_sensor.h
  *
  * @brief This file provides the definition of the sensor part of the
  *        range and bearing system.
@@ -53,7 +53,7 @@
 
 /* To avoid dependency problems when including */
 namespace argos {
-   class CCI_EPuckRangeAndBearingSensor;
+    class CCI_EPuckRangeAndBearingSensor;
 }
 
 #include <string>
@@ -62,120 +62,122 @@ namespace argos {
 
 #include <argos2/common/control_interface/ci_sensor.h>
 #include <argos2/common/utility/math/angles.h>
-
+#include <argos2/common/utility/logging/argos_log.h>
 namespace argos {
 
-   /**
-    * This struct defines a received range and bearing packet.
-    * It holds the id of the sending robot, the distance (in cms), the horizontal,
-    * the packet payload data (8 bits) and a packet id, that is sequentially 
-    * increased each time a packet is received.
-    *
-    * Please note that this packet is only used to hold data on the receiving
-    * end of the communication.
-    */
-   struct TEPuckRangeAndBearingReceivedPacket {
+    /**
+     * This struct defines a received range and bearing packet.
+     * It holds the id of the sending robot, the distance (in cms), the horizontal,
+     * the packet payload data (8 bits) and a packet id, that is sequentially
+     * increased each time a packet is received.
+     *
+     * Please note that this packet is only used to hold data on the receiving
+     * end of the communication.
+     */
+    struct SEPuckRangeAndBearingReceivedPacket {
+        typedef UInt8 TRangeAndBearingData[2];
+        //typedef UInt16 TRawValues[12];
 
-      typedef UInt8 TRangeAndBearingData[2];
-      typedef UInt16 TRawValues[12];
+        /* Distance in cms. */
+        Real Range;
 
-      /* Distance in cms. */
-      Real Range;
+        /* Horizontal angle, in radians, counter-clockwise. */
+        CRadians Bearing;
 
-      /* Horizontal angle, in radians, counter-clock-wise. */
-      CRadians BearingHorizontal;
+        /* Datatype for the range and bearing payload. */
+        TRangeAndBearingData Data;
 
-      /* Datatype for the range and bearing payload. */
-      TRangeAndBearingData Data;
+        /* The id of the packet. */
+        UInt16 Id;
 
-      /* Raw values used for the calibration of the 3D bearing. Don't remove */
-      TRawValues RawValues;
+        /* Constructor. */
+        SEPuckRangeAndBearingReceivedPacket() :
+        Range(0.0) , Id(0) {
+        }  
+        
+        
 
-      /* The id of the packet. */
-      UInt16 Id;
+        SEPuckRangeAndBearingReceivedPacket(const SEPuckRangeAndBearingReceivedPacket & t_packet) :
+        Range(t_packet.Range), Bearing(t_packet.Bearing), Id(t_packet.Id) {
+            ::memcpy(Data, &t_packet.Data, sizeof (TRangeAndBearingData));
+        }
 
-      /* Constructor. */
-      TEPuckRangeAndBearingReceivedPacket() :
-         Range(0.0), BearingHorizontal(0.0), Id(0) {
-      }
+        SEPuckRangeAndBearingReceivedPacket& operator=(const SEPuckRangeAndBearingReceivedPacket & t_packet) {
 
-      TEPuckRangeAndBearingReceivedPacket(const TEPuckRangeAndBearingReceivedPacket& t_packet) :
-         Range(t_packet.Range), BearingHorizontal(t_packet.BearingHorizontal), Id(t_packet.Id) {
-         ::memcpy(Data, &t_packet.Data, sizeof(TRangeAndBearingData));
-         ::memcpy(RawValues, &t_packet.RawValues, sizeof(TRawValues));
-      }
+            if (&t_packet != this) {
 
-      TEPuckRangeAndBearingReceivedPacket& operator=(const TEPuckRangeAndBearingReceivedPacket& t_packet) {
-         if (&t_packet != this) {
-        	Range = t_packet.Range;
-            BearingHorizontal = t_packet.BearingHorizontal;
-            Id = t_packet.Id;
-            ::memcpy(Data, &t_packet.Data, sizeof(TRangeAndBearingData));
-            ::memcpy(RawValues, &t_packet.RawValues, sizeof(TRawValues));
-         }
-         return *this;
-      }
+                Range = t_packet.Range;
 
-      friend std::ostream& operator<<(std::ostream& os,
-                                      const TEPuckRangeAndBearingReceivedPacket& t_packet) {
-         os << "RANGE_AND_BEARING_RECEIVED_DATA < range = " << t_packet.Range
-            << ", bearing horizontal = " << t_packet.BearingHorizontal
-            << ", data = " << t_packet.Data
-	    << ", id = " << t_packet.Id << " >";
+                Bearing = t_packet.Bearing;
+                Id = t_packet.Id; 
+                ::memcpy(Data, &t_packet.Data, sizeof (TRangeAndBearingData));
+            }
+            return *this;
+        }
 
-         return os;
-      }
-   };
+        friend std::ostream& operator<<(std::ostream& os,
+                const SEPuckRangeAndBearingReceivedPacket & t_packet) {
+            os << "RANGE_AND_BEARING_RECEIVED_DATA < range = " << t_packet.Range
+                    << ", bearing horizontal = " << t_packet.Bearing
+                    << ", data = " << t_packet.Data
+                    << ", id = " << t_packet.Id << " >"  ;
 
-   class CCI_EPuckRangeAndBearingSensor : public CCI_Sensor {
+            return os;
+        }
+    };
 
-   public:
+    class CCI_EPuckRangeAndBearingSensor : virtual public CCI_Sensor {
+    public:
 
-      /* Type for the map that holds the latest received packet for each robot. */
-      typedef std::vector<TEPuckRangeAndBearingReceivedPacket> TLastReceivedPackets;
+        /* Type for the map that holds the latest received packet for each robot. */
+        typedef std::map<UInt16, SEPuckRangeAndBearingReceivedPacket> TLastReceivedPackets;
 
-      CCI_EPuckRangeAndBearingSensor() :
-         m_unLatestPacketId(0) {
-      }
+        CCI_EPuckRangeAndBearingSensor() :
 
-      virtual ~CCI_EPuckRangeAndBearingSensor() {
-      }
+        m_unLatestPacketId(0) {
+        } 
 
-      /* Clears the messages received from the range and bearing. Call this at the end of your
-       * time-step to be sure that at each time-step you only have the most recently received packets*/
-      inline virtual void ClearRABReceivedPackets() {
-         m_tLastReceivedPackets.clear();
-      }
+        virtual ~CCI_EPuckRangeAndBearingSensor() {
+        }
 
-      /* Get the latest packet for all robots. Might contain empty packets. */
-      inline virtual const TLastReceivedPackets& GetLastReceivedPackets() const {
-         return m_tLastReceivedPackets;
-      }
+        /* Clears the messages received from the range and bearing. Call this at the end of your
+         * time-step to be sure that at each time-step you only have the most recently received packets*/
+        inline virtual void ClearRABReceivedPackets() {
+            m_tLastReceivedPackets.clear();
+        }
 
-      /* Get the id of the packet received most recently. */
-      inline virtual UInt16 GetLatestPacketId() const {
-         return m_unLatestPacketId;
-      }
+        /* Get the latest packet for all robots. Might contain empty packets. */
+        inline virtual const TLastReceivedPackets& GetLastReceivedPackets() const {
+          // LOGERR << "PACCHETTO:" << m_tLastReceivedPackets.size() << ";" << m_tLastReceivedPackets[0] << "\n";
+            return m_tLastReceivedPackets;
+        }
 
-      inline virtual UInt16 GetNumberMessagesReceived() {
-         return m_tLastReceivedPackets.size();
-      }
+        /* Get the id of the packet received most recently. */
+       /* inline virtual UInt16 GetLatestPacketId() const {
+            return m_unLatestPacketId;
+        }  */
 
-      inline virtual TEPuckRangeAndBearingReceivedPacket GetPacket(UInt16 un_i){
-         return m_tLastReceivedPackets.at(un_i);
-      }
+        inline virtual UInt16 GetNumberMessagesReceived() const {
+            return m_tLastReceivedPackets.size();
+        }
 
-      virtual UInt16 PacketToInt(const TEPuckRangeAndBearingReceivedPacket& t_packet) = 0;
+        inline virtual SEPuckRangeAndBearingReceivedPacket GetPacket(UInt16 un_i) {
+            return m_tLastReceivedPackets.at(un_i);
+        }   
 
-   protected:
+        //virtual UInt16 PacketToInt(const SEPuckRangeAndBearingReceivedPacket& s_packet) = 0; 
 
-      /* Stores the last received packet from each robot. */
-      TLastReceivedPackets m_tLastReceivedPackets;
+    protected:
 
-      /* Id of the latest received packet. Can be used to get the freshly arrived packages only. */
-      UInt16 m_unLatestPacketId;
+        /* Stores the last received packet from each robot. */
+        TLastReceivedPackets m_tLastReceivedPackets;
 
-   };
+        /* Id of the latest received packet. Can be used to get the freshly arrived packets only. */
+        UInt16 m_unLatestPacketId;
+        
+       
+      
+    };
 
 }
 

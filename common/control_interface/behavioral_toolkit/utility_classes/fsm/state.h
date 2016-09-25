@@ -40,7 +40,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 /**
- * @file <common/control_interface/behavioral_toolkit/utility_classes/fsm/state.h>
+ * @file common/control_interface/behavioral_toolkit/utility_classes/fsm/state.h
  *
  * @brief This file provides the definition a state used by the fsm.h
  *

@@ -38,7 +38,7 @@
 #include "simulator.h"
 #include <argos2/simulator/space/space.h>
 #include <argos2/simulator/space/entities/entity.h>
-#include <argos2/simulator/visitors/povray_render_visitor_draw.cpp>
+#include "povray_render_visitor_draw.h"
 
 #include <sys/types.h>
 #include<cstring>

@@ -39,6 +39,7 @@ namespace argos {
       m_nCameraElevation(m_cLEDSpaceHash.SpaceToHashTable(FOOTBOT_HEIGHT, 2)),
       m_nArenaHeight(m_cLEDSpaceHash.SpaceToHashTable(m_cSpace.GetArenaSize().GetZ(), 2)),
       m_fApertureSlope(0.0f),
+      m_pcRNG(NULL),
       m_bShowRays(false) {
    }
 
@@ -50,13 +51,18 @@ namespace argos {
          CCI_FootBotCeilingCameraSensor::Init(t_tree);
          /* Get the aperture */
          CDegrees cAperture;
-         GetNodeAttributeOrDefault(t_tree, "aperture", cAperture, CDegrees(30.0f));
+         GetNodeAttributeOrDefault(t_tree, "aperture", cAperture, CDegrees(26.5f));
          m_cApertureAngle = ToRadians(cAperture);
          m_fApertureSlope = Tan(m_cApertureAngle);
          /* Precalculate the list of cells to analyze */
          CalculateCellsToAnalyze();
          /* Show rays? */
          GetNodeAttributeOrDefault(t_tree, "show_rays", m_bShowRays, m_bShowRays);
+         /* Blob distance noise std dev */
+         GetNodeAttributeOrDefault<Real>(t_tree, "blob_noise_std_dev", m_fBlobDistanceNoiseStdDev, 0.0f);
+         if(m_fBlobDistanceNoiseStdDev > 0.0f) {
+            m_pcRNG = CARGoSRandom::CreateRNG("argos");
+         }
       }
       catch(CARGoSException& ex) {
          THROW_ARGOSEXCEPTION_NESTED("Initialization error in foot-bot ceiling camera.", ex);
@@ -152,8 +158,11 @@ namespace argos {
       /* Get the center of the foot-bot (in the space hash) on XY */
       SInt32 nCenterI = m_cLEDSpaceHash.SpaceToHashTable(cFootBotPosition.GetX(), 0);
       SInt32 nCenterJ = m_cLEDSpaceHash.SpaceToHashTable(cFootBotPosition.GetY(), 1);
+      /* Buffer to store the vector connecting the foot-bot to the LED */
+      CVector3 cFootBotToLED;
       /* Buffer for calculating the LED--foot-bot distance */
       CVector2 cLEDDistance;
+      Real fLEDDistance;
       /* Go through the precalculated list of cells to visit */
       for(UInt32 unCell = 0; unCell < m_sCellsToVisit.size(); ++unCell) {
          /* Get a reference to the current cell to visit */
@@ -178,45 +187,45 @@ namespace argos {
                      /* Set the end point of the occlusion check ray to the position of the LED
                         Now we have a ray connecting the foot-bot top to the candidate LED */
                      cOcclusionCheckRay.SetEnd(cLED.GetPosition());
-
-CVector3 cRayVector;
-cOcclusionCheckRay.ToVector(cRayVector);
-Real fRadius;
-CRadians cInclination, cAzimuth;
-cRayVector.ToSphericalCoords(fRadius,cInclination,cAzimuth);
-/* Check if angle within aperture */
-if (fabs(cInclination.SignedNormalize().GetValue()) < m_cApertureAngle.GetValue())
-{
-
-                     /* Is there an embodied entity along this ray?
-                        One is enough, so just tell me closest */
-                     if(! m_cSpace.GetClosestEmbodiedEntityIntersectedByRay(sIntersectionData,
-                                                                            cOcclusionCheckRay,
-                                                                            tIgnoreEntities)) {
-                        /* The LED is not obstructed */
-                        if(m_bShowRays) GetEntity().GetControllableEntity().AddCheckedRay(false, cOcclusionCheckRay);
-                        /* This LED is OK, create a reading for it */
-                        /* Create the distance vector from the center of the robot to the LED */
-                        cLEDDistance.Set(cLED.GetPosition().GetX() - cFootBotPosition.GetX(),
-                                         cLED.GetPosition().GetY() - cFootBotPosition.GetY());
-                        /* Add the blob */
-                        m_sCameraReadings.BlobList.push_back(
-                           new SBlob(
-                              cLED.GetColor(),
-                              (cLEDDistance.Angle() - cOrientationZ).SignedNormalize(),
-                              cLEDDistance.Length() * 100,  // The camera sensor transfers distances in cm!
-                              0.0f, // TODO: transform cm into pixel
-                              3.0f // TODO: calculate area
-                              ));
-                        m_sCameraReadings.Counter++;
-                     }
-                     else {
-                        if(m_bShowRays) {
-                           GetEntity().GetControllableEntity().AddCheckedRay(true, cOcclusionCheckRay);
-                           GetEntity().GetControllableEntity().AddIntersectionPoint(cOcclusionCheckRay, sIntersectionData.TOnRay);
+                     /* The LED is visible if is inside the viewing cone */
+                     cOcclusionCheckRay.ToVector(cFootBotToLED);
+                     /* Create the distance vector from the center of the robot to the LED */
+                     cLEDDistance.Set(cFootBotToLED.GetX(),
+                                      cFootBotToLED.GetY());
+                     fLEDDistance = cLEDDistance.Length();
+                     if(cFootBotToLED.GetZ() > 0 && Abs(ATan2(fLEDDistance, cFootBotToLED.GetZ())) < m_cApertureAngle) {
+                        /* Is there an embodied entity along this ray?
+                           One is enough, so just tell me closest */
+                        if(! m_cSpace.GetClosestEmbodiedEntityIntersectedByRay(sIntersectionData,
+                                                                               cOcclusionCheckRay,
+                                                                               tIgnoreEntities)) {
+                           /* The LED is not obstructed */
+                           if(m_bShowRays) GetEntity().GetControllableEntity().AddCheckedRay(false, cOcclusionCheckRay);
+                           /* This LED is OK, create a reading for it */
+                           /* If noise was setup, add it */
+                           if(m_fBlobDistanceNoiseStdDev > 0.0f) {
+                              cLEDDistance += CVector2(
+                                 m_pcRNG->Gaussian(m_fBlobDistanceNoiseStdDev),
+                                 m_pcRNG->Uniform(CRadians::UNSIGNED_RANGE));
+                           }
+                           /* Add the blob */
+                           m_sCameraReadings.BlobList.push_back(
+                              new SBlob(
+                                 cLED.GetColor(),
+                                 (cLEDDistance.Angle() - cOrientationZ).SignedNormalize(),
+                                 cLEDDistance.Length() * 100.0f,  // The camera sensor transfers distances in cm!
+                                 0.0f, // TODO: transform cm into pixel
+                                 3.0f // TODO: calculate area
+                                 ));
+                           ++m_sCameraReadings.Counter;
+                        }
+                        else {
+                           if(m_bShowRays) {
+                              GetEntity().GetControllableEntity().AddCheckedRay(true, cOcclusionCheckRay);
+                              GetEntity().GetControllableEntity().AddIntersectionPoint(cOcclusionCheckRay, sIntersectionData.TOnRay);
+                           }
                         }
                      }
-}
                   }
                }
             }
@@ -272,8 +281,55 @@ if (fabs(cInclination.SignedNormalize().GetValue()) < m_cApertureAngle.GetValue(
                    "      ...\n"
                    "    </my_controller>\n"
                    "    ...\n"
-                   "  </controllers>\n",
-                   "Under development"
+                   "  </controllers>\n\n"
+                   "In addition, it is possible to tweak the camera aperture. In ARGoS, the camera\n"
+                   "aperture is defined as half of the viewing cone tip angle. The real foot-bot\n"
+                   "ceiling camera has an aperture of 26.5 degrees, which is really narrow. For\n"
+                   "testing purposes, you can change this value with the \"aperture\" attribute as\n"
+                   "in this example (the passed value is in degrees):\n\n"
+                   "  <controllers>\n"
+                   "    ...\n"
+                   "    <my_controller ...>\n"
+                   "      ...\n"
+                   "      <sensors>\n"
+                   "        ...\n"
+                   "        <footbot_ceiling_camera implementation=\"rot_z_only\"\n"
+                   "                                aperture=\"80\" />\n"
+                   "        ...\n"
+                   "      </sensors>\n"
+                   "      ...\n"
+                   "    </my_controller>\n"
+                   "    ...\n"
+                   "  </controllers>\n\n"
+                   "Finally, you can add noise to the camera readings. Currently, the camera only\n"
+                   "returns colored blobs, and you can add noise to their data. Each blob\n"
+                   "corresponds to a visible LED in the environment. For each visible LED, the\n"
+                   "vector V connecting the LED to the robot is calculated. Noise is a random 3D\n"
+                   "vector R added to V. R is calculated as follows: the elevation and azimuth\n"
+                   "angles are drawn at random from a uniform distribution over [0:2pi], while the\n"
+                   "length is taken from a gaussian distribution with zero mean and a standard\n"
+                   "deviation chosen by the user. By default, the standard deviation is zero, which\n"
+                   "means that no noise is added. If the standard deviation is set to any value\n"
+                   "greater than zero, noise is added to the blob data. This noise impacts on the\n"
+                   "distance and angle of each returned blob, but not on its color. Also, currently\n"
+                   "all visible LEDs are returned, while on real cameras it may happen that sometimes\n"
+                   "a LED does not result in a blob. To add noise to the camera, you must set the\n"
+                   "attribute \"blob_noise_std_dev\" as shown:\n\n"
+                   "  <controllers>\n"
+                   "    ...\n"
+                   "    <my_controller ...>\n"
+                   "      ...\n"
+                   "      <sensors>\n"
+                   "        ...\n"
+                   "        <footbot_ceiling_camera implementation=\"rot_z_only\"\n"
+                   "                                blob_noise_std_dev=\"1\" />\n"
+                   "        ...\n"
+                   "      </sensors>\n"
+                   "      ...\n"
+                   "    </my_controller>\n"
+                   "    ...\n"
+                   "  </controllers>\n\n",
+                   "Usable"
       );
 
 }

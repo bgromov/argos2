@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/utility_classes//frac_time.h>
+ * @file common/utility_classes//frac_time.h
  *
  * @brief This file provides the definition of a class that implements time
  * with a finer granularity than the simulation clock tick: it stores an

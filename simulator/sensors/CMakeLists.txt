@@ -4,6 +4,8 @@ set(argos2_simulator_sensors_HEADERS_base
   generic_sampled_sensor.h
   sensor_samples.h
   wifi_sensor.h
+  wifi_sensor_extern.h
+  wifi_sensor_dual.h
   clock_sensor.h
 )
 
@@ -30,16 +32,27 @@ set(argos2_simulator_sensors_HEADERS_epuck
   e-puck/epuck_proximity_sensor.h
   e-puck/epuck_ground_sensor.h
   e-puck/epuck_camera_sensor.h
+  e-puck/epuck_omnidirectional_camera_sensor.h
   e-puck/epuck_range_and_bearing_sensor.h
   e-puck/epuck_encoder_sensor.h
   e-puck/epuck_sensor.h
-  
+)
+
+set(argos2_simulator_sensors_HEADERS_bluebot
+  bluebot/bluebot_proximity_sensor.h
+  bluebot/bluebot_sensor.h
+)
+
+set(argos2_simulator_sensors_HEADERS_booth
+  booth/booth_presence_sensor.h
+  booth/booth_sensor.h
 )
 
 set(argos2_simulator_sensors_HEADERS_eyebot
   eye-bot/eyebot_sensor.h
   eye-bot/eyebot_altitude_sensor.h
   eye-bot/eyebot_distance_scanner_sensor.h
+  eye-bot/eyebot_static_pan_and_tilt_camera_sensor.h
 )
 
 set(argos2_simulator_sensors_IMPLEMENTATIONS
@@ -47,6 +60,8 @@ set(argos2_simulator_sensors_IMPLEMENTATIONS
   generic_sampled_sensor.cpp
   sensor_samples.cpp
   wifi_sensor.cpp
+  wifi_sensor_extern.cpp
+  wifi_sensor_dual.cpp
   clock_sensor.cpp
   foot-bot/footbot_base_ground_sensor.cpp
   foot-bot/footbot_motor_ground_sensor.cpp
@@ -67,9 +82,13 @@ set(argos2_simulator_sensors_IMPLEMENTATIONS
   e-puck/epuck_proximity_sensor.cpp
   e-puck/epuck_ground_sensor.cpp
   e-puck/epuck_camera_sensor.cpp
+  e-puck/epuck_omnidirectional_camera_sensor.cpp
   e-puck/epuck_encoder_sensor.cpp
+  bluebot/bluebot_proximity_sensor.cpp
+  booth/booth_presence_sensor.cpp
   eye-bot/eyebot_altitude_sensor.cpp
   eye-bot/eyebot_distance_scanner_sensor.cpp
+  eye-bot/eyebot_static_pan_and_tilt_camera_sensor.cpp
 )
 
 add_library(argos2_simulator_sensors SHARED ${argos2_simulator_sensors_IMPLEMENTATIONS})
@@ -77,6 +96,8 @@ add_library(argos2_simulator_sensors SHARED ${argos2_simulator_sensors_IMPLEMENT
 install(FILES ${argos2_simulator_sensors_HEADERS_base} DESTINATION include/argos2/simulator/sensors)
 install(FILES ${argos2_simulator_sensors_HEADERS_footbot} DESTINATION include/argos2/simulator/sensors/footbot)
 install(FILES ${argos2_simulator_sensors_HEADERS_epuck} DESTINATION include/argos2/simulator/sensors/epuck)
+install(FILES ${argos2_simulator_sensors_HEADERS_epuck} DESTINATION include/argos2/simulator/sensors/bluebot)
+install(FILES ${argos2_simulator_sensors_HEADERS_booth} DESTINATION include/argos2/simulator/sensors/booth)
 install(FILES ${argos2_simulator_sensors_HEADERS_eyebot} DESTINATION include/argos2/simulator/sensors/eyebot)
 install(TARGETS argos2_simulator_sensors
   RUNTIME DESTINATION bin

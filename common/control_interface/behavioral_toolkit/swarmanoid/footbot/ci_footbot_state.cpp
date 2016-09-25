@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/behavioral_toolkit/swarmanoid/footbot/ci_footbot_state.cpp>
+ * @file common/control_interface/behavioral_toolkit/swarmanoid/footbot/ci_footbot_state.cpp
  *
  * @brief This file provides the control interface behavioral toolkit implementation for a foot-bot state.
  *
@@ -45,8 +45,11 @@ namespace argos {
     const std::string CCI_FootBotState::GRIPPER_SENSOR_XML_NAME                = "footbot_gripper";
     const std::string CCI_FootBotState::CEILING_CAMERA_SENSOR_XML_NAME         = "footbot_ceiling_camera";
     const std::string CCI_FootBotState::OMNIDIRECTIONAL_CAMERA_SENSOR_XML_NAME = "footbot_omnidirectional_camera";
+    const std::string CCI_FootBotState::GYROSCOPIC_SENSOR_XML_NAME             = "footbot_gyroscopic_sensor";
+    const std::string CCI_FootBotState::ACCELEROMETER_SENSOR_XML_NAME          = "footbot_accelerometer_sensor";
 
     //XML actuators names
+    const std::string CCI_FootBotState::BASE_LEDS_ACTUATOR_XML_NAME        = "footbot_base_leds";
     const std::string CCI_FootBotState::BEACON_ACTUATOR_XML_NAME           = "footbot_beacon";
     const std::string CCI_FootBotState::WHEELS_ACTUATOR_XML_NAME           = "footbot_wheels";
     const std::string CCI_FootBotState::GRIPPER_ACTUATOR_XML_NAME          = "footbot_gripper";
@@ -87,10 +90,13 @@ namespace argos {
         SENSOR_INIT_HELPER(MOTOR_GROUND_SENSOR_XML_NAME,            CCI_FootBotMotorGroundSensor,           m_pcMotorGroundSensor,              m_bIsUsingMotorGroundSensor);
         SENSOR_INIT_HELPER(WHEEL_SPEED_SENSOR_XML_NAME,             CCI_FootBotWheelSpeedSensor,            m_pcWheelSpeedSensor,               m_bIsUsingWheelSpeedSensor);
         SENSOR_INIT_HELPER(TURRET_TORQUE_SENSOR_XML_NAME,           CCI_FootBotTurretTorqueSensor,          m_pcTurretTorqueSensor,             m_bIsUsingTurretTorqueSensor);
-        SENSOR_INIT_HELPER(TURRET_ENCODER_SENSOR_XML_NAME,           CCI_FootBotTurretEncoderSensor,          m_pcTurretEncoderSensor,             m_bIsUsingTurretEncoderSensor);
+        SENSOR_INIT_HELPER(TURRET_ENCODER_SENSOR_XML_NAME,          CCI_FootBotTurretEncoderSensor,         m_pcTurretEncoderSensor,            m_bIsUsingTurretEncoderSensor);
         SENSOR_INIT_HELPER(GRIPPER_SENSOR_XML_NAME,                 CCI_FootBotGripperSensor,               m_pcGripperSensor,                  m_bIsUsingGripperSensor);
         SENSOR_INIT_HELPER(CEILING_CAMERA_SENSOR_XML_NAME,          CCI_FootBotCeilingCameraSensor,         m_pcCeilingCameraSensor,            m_bIsUsingCeilingCameraSensor);
         SENSOR_INIT_HELPER(OMNIDIRECTIONAL_CAMERA_SENSOR_XML_NAME,  CCI_FootBotOmnidirectionalCameraSensor, m_pcOmnidirectionalCameraSensor,    m_bIsUsingOmnidirectionalCameraSensor);
+        SENSOR_INIT_HELPER(GYROSCOPIC_SENSOR_XML_NAME,              CCI_FootBotGyroscopicSensor,            m_pcGyroscopicSensor,               m_bIsUsingGyroscopicSensor);
+        SENSOR_INIT_HELPER(ACCELEROMETER_SENSOR_XML_NAME,           CCI_FootBotAccelerometerSensor,            m_pcAccelerometerSensor,            m_bIsUsingAccelerometerSensor);
+
 
         ///////////////////////////////////////////////////////////////////
         //   INITIALIZE SENSOR RELATED VARIABLES
@@ -113,6 +119,7 @@ namespace argos {
         TActuatorMap mapActuators = m_pcRobot->GetAllActuators();
         TActuatorMap::const_iterator itActuators;
 
+        ACTUATOR_INIT_HELPER(BASE_LEDS_ACTUATOR_XML_NAME,           CCI_FootBotBaseLedsActuator,        m_pcBaseLedsActuator,           m_bIsUsingBaseLeds);
         ACTUATOR_INIT_HELPER(BEACON_ACTUATOR_XML_NAME,              CCI_FootBotBeaconActuator,          m_pcBeaconActuator,             m_bIsUsingBeacon);
         ACTUATOR_INIT_HELPER(WHEELS_ACTUATOR_XML_NAME,              CCI_FootBotWheelsActuator,          m_pcWheelsActuator,             m_bIsUsingWheelsActuator);
         ACTUATOR_INIT_HELPER(GRIPPER_ACTUATOR_XML_NAME,             CCI_FootBotGripperActuator,         m_pcGripperActuator,            m_bIsUsingGripperActuator);
@@ -128,13 +135,19 @@ namespace argos {
     {
         CCI_SwarmanoidRobotState::ApplyState();
 
-        if (m_bResetEncoderSensor && m_bIsUsingEncoderSensor) {
-            m_bResetEncoderSensor = false;
+        if (m_bRefreshBaseLeds && m_bIsUsingBaseLeds) {
+            m_bRefreshBaseLeds = false;
+            m_pcBaseLedsActuator->SetCameraLedColor(m_cActuatedBaseCameraLedColor);
+            m_pcBaseLedsActuator->SetImxLedColor(m_cActuatedBaseImxLedColor);
         }
 
         if (m_bRefreshBeacon && m_bIsUsingBeacon) {
             m_bRefreshBeacon = false;
             m_pcBeaconActuator->SetColor(m_cActuatedBeaconColor);
+        }
+
+        if (m_bResetEncoderSensor && m_bIsUsingEncoderSensor) {
+            m_bResetEncoderSensor = false;
         }
 
         if (m_bRefreshWheelsActuator && m_bIsUsingWheelsActuator) {
@@ -188,12 +201,10 @@ namespace argos {
         }
 
         if (m_bRefreshProximityCalibration && m_bIsUsingProximitySensor) {
-	    // m_pcProximitySensor->Calibrate();
             m_bRefreshProximityCalibration = false;
         }
 
         if (m_bRefreshBaseGroundSensorCalibration && m_bIsUsingBaseGroundSensor) {
-	    // m_pcBaseGroundSensor -> Calibrate();
             m_bRefreshBaseGroundSensorCalibration = false;
         }
 

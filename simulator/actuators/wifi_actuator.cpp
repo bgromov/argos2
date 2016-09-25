@@ -23,6 +23,7 @@
 #include <argos2/simulator/simulator.h>
 #include <argos2/simulator/space/entities/composable_entity.h>
 
+#include <argos2/simulator/space/entities/wifi_equipped_entity.h>
 namespace argos {
 
    /****************************************/
@@ -36,8 +37,14 @@ namespace argos {
    /****************************************/
    /****************************************/
 
-   void CWiFiActuator::Init(TConfigurationNode& t_tree) {
-      /* INITIALIZATION GOES HERE, NOT IN THE CONSTRUCTOR */
+   void CWiFiActuator::Init(TConfigurationNode& t_node) {
+    try {
+      GetNodeAttribute(t_node, "range", m_fRange);
+      GetNodeAttribute(t_node, "probability", m_fProbability);
+    }
+    catch(CARGoSException& ex) {
+      THROW_ARGOSEXCEPTION_NESTED("Error initializing range and bearing actuator", ex);
+    }
    }
 
    /****************************************/
@@ -52,6 +59,10 @@ namespace argos {
             /* Yes, it does */
             m_pcWiFiEquippedEntity = &(pcComposableEntity->GetComponent<CWiFiEquippedEntity>("wifi_equipped_entity"));
             m_pcEntity = &c_entity;
+	    /* Setting the mode of the underlying wifi_entity */
+	    m_pcWiFiEquippedEntity->SetMode(argos::STAND_ALONE);
+	    m_pcWiFiEquippedEntity->SetRange(m_fRange);
+	    m_pcWiFiEquippedEntity->SetProbability(m_fProbability);
          }
          else {
             /* No, error */
@@ -64,13 +75,12 @@ namespace argos {
    /****************************************/
 
    void CWiFiActuator::Update() {
-      /* ADD MESSAGE TO SEND TO THE WIFI MEDIUM */
-      /* THE MESSAGE TO SEND IS SET BY THE METHODS
-         SendMessageTo() AND BroadcastMessage()
-       */
-      /* HERE JUST A COPY HAPPENS, AND THE DELAY IS TAKEN
-         INTO ACCOUNT TO DECIDE WHETHER OR NOT TO PERFORM
-         THE COPY OR NOT */
+     /*Clear all the messages that has not yet been sent*/
+     m_pcWiFiEquippedEntity->ClearMessages();
+     /*Deliver the messages to the medium*/
+     m_pcWiFiEquippedEntity->SendMessages(m_tMessages);
+     /*Once the messages are delivered down delete them*/
+     m_tMessages.clear();
    }
 
    /****************************************/
@@ -78,25 +88,77 @@ namespace argos {
 
    void CWiFiActuator::Reset() {
    }
+  
+   void
+   CWiFiActuator::SendBinaryMessageTo(const std::string& str_recipient,
+		      const char *payload,
+		      size_t len,
+		      int f_delay)
+   {
 
+     std::string strSender(m_pcEntity->GetId());
+     CMessage tMessage(strSender, str_recipient, payload, len, f_delay);
+     /*Put the message in the delivery "queue"*/
+     m_tMessages.push_back(tMessage);
+
+   }
+
+  
    /****************************************/
    /****************************************/
 
    void CWiFiActuator::SendMessageTo(const std::string& str_recipient,
                                      const std::string& str_payload,
-                                     Real f_delay) {
-      /* CREATE AND STORE MESSAGE TO SEND INTO THIS SENSOR */
+                                     int f_delay) {
+
+     /*Build the packet (Cinus)*/
+     std::string strSender(m_pcEntity->GetId());
+     CMessage tMessage(strSender, str_recipient,str_payload,f_delay);
+     /*Put the message in the delivery "queue"*/
+     m_tMessages.push_back(tMessage);
    }
 
    /****************************************/
    /****************************************/
 
-   void CWiFiActuator::BroadcastMessage(const std::string& str_payload,
-                                        Real f_delay) {
-      /* CREATE AND STORE MESSAGE TO SEND INTO THIS SENSOR */
+   void
+   CWiFiActuator::BroadcastMessage(const std::string& str_payload,
+                                        int f_delay)
+   {
+     this->SendMessageTo("-1", str_payload, f_delay);
    }
 
    /****************************************/
    /****************************************/
 
+  /*Registering the Wifi Actuator*/
+  REGISTER_ACTUATOR(CWiFiActuator,
+		    "wifi","default",
+		    "The wifi actuator",
+		    "Marco Cinus [marco@idsia.ch]",
+		    "This actuator access the wifi actuator of a wifi equipped entity (only footbots at this time)\n"
+		    "For a complete description of its usage refer to the common interface\n"
+		    "In this implementation the actuator is sending a message to all wifi-equipped entities\n"
+		    "present in the space. Two sendings behaviors are provided for the sender, a broadcast message, which is \n"
+		    "received and processed by all entities, and a unicast message, which is processed only by the recipient\n"
+		    "There's the possibility to limit the range of the wifi by changing the range attribute\n"
+		    "Any real number greater or equal than 0.0f is valid. In case the range is setted to 0.0f\n"
+		    "the transmission range is infinte and every wifi-equipped enabled entity will\n"
+		    "process the messages.\n"
+		    "REQUIRED XML CONFIGURATION\n\n"
+                     "  <controllers>\n"
+                     "    ...\n"
+                     "    <my_controller ...>\n"
+                     "      ...\n"
+                     "      <actuators>\n"
+                     "        ...\n"
+                     "        <wifi implementation=\"default\" range=\"0.0f\"/>\n"
+                     "        ...\n"
+                     "      </actuators>\n"
+                     "      ...\n"
+                     "    </my_controller>\n"
+                     "    ...\n"
+                     "  </controllers>\n\n",
+		    "UNDER DEVELOPMENT"
+		    );
 }

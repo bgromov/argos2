@@ -46,7 +46,7 @@ namespace argos {
    /****************************************/
 
    void CEPuckLedsActuator::Reset() {
-        SwitchAllLeds(false);
+      SwitchAllLeds(false);
     	m_pcLedEquippedEntity->SetLedColor(0,CColor::BLACK);
     	m_pcLedEquippedEntity->SetLedColor(1,CColor::BLACK);
     	m_pcLedEquippedEntity->SetLedColor(2,CColor::BLACK);

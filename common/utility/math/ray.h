@@ -114,7 +114,7 @@ namespace argos {
          which is in the range [0:1] */
       inline Real GetDistance(Real f_t) const {
          ARGOS_ASSERT(f_t >= 0.0f && f_t <= 1.0f,
-                      "CRay::GetPoint(): the f_t parameter must be in the range [0:1], but f_t = " << f_t);
+                      "CRay::GetDistance(): the f_t parameter must be in the range [0:1], but f_t = " << f_t);
          return ::sqrt(Square(f_t * (m_cEnd.GetX() - m_cStart.GetX())) +
                        Square(f_t * (m_cEnd.GetY() - m_cStart.GetY())) +
                        Square(f_t * (m_cEnd.GetZ() - m_cStart.GetZ())));

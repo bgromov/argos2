@@ -58,7 +58,8 @@ namespace argos {
       CEmbodiedEntity(CEntity* pc_parent) :
          CPositionalEntity(pc_parent),
          m_bCollisionDetected(false),
-         m_unNumCollisions(0) {}
+         m_unNumCollisions(0),
+         m_pcCollidingEntity(NULL) {}
       virtual ~CEmbodiedEntity() {}
 
       virtual void Init(TConfigurationNode& t_tree);
@@ -68,21 +69,31 @@ namespace argos {
          return m_bCollisionDetected;
       }
 
-      inline virtual void SetCollisionDetected() {
+      inline virtual void SetCollisionDetected(CEmbodiedEntity& c_entity) {
+         m_pcCollidingEntity = &c_entity;
          m_bCollisionDetected = true;
-         m_unNumCollisions++;
+         ++m_unNumCollisions;
       }
 
-      inline virtual void ResetCollisionDetected() {
+      inline virtual void ClearCollisionDetected() {
          m_bCollisionDetected = false;
+         m_pcCollidingEntity  = NULL;
+      }
+
+      inline bool IsMovable() const {
+         return m_bMovable;
+      }
+
+      inline void SetMovable(bool b_movable) {
+         m_bMovable = b_movable;
       }
 
       inline virtual UInt32 GetCollisionNumber() {
          return m_unNumCollisions;
       }
 
-      inline virtual void SetCollisionNumber(UInt32 un_collisions) {
-         m_unNumCollisions = un_collisions;
+      inline virtual CEmbodiedEntity& GetCollidingEntity() {
+         return *m_pcCollidingEntity;
       }
 
       inline virtual void SetPosition(const CVector3& c_position) {
@@ -177,8 +188,10 @@ namespace argos {
       TPhysicsEngineEntityVector m_tPhysicsEngineEntityVector;
       bool m_bCollisionDetected;
       UInt32 m_unNumCollisions;
+      CEmbodiedEntity* m_pcCollidingEntity;
       SBoundingBox m_sBoundingBox;
       bool m_bBoundingBoxRecalculationNeeded;
+      bool m_bMovable;
 
    };
 

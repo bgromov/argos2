@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/footbot/ci_footbot_turret_actuator.cpp>
+ * @file common/control_interface/footbot/ci_footbot_turret_actuator.cpp
  *
  * @brief This file provides the definition of the turret actuator. It allows
  * to set the turret rotation angle in the range [-90:90] degrees.

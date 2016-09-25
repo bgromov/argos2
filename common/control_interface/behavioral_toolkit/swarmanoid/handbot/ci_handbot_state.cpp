@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/behavioral_toolkit/swarmanoid/handbot/ci_handbot_state.cpp>
+ * @file common/control_interface/behavioral_toolkit/swarmanoid/handbot/ci_handbot_state.cpp
  *
  * @brief This file provides the control interface behavioral toolkit implementation for a hand-bot state.
  *

@@ -44,12 +44,28 @@ namespace argos {
       virtual ~CQTOpenGLUserFunctions() {}
 
       /**
+       * @brief Drawing hook executed after each booth is drawn.
+       * When this function is called, the rototranslation to
+       * place the booth has already been done. Therefore, all
+       * drawing commands in this function are relative to the center of the cylinder.
+       */
+      inline virtual void Draw(CBoothEntity& c_entity) {}
+
+      /**
        * @brief Drawing hook executed after each cylinder is drawn.
        * When this function is called, the rototranslation to
        * place the cylinder has already been done. Therefore, all
        * drawing commands in this function are relative to the center of the cylinder.
        */
       inline virtual void Draw(CCylinderEntity& c_entity) {}
+
+      /**
+       * @brief Drawing hook executed after each tile is drawn.
+       * When this function is called, the rototranslation to
+       * place the tile has already been done. Therefore, all
+       * drawing commands in this function are relative to the center of the tile.
+       */
+      inline virtual void Draw(CTileEntity& c_entity) {}
 
       /**
        * @brief Drawing hook executed after each foot-bot is drawn.
@@ -74,6 +90,25 @@ namespace argos {
        * drawing commands in this function are relative to the robot.
        */
       inline virtual void Draw(CEPuckEntity& c_entity) {}
+
+      /**
+       * @brief Drawing hook executed after each bluebot is drawn.
+       * When this function is called, the rototranslation to
+       * place the bluebot has already been done. Therefore, all
+       * drawing commands in this function are relative to the robot.
+       */
+      inline virtual void Draw(CBluebotEntity& c_entity) {}
+
+      /**
+       * @brief Drawing hook executed after the floor is drawn.
+       */
+      inline virtual void Draw(CFloorEntity& c_entity) {}
+
+      /**
+       * @brief Drawing hook executed after all objects have been drawn.
+       * Use this hook to draw your own stuff in the world.
+       */
+      inline virtual void DrawInWorld() {}
 
       /**
        * @brief Drawing hook to put graphics on top of the OpenGL window.

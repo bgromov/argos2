@@ -81,14 +81,14 @@ namespace argos {
                                                m_ptControlBaseBody,
                                                cpvzero,
                                                cpvzero));
-      m_ptBaseControlLinearMotion->biasCoef = 0.0f; /* disable joint correction */
+      m_ptBaseControlLinearMotion->maxBias = 0.0f; /* disable joint correction */
       m_ptBaseControlLinearMotion->maxForce = EPUCK_MAX_FORCE; /* limit the dragging force */
       m_ptBaseControlAngularMotion = cpSpaceAddConstraint(m_cEngine.GetPhysicsSpace(),
                                                           cpGearJointNew(m_ptActualBaseBody,
                                                                          m_ptControlBaseBody,
                                                                          0.0f,
                                                                          1.0f));
-      m_ptBaseControlAngularMotion->biasCoef = 0.0f; /* disable joint correction */
+      m_ptBaseControlAngularMotion->maxBias = 0.0f; /* disable joint correction */
       m_ptBaseControlAngularMotion->maxForce = EPUCK_MAX_TORQUE; /* limit the dragging torque */
       /* Zero the wheel velocity */
       m_fCurrentWheelVelocityFromSensor[EPUCK_LEFT_WHEEL] = 0.0f;
@@ -151,20 +151,23 @@ namespace argos {
       c_orientation.ToEulerAngles(cZAngle, cYAngle, cXAngle);
       cpBodySetAngle(m_ptActualBaseBody, cZAngle.GetValue());
       /* Create a shape sensor to test the movement */
-      cpShape* ptSensorShape = cpCircleShapeNew(m_ptActualBaseBody,
-                                                EPUCK_RADIUS,
-                                                cpvzero);
-      ptSensorShape->sensor = 1;
+      cpShape* ptTestShape = cpCircleShapeNew(m_ptActualBaseBody,
+                                              EPUCK_RADIUS,
+                                              cpvzero);
       /* Check if there is a collision */
-      int nCollision = checkCollision(m_cEngine.GetPhysicsSpace(), ptSensorShape);
-      /* Restore old body state if there was a collision or
-         it was only a check for movement */
+      SInt32 nCollision = cpSpaceShapeQuery(m_cEngine.GetPhysicsSpace(), ptTestShape, NULL, NULL);
+      /* Dispose of the sensor shape */
+      cpShapeFree(ptTestShape);
       if(b_check_only || nCollision) {
+         /* Restore old body state if there was a collision or
+            it was only a check for movement */
          m_ptActualBaseBody->p = tOldPos;
          cpBodySetAngle(m_ptActualBaseBody, fOldA);
       }
-      /* Dispose of the sensor shape */
-      cpShapeFree(ptSensorShape);
+      else {
+         /* Update the active space hash if the movement is actual */
+         cpSpaceReindexShape(m_cEngine.GetPhysicsSpace(), m_ptBaseShape);
+      }
       /* The movement is allowed if there is no collision */
       return !nCollision;
    }

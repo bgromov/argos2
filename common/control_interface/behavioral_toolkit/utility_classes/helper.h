@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/behavioral_toolkit/utility_classes/helper.h>
+ * @file common/control_interface/behavioral_toolkit/utility_classes/helper.h
  *
  * @author Carlo Pinciroli - <cpinciro@ulb.ac.be>
  */

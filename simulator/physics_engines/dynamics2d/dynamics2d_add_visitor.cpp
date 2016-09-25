@@ -20,8 +20,11 @@
  */
 
 #include "dynamics2d_add_visitor.h"
+#include "dynamics2d_booth_entity.h"
 #include "dynamics2d_box_entity.h"
 #include "dynamics2d_cylinder_entity.h"
+#include "dynamics2d_tile_entity.h"
+#include "dynamics2d_bluebot_entity.h"
 #include "dynamics2d_footbot_entity.h"
 #include "dynamics2d_eyebot_entity.h"
 #include "dynamics2d_epuck_entity.h"
@@ -37,6 +40,20 @@ namespace argos {
       return
          c_bb.MinCorner.GetZ() <= c_engine.GetElevation() &&
          c_engine.GetElevation() <= c_bb.MaxCorner.GetZ();
+   }
+   
+   /****************************************/
+   /****************************************/
+
+   void CDynamics2DAddVisitor::Visit(CBoothEntity& c_entity) {
+      if(! BBIntersectsPlane(m_cEngine, c_entity.GetEmbodiedEntity().GetBoundingBox())) {
+         THROW_ARGOSEXCEPTION("Entity \"" << c_entity.GetId() << "\" does not intersect the plane of physics engine \"" << m_cEngine.GetId() << "\"");
+      }
+      CDynamics2DBoothEntity* pcEntity = new CDynamics2DBoothEntity(m_cEngine, c_entity);
+      m_cEngine.AddPhysicsEntity(c_entity.GetId(), *pcEntity);
+      m_cEngine.AddControllableEntity(c_entity.GetControllableEntity());
+      c_entity.GetEmbodiedEntity().AddPhysicsEngine(m_cEngine);
+      c_entity.GetEmbodiedEntity().AddPhysicsEngineEntity(m_cEngine.GetId(), *pcEntity);
    }
 
    /****************************************/
@@ -61,6 +78,33 @@ namespace argos {
       }
       CDynamics2DCylinderEntity* pcEntity = new CDynamics2DCylinderEntity(m_cEngine, c_entity);
       m_cEngine.AddPhysicsEntity(c_entity.GetId(), *pcEntity);
+      c_entity.GetEmbodiedEntity().AddPhysicsEngine(m_cEngine);
+      c_entity.GetEmbodiedEntity().AddPhysicsEngineEntity(m_cEngine.GetId(), *pcEntity);
+   }
+
+   /****************************************/
+   /****************************************/
+
+   void CDynamics2DAddVisitor::Visit(CTileEntity& c_entity) {
+      if(! BBIntersectsPlane(m_cEngine, c_entity.GetBoundingBox())) {
+         THROW_ARGOSEXCEPTION("Entity \"" << c_entity.GetId() << "\" does not intersect the plane of physics engine \"" << m_cEngine.GetId() << "\"");
+      }
+      CDynamics2DTileEntity* pcEntity = new CDynamics2DTileEntity(m_cEngine, c_entity);
+      m_cEngine.AddPhysicsEntity(c_entity.GetId(), *pcEntity);
+      c_entity.AddPhysicsEngine(m_cEngine);
+      c_entity.AddPhysicsEngineEntity(m_cEngine.GetId(), *pcEntity);
+   }
+
+   /****************************************/
+   /****************************************/
+
+   void CDynamics2DAddVisitor::Visit(CBluebotEntity& c_entity) {
+      if(! BBIntersectsPlane(m_cEngine, c_entity.GetEmbodiedEntity().GetBoundingBox())) {
+         THROW_ARGOSEXCEPTION("Entity \"" << c_entity.GetId() << "\" does not intersect the plane of physics engine \"" << m_cEngine.GetId() << "\"");
+      }
+      CDynamics2DBluebotEntity* pcEntity = new CDynamics2DBluebotEntity(m_cEngine, c_entity);
+      m_cEngine.AddPhysicsEntity(c_entity.GetId(), *pcEntity);
+      m_cEngine.AddControllableEntity(c_entity.GetControllableEntity());
       c_entity.GetEmbodiedEntity().AddPhysicsEngine(m_cEngine);
       c_entity.GetEmbodiedEntity().AddPhysicsEngineEntity(m_cEngine.GetId(), *pcEntity);
    }

@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/ci_ctrnn_multilayer_controller.h>
+ * @file common/control_interface/ci_ctrnn_multilayer_controller.h
  *
  * @brief This file provides the definition of the CTRNN multilayer
  * neural network controller

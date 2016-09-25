@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/footbot/ci_footbot_rfid_sensor.h>
+ * @file common/control_interface/footbot/ci_footbot_rfid_sensor.h
  *
  * @brief This file provides the definition of the RFID sensor.
  *

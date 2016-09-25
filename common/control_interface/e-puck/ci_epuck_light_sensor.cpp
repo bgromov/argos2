@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/epuck/ci_epuck_light_sensor.cpp>
+ * @file common/control_interface/epuck/ci_epuck_light_sensor.cpp
  *
  * @brief This file provides the implementation of the epuck light sensor.
  *
@@ -53,14 +53,14 @@ namespace argos {
    CCI_EPuckLightSensor::CCI_EPuckLightSensor() :
       m_tReadings(NUM_READINGS) {
       // Set the values for the proximity sensor angles (taken from ARGOS 1)
-      m_tReadings[7].Angle = CRadians::PI/10.5884f;
-      m_tReadings[6].Angle = CRadians::PI/3.5999f;
-      m_tReadings[5].Angle = CRadians::PI_OVER_TWO;
-      m_tReadings[4].Angle = CRadians::PI/1.2f;
-      m_tReadings[3].Angle = CRadians::PI/0.8571f;
-      m_tReadings[2].Angle = CRadians::PI/0.6667f;
-      m_tReadings[1].Angle = CRadians::PI/0.5806f;
-      m_tReadings[0].Angle = CRadians::PI/0.5247f;
+      m_tReadings[0].Angle = CRadians::PI/10.5884f;
+      m_tReadings[1].Angle = CRadians::PI/3.5999f;
+      m_tReadings[2].Angle = CRadians::PI_OVER_TWO;
+      m_tReadings[3].Angle = CRadians::PI/1.2f;
+      m_tReadings[4].Angle = CRadians::PI/0.8571f;
+      m_tReadings[5].Angle = CRadians::PI/0.6667f;
+      m_tReadings[6].Angle = CRadians::PI/0.5806f;
+      m_tReadings[7].Angle = CRadians::PI/0.5247f;
    }
 
 /****************************************/

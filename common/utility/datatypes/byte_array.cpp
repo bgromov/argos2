@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <argos2/common/utility/datatypes/byte_array.cpp>
+ * @file argos2/common/utility/datatypes/byte_array.cpp
  *
  * @brief This file provides
  *

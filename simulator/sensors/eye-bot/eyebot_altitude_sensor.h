@@ -31,7 +31,7 @@ namespace argos {
 
 #include <argos2/common/control_interface/swarmanoid/eyebot/ci_eyebot_altitude_sensor.h>
 #include <argos2/simulator/sensors/eye-bot/eyebot_sensor.h>
-#include <argos2/simulator/space/entities/eyebot_entity.h>
+#include <argos2/simulator/space/entities/embodied_entity.h>
 
 namespace argos {
 
@@ -40,10 +40,17 @@ namespace argos {
 
    public:
 
+      CEyeBotAltitudeSensor();
       virtual ~CEyeBotAltitudeSensor() {}
 
       virtual void Update();
       virtual void Reset();
+
+   private:
+
+      CSpace& m_cSpace;
+      TEmbodiedEntitySet m_tIgnoreEntities;
+      CRay m_cOcclusionCheckRay;
 
    };
 

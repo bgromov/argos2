@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/footbot/ci_footbot_encoder_sensor.h>
+ * @file common/control_interface/footbot/ci_footbot_encoder_sensor.h
  *
  * @brief This file provides the definition of the footbot encoder sensor. It
 

@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/footbot/ci_footbot_proximity_sensor.h>
+ * @file common/control_interface/footbot/ci_footbot_proximity_sensor.h
  *
  * @brief This file provides the definition of the footbot proximity sensor.
  *

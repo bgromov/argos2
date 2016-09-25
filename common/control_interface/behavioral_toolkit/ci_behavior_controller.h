@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/behavioral_toolkit/ci_behavior_controller.h>
+ * @file common/control_interface/behavioral_toolkit/ci_behavior_controller.h
  *
  * @brief This file provides the control interface for a behavior based robot
  * controller. This class contains the root behavior, which is the one containing

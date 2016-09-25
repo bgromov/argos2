@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/footbot/ci_footbot_camera_sensor.h>
+ * @file common/control_interface/footbot/ci_footbot_camera_sensor.h
  *
  * @brief This file provides the definition of the FootBot ceiling camera sensor.
  *
@@ -28,7 +28,7 @@ namespace argos {
 	class CCI_FootBotCeilingCameraSensor;
 }
 
-#include <argos2/common/control_interface/swarmanoid/ci_camera_sensor.h>
+#include <argos2/common/control_interface/ci_camera_sensor.h>
 
 namespace argos {
 

@@ -36,7 +36,7 @@
  */
 
 /**
- * @file <common/utility_classes/swarmanoid_datatypes/any.h>
+ * @file common/utility_classes/swarmanoid_datatypes/any.h
  *
  * @brief This file provides the implementation of the 'any' type.
  * It's a copy almost one to one of the boost::any type. The main difference is the removal of exceptions and a semplification of the cast via reference mechanism.

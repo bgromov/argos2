@@ -22,6 +22,7 @@
 #include "dynamics3d_remove_visitor.h"
 #include "dynamics3d_box.h"
 #include "dynamics3d_cylinder.h"
+#include "dynamics3d_footbot.h"
 #include "dynamics3d_eyebot.h"
 #include "dynamics3d_engine.h"
 
@@ -39,6 +40,14 @@ namespace argos {
 
    void CDynamics3DRemoveVisitor::Visit(CCylinderEntity& c_entity) {
       m_cEngine.RemovePhysicsEntity(c_entity.GetId());
+   }
+
+   /****************************************/
+   /****************************************/
+
+   void CDynamics3DRemoveVisitor::Visit(CFootBotEntity& c_entity) {
+      m_cEngine.RemovePhysicsEntity(c_entity.GetId());
+      m_cEngine.RemoveControllableEntity(c_entity.GetId());
    }
 
    /****************************************/

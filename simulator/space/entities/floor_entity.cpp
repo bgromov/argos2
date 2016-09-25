@@ -161,7 +161,8 @@ namespace argos {
 
    CFloorEntity::CFloorEntity() :
       CEntity(NULL),
-      m_pcColorSource(NULL) {}
+      m_pcColorSource(NULL),
+      m_bHasChanged(true) {}
 
 /****************************************/
 /****************************************/

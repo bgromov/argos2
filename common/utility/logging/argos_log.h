@@ -12,6 +12,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
+/**
+ * @file argos2/common/utility/logging/argos_log.h
+ *
+ * @brief This file redirects compilation to the single-thread or the thread-safe version of the ARGoS log.
+ *
+ * @author Carlo Pinciroli - <cpinciro@ulb.ac.be>
+ */
+
 #ifdef CROSSCOMPILING
 #include <argos2/common/utility/logging/argos_log_no_threads.h>
 #else

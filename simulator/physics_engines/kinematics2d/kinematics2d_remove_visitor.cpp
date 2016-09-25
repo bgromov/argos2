@@ -20,10 +20,39 @@
  */
 
 #include "kinematics2d_remove_visitor.h"
+#include "kinematics2d_box.h"
+#include "kinematics2d_cylinder.h"
+#include "kinematics2d_footbot.h"
 #include "kinematics2d_eyebot.h"
+#include "kinematics2d_epuck.h"
 #include "kinematics2d_engine.h"
 
 namespace argos {
+
+   /****************************************/
+   /****************************************/
+
+   void CKinematics2DRemoveVisitor::Visit(CBoxEntity& c_entity) {
+      m_cEngine.RemovePhysicsEntity(c_entity.GetId());
+   }
+
+
+   /****************************************/
+   /****************************************/
+
+   void CKinematics2DRemoveVisitor::Visit(CCylinderEntity& c_entity) {
+      m_cEngine.RemovePhysicsEntity(c_entity.GetId());
+   }
+
+
+   /****************************************/
+   /****************************************/
+
+   void CKinematics2DRemoveVisitor::Visit(CFootBotEntity& c_entity) {
+      m_cEngine.RemovePhysicsEntity(c_entity.GetId());
+      m_cEngine.RemoveControllableEntity(c_entity.GetId());
+   }
+
 
    /****************************************/
    /****************************************/
@@ -32,6 +61,15 @@ namespace argos {
       m_cEngine.RemovePhysicsEntity(c_entity.GetId());
       m_cEngine.RemoveControllableEntity(c_entity.GetId());
    }
+
+   /****************************************/
+   /****************************************/
+
+   void CKinematics2DRemoveVisitor::Visit(CEPuckEntity& c_entity) {
+      m_cEngine.RemovePhysicsEntity(c_entity.GetId());
+      m_cEngine.RemoveControllableEntity(c_entity.GetId());
+   }
+
 
    /****************************************/
    /****************************************/

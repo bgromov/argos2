@@ -45,6 +45,7 @@
 #include "qtopengl_widget.h"
 #include "qtopengl_log_stream.h"
 #include <argos2/simulator/simulator.h>
+#include <argos2/simulator/dynamic_linking/dynamic_linking_manager.h>
 #include <argos2/common/utility/logging/argos_log.h>
 #include <argos2/simulator/visualizations/povray/povray_render.h>
 #include <argos2/simulator/visualizations/qt-opengl/qtopengl_user_functions.h>
@@ -574,21 +575,20 @@ namespace argos {
          std::string strLabel, strLibrary;
          GetNodeAttribute(tNode, "label", strLabel);
          GetNodeAttribute(tNode, "library", strLibrary);
-         /* Load the library taking care of the $ARGOSINSTALLDIR variable */
-         void* ptUserFunctions = ::dlopen(ExpandARGoSInstallDir(strLibrary).c_str(),
-                                          RTLD_LOCAL | RTLD_LAZY);
-         if(ptUserFunctions == NULL) {
-            THROW_ARGOSEXCEPTION("Failed opening QTOpenGL user function library \""
-                                 << strLibrary << "\": " << dlerror()
-                                 << std::endl);
+         try {
+            /* Load the library taking care of the $ARGOSINSTALLDIR variable */
+            CDynamicLinkingManager::LoadDynamicLibrary(ExpandARGoSInstallDir(strLibrary));
+            /* Create the user functions */
+            if(mapQTOpenGLUserFunctionFactory.find(strLabel) == mapQTOpenGLUserFunctionFactory.end()) {
+               THROW_ARGOSEXCEPTION("Unknown QTOpenGL user function type \"" << strLabel
+                                    << "\", probably your user functions have been registered with a different name."
+                                    << std::endl);
+            }
+            return mapQTOpenGLUserFunctionFactory[strLabel]();
          }
-         /* Create the user functions */
-         if(mapQTOpenGLUserFunctionFactory.find(strLabel) == mapQTOpenGLUserFunctionFactory.end()) {
-            THROW_ARGOSEXCEPTION("Unknown QTOpenGL user function type \"" << strLabel
-                                 << "\", probably your user functions have been registered with a different name."
-                                 << std::endl);
+         catch(CARGoSException& ex) {
+            THROW_ARGOSEXCEPTION_NESTED("Failed opening QTOpenGL user function library", ex);
          }
-         return mapQTOpenGLUserFunctionFactory[strLabel]();
       }
       else {
          /* Use standard (empty) user functions */

@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <argos2/common/utility/math/matrix3x3.cpp>
+ * @file argos2/common/utility/math/matrix3x3.cpp
  *
  * The matrix goes like this:
  *

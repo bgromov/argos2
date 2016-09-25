@@ -39,7 +39,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 /**
- * @file <common/control_interface/behvaioral_toolkit/utility_classes/fsm/transition.h>
+ * @file common/control_interface/behvaioral_toolkit/utility_classes/fsm/transition.h
  *
  * @brief This file provides the definition a transaction used by the fsm.h
  *

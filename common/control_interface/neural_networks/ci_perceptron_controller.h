@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/neural_networks/ci_perceptron_controller.h>
+ * @file common/control_interface/neural_networks/ci_perceptron_controller.h
  *
  * @brief This file provides the definition of the perceptron controller
  * 

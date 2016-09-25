@@ -14,9 +14,13 @@
  */
 
 /**
- * @file <common/configuration/memento.h>
+ * @file argos2/common/utility/configuration/memento.h
  *
- * @brief This file provides the definition of
+ * @brief This file provides the definition of the memento interface.
+ *
+ * The <a href="http://en.wikipedia.org/wiki/Memento_pattern">Memento pattern</a>
+ * is a software design pattern that provides the ability to restore an object to
+ * its previous state.
  *
  * @author Carlo Pinciroli - <cpinciro@ulb.ac.be>
  */
@@ -32,12 +36,30 @@ namespace argos {
 
 namespace argos {
 
+   /**
+    * The interface inherited by all classes whose state must be saved and restored.
+    */
    class CMemento {
 
    public:
 
+      /**
+       * Class destructor.
+       */
       virtual ~CMemento() {}
+
+      /**
+       * Saves the state of the object to the given buffer.
+       * Data is added to the buffer.
+       * @param c_buffer the target buffer
+       */
       virtual void SaveState(CByteArray& c_buffer) = 0;
+
+      /**
+       * Restores the state of the object from the given buffer.
+       * The read data is removed from the buffer.
+       * @param c_buffer the source buffer
+       */
       virtual void LoadState(CByteArray& c_buffer) = 0;
 
    };

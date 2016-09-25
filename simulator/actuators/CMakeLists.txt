@@ -2,6 +2,8 @@ set(argos2_simulator_actuators_HEADERS_base
   simulated_actuator.h
   range_and_bearing_actuator.h
   wifi_actuator.h
+  wifi_actuator_extern.h
+  wifi_actuator_dual.h
 )
 
 set(argos2_simulator_actuators_HEADERS_footbot
@@ -15,11 +17,21 @@ set(argos2_simulator_actuators_HEADERS_footbot
   foot-bot/footbot_distance_scanner_actuator.h
 )
 
+set(argos2_simulator_actuators_HEADERS_booth
+  booth/booth_actuator.h
+  booth/booth_led_actuator.h
+)
+
 set(argos2_simulator_actuators_HEADERS_epuck
   e-puck/epuck_actuator.h
   e-puck/epuck_leds_actuator.h
   e-puck/epuck_wheels_actuator.h
   e-puck/epuck_range_and_bearing_actuator.h
+)
+
+set(argos2_simulator_actuators_HEADERS_bluebot
+  e-puck/bluebot_actuator.h
+  e-puck/bluebot_wheels_actuator.h
 )
 
 set(argos2_simulator_actuators_HEADERS_eyebot
@@ -31,6 +43,8 @@ set(argos2_simulator_actuators_HEADERS_eyebot
 set(argos2_simulator_actuators_IMPLEMENTATIONS
   range_and_bearing_actuator.cpp
   wifi_actuator.cpp
+  wifi_actuator_extern.cpp
+  wifi_actuator_dual.cpp
   foot-bot/footbot_leds_actuator.cpp
   foot-bot/footbot_base_leds_actuator.cpp
   foot-bot/footbot_beacon_actuator.cpp
@@ -38,9 +52,11 @@ set(argos2_simulator_actuators_IMPLEMENTATIONS
   foot-bot/footbot_turret_actuator.cpp
   foot-bot/footbot_gripper_actuator.cpp
   foot-bot/footbot_distance_scanner_actuator.cpp
+  booth/booth_led_actuator.cpp
   e-puck/epuck_leds_actuator.cpp
   e-puck/epuck_wheels_actuator.cpp
   e-puck/epuck_range_and_bearing_actuator.cpp
+  bluebot/bluebot_wheels_actuator.cpp
   eye-bot/eyebot_leds_actuator.cpp
   eye-bot/eyebot_propellers_actuator.cpp
 )
@@ -49,7 +65,9 @@ add_library(argos2_simulator_actuators SHARED ${argos2_simulator_actuators_IMPLE
 
 install(FILES ${argos2_simulator_actuators_HEADERS_base} DESTINATION include/argos2/simulator/actuators)
 install(FILES ${argos2_simulator_actuators_HEADERS_footbot} DESTINATION include/argos2/simulator/actuators/footbot)
+install(FILES ${argos2_simulator_actuators_HEADERS_booth} DESTINATION include/argos2/simulator/actuators/booth)
 install(FILES ${argos2_simulator_actuators_HEADERS_epuck} DESTINATION include/argos2/simulator/actuators/epuck)
+install(FILES ${argos2_simulator_actuators_HEADERS_epuck} DESTINATION include/argos2/simulator/actuators/bluebot)
 install(FILES ${argos2_simulator_actuators_HEADERS_eyebot} DESTINATION include/argos2/simulator/actuators/eyebot)
 install(TARGETS argos2_simulator_actuators
   RUNTIME DESTINATION bin

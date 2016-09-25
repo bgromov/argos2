@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/swarmanoid/ci_camera_sensor.h>
+ * @file common/control_interface/swarmanoid/ci_camera_sensor.h
  *
  * @brief This file provides the definition of the e-puck camera sensor and of the data structure
  * representing its readings.
@@ -24,6 +24,9 @@
  * This interface defines also the basic type of information that at the moment
  * it is possible to extract from image processing on the real robot, that is the position
  * of the LED of neighboring robots.
+ *
+ * FIXME: This has a standard resolution of 1x60 pixels, but returns readings of 1x120 pixels.
+ *        Why? This is quite some bullshit. Please rework and sync with new epuck board. Arne
  *
  * @author Laurent Compere <laurent.compere@ulb.ac.be>
  */
@@ -75,21 +78,21 @@ namespace argos {
 			 */
 			virtual void Disable() = 0;
 
-                        /**
-                          * Sets the resolution of the camera (size limited).
-                          */
+			/**
+			 * Sets the resolution of the camera (size limited).
+			 */
+			virtual void ChangeResolution(UInt16 un_width, UInt16 un_height) = 0;
 
-                        virtual void ChangeResolution(UInt16 un_width, UInt16 un_height) = 0;
+			/**
+			 * Return the width of the image
+			 */
+			virtual UInt16 GetWidth() = 0;
 
-                        /**
-                          * Return the width of the image
-                          */
-                        virtual UInt16 GetWidth() = 0;
+			/**
+			 * Return the height of the image
+			 */
+			virtual UInt16 GetHeight() = 0;
 
-                        /**
-                          * Return the height of the image
-                          */
-                        virtual UInt16 GetHeight() = 0;
 
 		protected:
 			/* camera readings */

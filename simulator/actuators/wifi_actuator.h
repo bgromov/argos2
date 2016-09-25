@@ -23,8 +23,8 @@
 #define WIFI_ACTUATOR_H
 
 namespace argos {
-   class CWiFiActuator;
-   class CControllableEntity;
+  class CWiFiActuator;
+  class CControllableEntity;
 }
 
 #include <argos2/simulator/actuators/simulated_actuator.h>
@@ -32,39 +32,82 @@ namespace argos {
 #include <argos2/simulator/space/entities/wifi_equipped_entity.h>
 #include <argos2/simulator/space/space.h>
 
+#include <argos2/common/control_interface/ci_wifi_sensor.h>
+
+
 namespace argos {
 
-   class CWiFiActuator : public CSimulatedActuator,
-                         public CCI_WiFiActuator {
+  class CWiFiActuator : public CSimulatedActuator,
+			public CCI_WiFiActuator {
 
-   public:
+  public:
 
-      CWiFiActuator();
-      virtual ~CWiFiActuator() {}
+    CWiFiActuator();
+    virtual ~CWiFiActuator() {}
 
-      virtual void Init(TConfigurationNode& t_tree);
+    virtual void Init(TConfigurationNode& t_node);
 
-      inline virtual CEntity& GetEntity() {
-         return *m_pcEntity;
-      }
-      virtual void SetEntity(CEntity& c_entity);
+    inline virtual CEntity& GetEntity() {
+      return *m_pcEntity;
+    }
+    virtual void SetEntity(CEntity& c_entity);
 
-      virtual void Update();
-      virtual void Reset();
+    virtual void Update();
+    virtual void Reset();
 
-      virtual void SendMessageTo(const std::string& str_recipient,
-                                 const std::string& str_payload,
-                                 Real f_delay = 0);
+    virtual void SendMessageTo(const std::string& str_recipient,
+			       const std::string& str_payload,
+			       int f_delay = 0);
 
-      virtual void BroadcastMessage(const std::string& str_payload,
-                                    Real f_delay = 0);
+    virtual void SendBinaryMessageTo(const std::string& str_recipient,
+			       const char *payload,
+			       size_t len,
+				     int f_delay = 0);
+    virtual void BroadcastMessage(const std::string& str_payload,
+				  int f_delay = 0);
 
-   private:
+    virtual void SendMessageTo_Local(const std::string& str_recipient,
+			       const std::string& str_payload,
+			       int f_delay = 0)
+    {}
 
-      CSpace& m_cSpace;
-      CEntity* m_pcEntity;
-      CWiFiEquippedEntity* m_pcWiFiEquippedEntity;
-   };
+    virtual void SendBinaryMessageTo_Local(const std::string& str_recipient,
+			       const char *payload,
+			       size_t len,
+				     int f_delay = 0)
+    {}
+    virtual void BroadcastMessage_Local(const std::string& str_payload,
+				  int f_delay = 0)
+    {}
+    
+    virtual void SendMessageTo_Extern(const std::string& str_recipient,
+			       const std::string& str_payload,
+			       int f_delay = 0)
+    {}
+
+    virtual void SendBinaryMessageTo_Extern(const std::string& str_recipient,
+			       const char *payload,
+			       size_t len,
+					    int f_delay = 0)
+    {}
+    virtual void BroadcastMessage_Extern(const std::string& str_payload,
+				  int f_delay = 0)
+    {}
+
+
+  private:
+
+    CSpace& m_cSpace;
+    CEntity* m_pcEntity;
+    CWiFiEquippedEntity* m_pcWiFiEquippedEntity;
+    Real m_fRange;
+    Real m_fProbability;	// added by Michal: a probability of successful transmission in the 'disc probability model'
+    //My added stuff (Cinus)
+    TMessageList m_tMessages;
+
+    UInt8 tstTempCounter;
+    UInt8 tstCounterLimit;
+  };
 
 }
 

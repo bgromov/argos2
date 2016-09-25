@@ -8,7 +8,7 @@ set(argos2_simulator_dynamic_linking_IMPLEMENTATIONS
   loop_functions.cpp)
 
 add_library(argos2_simulator_dynamic_linking SHARED ${argos2_simulator_dynamic_linking_IMPLEMENTATIONS})
-target_link_libraries(argos2_simulator_dynamic_linking dl)
+target_link_libraries(argos2_simulator_dynamic_linking argos2_common_control_interface dl)
 
 install(FILES ${argos2_simulator_dynamic_linking_HEADERS} DESTINATION include/argos2/simulator/dynamic_linking)
 install(TARGETS argos2_simulator_dynamic_linking

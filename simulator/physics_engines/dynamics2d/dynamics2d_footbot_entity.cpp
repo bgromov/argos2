@@ -98,14 +98,14 @@ namespace argos {
                                                m_ptControlBaseBody,
                                                cpvzero,
                                                cpvzero));
-      m_ptBaseControlLinearMotion->biasCoef = 0.0f; /* disable joint correction */
+      m_ptBaseControlLinearMotion->maxBias = 0.0f; /* disable joint correction */
       m_ptBaseControlLinearMotion->maxForce = FOOTBOT_MAX_FORCE; /* limit the dragging force */
       m_ptBaseControlAngularMotion = cpSpaceAddConstraint(m_cEngine.GetPhysicsSpace(),
                                                cpGearJointNew(m_ptActualBaseBody,
                                                               m_ptControlBaseBody,
                                                               0.0f,
                                                               1.0f));
-      m_ptBaseControlAngularMotion->biasCoef = 0.0f; /* disable joint correction */
+      m_ptBaseControlAngularMotion->maxBias = 0.0f; /* disable joint correction */
       m_ptBaseControlAngularMotion->maxForce = FOOTBOT_MAX_TORQUE; /* limit the dragging torque */
       /* Zero the wheel velocity */
       m_fCurrentWheelVelocityFromSensor[FOOTBOT_LEFT_WHEEL] = 0.0f;
@@ -148,7 +148,7 @@ namespace argos {
                                                                          m_ptActualGripperBody,
                                                                          0.0f,
                                                                          1.0f));
-      m_ptBaseGripperAngularMotion->biasCoef = 0.0f; /* disable joint correction */
+      m_ptBaseGripperAngularMotion->maxBias = 0.0f; /* disable joint correction */
       m_ptBaseGripperAngularMotion->maxForce = FOOTBOT_MAX_TORQUE; /* limit the dragging torque */
       /* Switch to active mode if necessary */
       if(m_unLastTurretMode == MODE_SPEED_CONTROL ||
@@ -240,20 +240,23 @@ namespace argos {
       c_orientation.ToEulerAngles(cZAngle, cYAngle, cXAngle);
       cpBodySetAngle(m_ptActualBaseBody, cZAngle.GetValue());
       /* Create a shape sensor to test the movement */
-      cpShape* ptSensorShape = cpCircleShapeNew(m_ptActualBaseBody,
-                                                FOOTBOT_RADIUS,
-                                                cpvzero);
-      ptSensorShape->sensor = 1;
+      cpShape* ptTestShape = cpCircleShapeNew(m_ptActualBaseBody,
+                                              FOOTBOT_RADIUS,
+                                              cpvzero);
       /* Check if there is a collision */
-      int nCollision = checkCollision(m_cEngine.GetPhysicsSpace(), ptSensorShape);
-      /* Restore old body state if there was a collision or
-         it was only a check for movement */
+      SInt32 nCollision = cpSpaceShapeQuery(m_cEngine.GetPhysicsSpace(), ptTestShape, NULL, NULL);
+      /* Dispose of the sensor shape */
+      cpShapeFree(ptTestShape);
       if(b_check_only || nCollision) {
+         /* Restore old body state if there was a collision or
+            it was only a check for movement */
          m_ptActualBaseBody->p = tOldPos;
          cpBodySetAngle(m_ptActualBaseBody, fOldA);
       }
-      /* Dispose of the sensor shape */
-      cpShapeFree(ptSensorShape);
+      else {
+         /* Update the active space hash if the movement is actual */
+         cpSpaceReindexShape(m_cEngine.GetPhysicsSpace(), m_ptBaseShape);
+      }
       /* The movement is allowed if there is no collision */
       return !nCollision;
    }
@@ -363,6 +366,14 @@ namespace argos {
          m_ptControlBaseBody->w = 0.0f;
          m_ptControlBaseBody->v = cpvzero;
       }
+      /* Is the gripper unlocked? */
+      if(m_psGripperData->GripperEntity.IsUnlocked()) {
+         /* The gripper is locked. If it was gripping an object,
+          * release it. Then, process the collision normally */
+      	 if(m_psGripperData->GripperEntity.IsGripping()) {
+            m_psGripperData->ClearConstraints();
+      	 }
+      }
       /* Update turret structures if the state changed state in the last step */
       if(m_cFootBotEntity.GetTurretMode() != m_unLastTurretMode) {
          /* Manage the thing like a state machine */
@@ -440,7 +451,7 @@ namespace argos {
                                                                             m_ptControlGripperBody,
                                                                             0.0f,
                                                                             1.0f));
-      m_ptGripperControlAngularMotion->biasCoef = 0.0f; /* disable joint correction */
+      m_ptGripperControlAngularMotion->maxBias = 0.0f; /* disable joint correction */
       m_ptGripperControlAngularMotion->maxForce = FOOTBOT_MAX_TORQUE; /* limit the dragging torque */
    }
 
@@ -459,7 +470,7 @@ namespace argos {
                                                                          m_ptActualGripperBody,
                                                                          0.0f,
                                                                          1.0f));
-      m_ptBaseGripperAngularMotion->biasCoef = 0.0f; /* disable joint correction */
+      m_ptBaseGripperAngularMotion->maxBias = 0.0f; /* disable joint correction */
       m_ptBaseGripperAngularMotion->maxForce = FOOTBOT_MAX_TORQUE; /* limit the dragging torque */
    }
 

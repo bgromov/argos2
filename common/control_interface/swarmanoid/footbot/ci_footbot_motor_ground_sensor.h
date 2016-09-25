@@ -14,7 +14,9 @@
  */
 
 /**
- * @brief This file provides the interface of the footbot ground sensor.
+ * @file argos2/common/control_interface/swarmanoid/footbot/ci_footbot_motor_ground_sensor.h
+ *
+ * @brief This file provides the interface of the footbot motor ground sensor.
  *
  * On the robot, there are two kinds of ground sensors.
  *

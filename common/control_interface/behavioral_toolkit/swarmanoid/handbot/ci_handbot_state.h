@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/behavioral_toolkit/swarmanoid/handbot/ci_handbot_state.h>
+ * @file common/control_interface/behavioral_toolkit/swarmanoid/handbot/ci_handbot_state.h
  *
  * @brief This file provides the control interface behavioral toolkit definition for a hand-bot state.
  * Check file ci_robot_state.h for the full explanation.
@@ -33,13 +33,13 @@ namespace argos {
 #include <argos2/common/control_interface/behavioral_toolkit/swarmanoid/ci_swarmanoid_robot_state.h>
 #include <argos2/common/utility/math/angles.h>
 
-/** Sensors includes */
+/* Sensor includes */
 #include <argos2/common/control_interface/swarmanoid/handbot/ci_handbot_arm_encoders_sensor.h>
 #include <argos2/common/control_interface/swarmanoid/handbot/ci_handbot_proximity_sensor.h>
 #include <argos2/common/control_interface/swarmanoid/handbot/ci_handbot_gripper_cameras.h>
 #include <argos2/common/control_interface/swarmanoid/handbot/ci_handbot_head_camera_sensor.h>
 
-/** Actuators includes */
+/* Actuator includes */
 #include <argos2/common/control_interface/swarmanoid/handbot/ci_handbot_beacon_leds_actuator.h>
 #include <argos2/common/control_interface/swarmanoid/handbot/ci_handbot_leds_actuator.h>
 #include <argos2/common/control_interface/swarmanoid/handbot/ci_handbot_arms_actuator.h>

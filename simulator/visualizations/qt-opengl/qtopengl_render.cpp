@@ -78,7 +78,7 @@ namespace argos {
          m_pcApplication->setOrganizationName("Iridia-ULB");
          m_pcApplication->setOrganizationDomain("iridia.ulb.ac.be");
          /* Draw the splash screen, if needed */
-         QSplashScreen* pcSplashScreen;
+         QSplashScreen* pcSplashScreen = NULL;
          if(m_bShowSplashScreen) {
             std::string strSTDBaseDirectory(CSimulator::GetInstance().GetInstallationDirectory());
             strSTDBaseDirectory += "/simulator/visualizations/qt-opengl/resources/";

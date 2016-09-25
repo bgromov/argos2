@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <argos2/common/utility/profiler/profiler.h>
+ * @file argos2/common/utility/profiler/profiler.h
  *
  * @author Carlo Pinciroli - <cpinciro@ulb.ac.be>
  */

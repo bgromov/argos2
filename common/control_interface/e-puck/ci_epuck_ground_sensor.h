@@ -14,7 +14,9 @@
  */
 
 /**
- * @brief This file provides the interface of the e-puck base ground sensor.
+ * @file argos2/common/control_interface/e-puck/epuck_ground_sensor.h
+ *
+ * @brief This file provides the interface of the e-puck ground sensor.
  *
  * The ground sensors are an additional part of the e-pucks.
  * They are located evenly spaced on the front of the robot. They are 3 and are useful for detecting
@@ -44,8 +46,6 @@ namespace argos {
 }
 
 #include <argos2/common/control_interface/ci_sensor.h>
-#include <argos2/common/utility/math/angles.h>
-#include <vector>
 
 namespace argos {
 
@@ -69,8 +69,6 @@ namespace argos {
             Right = 0.0f;
          }
       };
-
-   public:
 
       CCI_EPuckGroundSensor() {}
       virtual ~CCI_EPuckGroundSensor() {}
@@ -98,9 +96,7 @@ namespace argos {
       }
 
    protected:
-
       SReadings m_sReadings;
-
    };
 }
 

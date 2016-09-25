@@ -14,29 +14,46 @@
  */
 
 /**
- * @file <common/logging/argos_log.h>
+ * @file argos2/common/utility/logging/argos_log_no_threads.h
  *
  * @brief This file provides some useful logging and debugging macros.
  *
+ * ARGoS provides a set of logging utilities to help programmers develop
+ * their controllers. Logging can be used for different purposes. In general,
+ * log data can be classified according to two aspects: the intended audience
+ * of the log (every user or just the developer), and the kind of information
+ * contained (normal event or error occurred).
+ *
+ * In ARGoS, the two statements LOG and LOGERR are used to target every user,
+ * since there is no way to turn them off. For messages that can be turned
+ * on and off, ARGoS provides the DEBUG_* statements.
+ *
+ * The LOG and LOGERR statements write to standard out and standard err,
+ * respectively. LOG is meant to report normal events that are considered
+ * interesting for the user. LOGERR reports errors and warning the user
+ * must consider during an experimental run. Their usage is identical to
+ * the standard C++ statements std::cout and std::cerr. In fact, LOG and
+ * LOGERR redirect these streams.
+ *
  * These are the macro definitions. They are all constructed with the same pattern:
- *
+ * <pre>
  * DEBUG_TYPE(format, arguments...)
- *
+ * </pre>
  * and are meant to be used in these ways:
- *
+ * <pre>
  * DEBUG_TYPE(format)
- *
+ * </pre>
  * or
- *
+ * <pre>
  * DEBUG_TYPE(format, arguments)
- *
+ * </pre>
  * where "format" and "arguments" are the usual format string and arguments of a printf statement.
  *
  * @author Carlo Pinciroli - <cpinciro@ulb.ac.be>
  */
 
-#ifndef CARGOSLOG_H
-#define CARGOSLOG_H
+#ifndef ARGOS_LOG_H
+#define ARGOS_LOG_H
 
 #include <iomanip>
 #include <string>
@@ -125,16 +142,23 @@ namespace argos {
 #define DEBUG_VISUALISATION(format, ...)
 #endif
 
-   /** Debugging messages for controller code. */
 #ifdef ARGOS_DBG_CONTROLLER
+   /** Debugging messages for controller code. */
 #define DEBUG_CONTROLLER(format, ...) fprintf( stderr, "[DEBUG-CONTROLLER] [robot id=\"%s\"] " format, GetRobot().GetRobotId().c_str(), ## __VA_ARGS__ )
+   /** Debugging messages for controller code, with robot id included in the message */
 #define DEBUG_ROBOT(id, format, ...) if (GetRobot().GetRobotId() == id) fprintf( stderr, "[DEBUG-CONTROLLER] [robot id=\"%s\"] " format, GetRobot().GetRobotId().c_str(), ## __VA_ARGS__ )
+   /** Debugging messages for behavioral toolkit controller code. */
 #define DEBUG_BT_CONTROLLER(format, ...) fprintf( stderr, "[DEBUG-CONTROLLER] [robot id=\"%s\"] " format, m_pcRobotData->GetRobot()->GetRobotId().c_str(), ## __VA_ARGS__ )
+   /** Debugging messages for behavioral toolkit controller code, with robot id included in the message */
 #define DEBUG_BT_ROBOT(id, format, ...) if (m_pcRobotData.GetRobot()->GetRobotId() == id) fprintf( stderr, "[DEBUG-CONTROLLER] [robot id=\"%s\"] " format, m_pcRobotData->GetRobot()->GetRobotId().c_str(), ## __VA_ARGS__ )
 #else
+   /** Debugging messages for controller code. */
 #define DEBUG_CONTROLLER(format, ...)
+   /** Debugging messages for controller code, with robot id included in the message */
 #define DEBUG_ROBOT(id, format, ...)
+   /** Debugging messages for behavioral toolkit controller code. */
 #define DEBUG_BT_CONTROLLER(format, ...)
+   /** Debugging messages for behavioral toolkit controller code, with robot id included in the message */
 #define DEBUG_BT_ROBOT(id, format, ...)
 #endif
 

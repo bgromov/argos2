@@ -31,14 +31,19 @@ namespace argos {
 
    CEPuckRangeAndBearingActuator::CEPuckRangeAndBearingActuator() :
       m_pcRABEquippedEntity(NULL),
-      m_fRange(150) {
+      m_fRange(1.5f) {
    }
 
    /****************************************/
    /****************************************/
 
    void CEPuckRangeAndBearingActuator::Init(TConfigurationNode& t_node) {
-	m_fRange = 150;
+      try {
+         GetNodeAttribute(t_node, "range", m_fRange);
+      }
+      catch(CARGoSException& ex) {
+         THROW_ARGOSEXCEPTION_NESTED("Error initializing range and bearing actuator", ex);
+      }
    }
 
    /****************************************/
@@ -48,9 +53,9 @@ namespace argos {
       /* Let's check if it is a composable entity with a RAB component */
       CComposableEntity* pcComposableEntity = dynamic_cast<CComposableEntity*>(&c_entity);
       if(pcComposableEntity != NULL &&
-         pcComposableEntity->HasComponent("rab_equipped_entity<2>")) {
+         pcComposableEntity->HasComponent("rab_equipped_entity")) {
          /* All OK */
-         m_pcRABEquippedEntity = &(pcComposableEntity->GetComponent< CRABEquippedEntity<2> >("rab_equipped_entity<2>"));
+         m_pcRABEquippedEntity = &(pcComposableEntity->GetComponent<CRABEquippedEntity>("rab_equipped_entity"));
          /* Also, set the transmission range */
          m_pcRABEquippedEntity->SetRange(m_fRange);
       }
@@ -60,24 +65,6 @@ namespace argos {
       }
    }
    
-   /****************************************/
-   /****************************************/
-
-   void CEPuckRangeAndBearingActuator::SetData(const TEPuckRangeAndBearingReceivedPacket::TRangeAndBearingData& t_data) {
-      ::memcpy(m_tData, t_data, 2);
-   }
-
-   /****************************************/
-   /****************************************/
-
-   void CEPuckRangeAndBearingActuator::SetDataInt(const UInt16& un_data){
-      UInt8 * unData = new UInt8[2];
-      unData[0] = un_data/256;
-      unData[1] = un_data%256;
-      TEPuckRangeAndBearingReceivedPacket::TRangeAndBearingData tData = {unData[0],unData[1]};
-      SetData(tData);
-   }
-
    /****************************************/
    /****************************************/
 

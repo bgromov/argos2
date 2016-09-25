@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/behavioral_toolkit/eyebot/ci_eyebot_state.h>
+ * @file common/control_interface/behavioral_toolkit/eyebot/ci_eyebot_state.h
  *
  * @brief This file provides the control interface for an eyebot state. Check
  * file ci_robot_state.h for the full explanation.
@@ -35,12 +35,12 @@ namespace argos {
 
 #include <argos2/common/control_interface/behavioral_toolkit/swarmanoid/ci_swarmanoid_robot_state.h>
 
-// Sensors includes
+// Sensor includes
 #include <argos2/common/control_interface/swarmanoid/eyebot/ci_eyebot_distance_scanner_sensor.h>
 #include <argos2/common/control_interface/swarmanoid/eyebot/ci_eyebot_pan_and_tilt_camera_sensor.h>
 #include <argos2/common/control_interface/swarmanoid/eyebot/ci_eyebot_altitude_sensor.h>
 
-// Actuators includes
+// Actuator includes
 #include <argos2/common/control_interface/swarmanoid/eyebot/ci_eyebot_leds_actuator.h>
 #include <argos2/common/control_interface/swarmanoid/eyebot/ci_eyebot_propellers_actuator.h>
 #include <argos2/common/control_interface/swarmanoid/eyebot/ci_eyebot_pan_and_tilt_camera_actuator.h>
@@ -76,9 +76,7 @@ namespace argos {
             /** Initialize all the actuators */
             m_pcLedsActuator        (NULL),
             m_pcPanAndTiltActuator  (NULL),
-            m_pcPropellersActuator  (NULL),
-
-            m_tActuatedLedColors            (NULL)
+            m_pcPropellersActuator  (NULL)
         {
             m_tActuatedLedColors = CCI_EyeBotLedsActuator::TLedSettings(CCI_EyeBotState::NUM_LEDS);
             for (unsigned i = 0; i < CCI_EyeBotState::NUM_LEDS; i++) {
@@ -177,85 +175,19 @@ namespace argos {
             CHECK_IS_SENSOR_USED_HELPER(PAN_AND_TILT_CAMERA_SENSOR_XML_NAME, m_bIsUsingPanAndTiltCameraSensor, "GetBlobs");
             return m_pcPanAndTiltCameraSensor->GetBlobs();
         }
+         */
 
-        virtual inline const CCI_CameraSensor::TBlobList& GetBlobs(UInt64& un_sensor_updating_counter)
+        virtual inline const CCI_CameraSensor::SCameraReadings& GetCameraReadings()
         {
             CHECK_IS_SENSOR_USED_HELPER(PAN_AND_TILT_CAMERA_SENSOR_XML_NAME, m_bIsUsingPanAndTiltCameraSensor, "GetBlobs");
-            return m_pcPanAndTiltCameraSensor->GetBlobs(un_sensor_updating_counter);
+            return m_pcPanAndTiltCameraSensor->GetCameraReadings();
         }
-        */
+
 
         virtual inline const Real GetAltitude()
         {
             CHECK_IS_SENSOR_USED_HELPER(ALTITUDE_SENSOR_XML_NAME, m_bIsUsingAltitudeSensor, "GetAltitude");
             return m_pcAltitudeSensor->GetAltitude();
-        }
-
-        /* Temporarily comment this out: this function is not supported by the CI
-        virtual inline void EnableBlobDetection()
-        {
-            CHECK_IS_SENSOR_USED_HELPER(PAN_AND_TILT_CAMERA_SENSOR_XML_NAME, m_bIsUsingPanAndTiltCameraSensor, "EnableBlobDetection");
-            m_pcPanAndTiltCameraSensor->EnableBlobDetection();
-        }
-
-        virtual inline void DisableBlobDetection()
-        {
-            CHECK_IS_SENSOR_USED_HELPER(PAN_AND_TILT_CAMERA_SENSOR_XML_NAME, m_bIsUsingPanAndTiltCameraSensor, "DisableBlobDetection");
-            m_pcPanAndTiltCameraSensor->DisableBlobDetection();
-        }
-
-        virtual inline bool IsBlobDetectionEnabled()
-        {
-            CHECK_IS_SENSOR_USED_HELPER(PAN_AND_TILT_CAMERA_SENSOR_XML_NAME, m_bIsUsingPanAndTiltCameraSensor, "IsBlobDetectionEnabled");
-            return m_pcPanAndTiltCameraSensor->IsBlobDetectionEnabled();
-        }
-         */
-        virtual inline void EnableBookshelfDetection()
-        {
-            CHECK_IS_SENSOR_USED_HELPER(PAN_AND_TILT_CAMERA_SENSOR_XML_NAME, m_bIsUsingPanAndTiltCameraSensor, "EnableBookshelfDetection");
-            m_pcPanAndTiltCameraSensor->Enable();
-            m_pcPanAndTiltCameraSensor->EnableBookshelfDetection();
-        }
-
-        virtual inline void DisableBookshelfDetection()
-        {
-            CHECK_IS_SENSOR_USED_HELPER(PAN_AND_TILT_CAMERA_SENSOR_XML_NAME, m_bIsUsingPanAndTiltCameraSensor, "DisableBookshelfDetection");
-            m_pcPanAndTiltCameraSensor->DisableBookshelfDetection();
-            m_pcPanAndTiltCameraSensor->Disable();
-        }
-
-        virtual inline bool IsBookshelfDetectionEnabled()
-        {
-            CHECK_IS_SENSOR_USED_HELPER(PAN_AND_TILT_CAMERA_SENSOR_XML_NAME, m_bIsUsingPanAndTiltCameraSensor, "IsBookshelfDetectionEnabled");
-            return m_pcPanAndTiltCameraSensor->IsBookshelfDetectionEnabled();
-        }
-
-        virtual inline bool IsBookshelfInView()
-        {
-            CHECK_IS_SENSOR_USED_HELPER(PAN_AND_TILT_CAMERA_SENSOR_XML_NAME, m_bIsUsingPanAndTiltCameraSensor, "IsBookshelfInView");
-            return m_pcPanAndTiltCameraSensor->IsBookshelfInView();
-        }
-
-
-        virtual inline void EnableFootbotCounter() {
-            CHECK_IS_SENSOR_USED_HELPER(PAN_AND_TILT_CAMERA_SENSOR_XML_NAME, m_bIsUsingPanAndTiltCameraSensor, "EnableFootbotCounter");
-            m_pcPanAndTiltCameraSensor->Enable();
-            m_pcPanAndTiltCameraSensor->EnableFootbotCounter();
-        }
-
-        virtual inline void DisableFootbotCounter() {
-            CHECK_IS_SENSOR_USED_HELPER(PAN_AND_TILT_CAMERA_SENSOR_XML_NAME, m_bIsUsingPanAndTiltCameraSensor, "DisableFootbotCounter");
-            m_pcPanAndTiltCameraSensor->DisableFootbotCounter();
-            m_pcPanAndTiltCameraSensor->Disable();
-        }
-
-        virtual inline bool IsFootbotCounterEnabled() const {
-            CHECK_IS_SENSOR_USED_HELPER(PAN_AND_TILT_CAMERA_SENSOR_XML_NAME, m_bIsUsingPanAndTiltCameraSensor, "IsFootbotCounterEnabled");
-            return m_pcPanAndTiltCameraSensor->IsFootbotCounterEnabled();
-        }
-
-        virtual inline std::vector<CCI_EyeBotPanAndTiltCameraSensor::SFootbot> GetFootbotsDetected(){
-            return m_pcPanAndTiltCameraSensor->GetFootbotsDetected();
         }
 
         // Actuator methods - setters

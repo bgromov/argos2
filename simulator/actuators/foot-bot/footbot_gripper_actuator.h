@@ -54,6 +54,10 @@ namespace argos {
          m_pcGripperEquippedEntity = &(GetEntity().GetGripperEquippedEntity());
       }
 
+      virtual void DisableCheckForObjectGrippedRoutine(){}
+
+      virtual void EnableCheckForObjectGrippedRoutine(){}
+
       virtual void Update();
       virtual void Reset();
 

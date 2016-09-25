@@ -43,7 +43,7 @@ namespace argos {
       try {
          CCI_FootBotWheelsActuator::Init(t_tree);
          /* Parse noise std deviation */
-         GetNodeAttributeOrDefault(t_tree, "noise_std_dev", m_fNoiseStdDeviation, 0.0f);
+         GetNodeAttributeOrDefault<Real>(t_tree, "noise_std_dev", m_fNoiseStdDeviation, 0.0f);
       }
       catch(CARGoSException& ex) {
          THROW_ARGOSEXCEPTION_NESTED("Initialization error in foot-bot wheels actuator.", ex);

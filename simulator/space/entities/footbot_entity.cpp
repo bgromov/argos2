@@ -94,7 +94,7 @@ namespace argos {
       m_pcLEDEquippedEntity(new CLedEquippedEntity(this)),
       m_pcGripperEquippedEntity(new CGripperEquippedEntity(this)),
       m_pcDistanceScannerEquippedEntity(new CDistanceScannerEquippedEntity(this)),
-      m_pcRABEquippedEntity(new CRABEquippedEntity<10>(this)),
+      m_pcRABEquippedEntity(new CRABEquippedEntity(this, 10)),
       m_pcWiFiEquippedEntity(new CWiFiEquippedEntity(this)),
       m_fTurretRotationSpeed(0.0f),
       m_unTurretMode(0) {
@@ -177,8 +177,8 @@ namespace argos {
       m_pcLEDEquippedEntity->Destroy();
       m_pcGripperEquippedEntity->Destroy();
       m_pcDistanceScannerEquippedEntity->Destroy();
-      m_pcRABEquippedEntity->Destroy(); 
-      m_pcWiFiEquippedEntity->Destroy(); 
+      m_pcRABEquippedEntity->Destroy();
+      m_pcWiFiEquippedEntity->Destroy();
       m_cTurretRotation = CRadians::ZERO;
       m_fTurretRotationSpeed = 0.0f;
       m_unTurretMode = 0;
@@ -206,7 +206,7 @@ namespace argos {
       else if(str_component == "distance_scanner_equipped_entity") {
          return *m_pcDistanceScannerEquippedEntity;
       }
-      else if(str_component == "rab_equipped_entity<10>") {
+      else if(str_component == "rab_equipped_entity") {
          return *m_pcRABEquippedEntity;
       }
       else if(str_component == "wifi_equipped_entity") {
@@ -227,7 +227,7 @@ namespace argos {
               str_component == "led_equipped_entity"              ||
               str_component == "gripper_equipped_entity"          ||
               str_component == "distance_scanner_equipped_entity" ||
-              str_component == "rab_equipped_entity<10>" ||
+              str_component == "rab_equipped_entity" ||
               str_component == "wifi_equipped_entity");
    }
 
@@ -239,11 +239,13 @@ namespace argos {
       m_pcDistanceScannerEquippedEntity->UpdateRotation();
       m_pcEmbodiedEntity->UpdateBoundingBox();
       m_pcRABEquippedEntity->SetPosition(m_pcEmbodiedEntity->GetPosition());
+      m_pcWiFiEquippedEntity->SetPosition(m_pcEmbodiedEntity->GetPosition());
+      m_pcWiFiEquippedEntity->SetOrientation(m_pcEmbodiedEntity->GetOrientation());
    }
 
    /****************************************/
    /****************************************/
-   
+
 #define SET_RING_LED_POSITION(IDX)                                              \
    cLEDPosition.Set(FOOTBOT_LED_RING_RADIUS, 0.0f, FOOTBOT_LED_RING_ELEVATION); \
    cLEDAngle = cLEDAnglePhase;                                                 \
@@ -252,7 +254,7 @@ namespace argos {
    cLEDPosition.Rotate(m_pcEmbodiedEntity->GetOrientation());                   \
    cLEDPosition += cEntityPosition;                                             \
    m_pcLEDEquippedEntity->SetLedPosition(IDX, cLEDPosition);
-   
+
    void CFootBotEntity::SetLedPosition() {
       /* Set LED positions */
       const CVector3& cEntityPosition = GetEmbodiedEntity().GetPosition();

@@ -14,7 +14,11 @@
  */
 
 /**
- * @file <argos2/common/utility/datatypes/color.h>
+ * @file argos2/common/utility/datatypes/color.h
+ *
+ * @brief Basic color-related definitions.
+ *
+ * This file provides the definition of the class argos::CColor.
  *
  * @author Carlo Pinciroli - <cpinciro@ulb.ac.be>
  */
@@ -27,9 +31,12 @@
 #include <string.h>
 #include <iostream>
 
-
 namespace argos {
 
+   /**
+    * The basic color type.
+    * In ARGoS, color is encoded into the RGBA schema.
+    */
    class CColor {
 
    public:
@@ -53,60 +60,131 @@ namespace argos {
       static CColor GRAY80;
       static CColor GRAY90;
 
+      /**
+       * Class constructor.
+       */
       CColor() {}
 
+      /**
+       * Class constructor.
+       */
       explicit CColor(const UInt8 un_red,
                       const UInt8 un_green,
                       const UInt8 un_blue,
-                      const UInt8 un_alpha = 255) :
+                      const UInt8 un_alpha = 255) throw() :
          m_tChannels(un_red, un_green, un_blue, un_alpha) {}
 
-      inline Real ToGrayScale() const {
+      /**
+       * Returns the color in grayscale.
+       * @returns the color in grayscale. The returned value is in the range [0,1].
+       */
+      inline Real ToGrayScale() const throw() {
          return
             0.299f * m_tChannels.m_unRed +
             0.587f * m_tChannels.m_unGreen +
             0.114f * m_tChannels.m_unBlue;
       }
 
-      inline UInt8 GetRed() const { return m_tChannels.m_unRed; }
-      inline void SetRed(const UInt8 un_red) { m_tChannels.m_unRed = un_red; }
+      /**
+       * Returns the red channel of the color.
+       * @returns the red channel of the color.
+       */
+      inline UInt8 GetRed() const throw() { return m_tChannels.m_unRed; }
+      /**
+       * Sets the red channel of the color.
+       * @param un_red the red channel of the color.
+       */
+      inline void SetRed(const UInt8 un_red) throw() { m_tChannels.m_unRed = un_red; }
 
-      inline UInt8 GetGreen() const { return m_tChannels.m_unGreen; }
-      inline void SetGreen(const UInt8 un_green) { m_tChannels.m_unGreen = un_green; }
+      /**
+       * Returns the green channel of the color.
+       * @returns the green channel of the color.
+       */
+      inline UInt8 GetGreen() const throw() { return m_tChannels.m_unGreen; }
+      /**
+       * Sets the green channel of the color.
+       * @param un_green the green channel of the color.
+       */
+      inline void SetGreen(const UInt8 un_green) throw() { m_tChannels.m_unGreen = un_green; }
 
-      inline UInt8 GetBlue() const { return m_tChannels.m_unBlue; }
-      inline void SetBlue(const UInt8 un_blue) { m_tChannels.m_unBlue = un_blue; }
+      /**
+       * Returns the blue channel of the color.
+       * @returns the blue channel of the color.
+       */
+      inline UInt8 GetBlue() const throw() { return m_tChannels.m_unBlue; }
+      /**
+       * Sets the blue channel of the color.
+       * @param un_blue the blue channel of the color.
+       */
+      inline void SetBlue(const UInt8 un_blue) throw() { m_tChannels.m_unBlue = un_blue; }
 
-      inline UInt8 GetAlpha() const { return m_tChannels.m_unAlpha; }
-      inline void SetAlpha(const UInt8 un_alpha) { m_tChannels.m_unAlpha = un_alpha; }
+      /**
+       * Returns the alpha channel of the color.
+       * @returns the alpha channel of the color.
+       */
+      inline UInt8 GetAlpha() const throw() { return m_tChannels.m_unAlpha; }
+      /**
+       * Sets the alpha channel of the color.
+       * @param un_alpha the alpha channel of the color.
+       */
+      inline void SetAlpha(const UInt8 un_alpha) throw() { m_tChannels.m_unAlpha = un_alpha; }
 
+      /**
+       * Sets the RGBA values of the color.
+       * @param un_red the red channel of the color.
+       * @param un_green the green channel of the color.
+       * @param un_blue the blue channel of the color.
+       * @param un_alpha the alpha channel of the color.
+       */
       inline void Set(const UInt8 un_red,
                       const UInt8 un_green,
                       const UInt8 un_blue,
-                      const UInt8 un_alpha = 255) {
+                      const UInt8 un_alpha = 255) throw() {
          SetRed(un_red);
          SetGreen(un_green);
          SetBlue(un_blue);
          SetAlpha(un_alpha);
       }
 
-      inline operator UInt32()
-      {
+      /**
+       * Cast operator.
+       * Casts the color into a 32-bit structure.
+       */
+      inline operator UInt32() {
          return *reinterpret_cast<UInt32*>(&m_tChannels);
       }
 
-      inline bool operator==(const CColor& c_color2) const
-      {
+      /**
+       * Returns <tt>true</tt> if the given color is identical to the current.
+       * @param c_color2 the color to compare the current color to.
+       * @return <tt>true</tt> if the given color is identical to the current.
+       */
+      inline bool operator==(const CColor& c_color2) const throw() {
          return m_tChannels == c_color2.m_tChannels;
       }
 
-      inline bool operator!=(const CColor& c_color2) const
-      {
+      /**
+       * Returns <tt>true</tt> if the given color is different from the current.
+       * @param c_color2 the color to compare the current color to.
+       * @return <tt>true</tt> if the given color is different from the current.
+       */
+      inline bool operator!=(const CColor& c_color2) const throw() {
          return m_tChannels != c_color2.m_tChannels;
       }
 
-      friend std::ostream& operator<<(std::ostream& os, const CColor& c_color)
-      {
+      /**
+       * Output stream operator.
+       * Operator to serialize a color into a C++ output stream. When a color
+       * corresponds to one of the predefined constants (such as argos::CColor::RED)
+       * it streams the color name. For instance, if the current color is
+       * argos::CColor::RED, the output is a string containing <tt>red</tt>. Otherwise,
+       * the color is output as a tuple <tt>&lt;r,g,b,a&gt;</tt>.
+       * @param os the C++ output stream.
+       * @param c_color the color to stream.
+       * @return the new state of the C++ output stream.
+       */
+      friend std::ostream& operator<<(std::ostream& os,
+                                      const CColor& c_color) {
          if      (c_color == CColor::BLACK)   os << "black";
          else if (c_color == CColor::WHITE)   os << "white";
          else if (c_color == CColor::RED)     os << "red";
@@ -134,6 +212,15 @@ namespace argos {
          return os;
       }
 
+      /**
+       * Input stream operator.
+       * Operator to get a color from a C++ input stream. The input stream
+       * value can contain predefined color names, such as <tt>red</tt>. The
+       * color can be also input as a tuple <tt>&lt;r,g,b,a&gt;</tt>.
+       * @param is the C++ input stream.
+       * @param c_color the color to fill.
+       * @return the new state of the C++ input stream.
+       */
       friend std::istream& operator>>(std::istream& is,
                                       CColor& c_color) {
          try {

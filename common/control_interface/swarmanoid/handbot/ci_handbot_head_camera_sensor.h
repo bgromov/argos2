@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/handbot/ci_handbot_head_camera_sensor.h>
+ * @file common/control_interface/handbot/ci_handbot_head_camera_sensor.h
  *
  * @brief This file provides the definition of the handbot head camera sensor.
  * @author Giovanni Pini  - <gpini@iridia.ulb.ac.be>
@@ -30,7 +30,7 @@ namespace argos {
 }
 
 #include <argos2/common/utility/math/vector2.h>
-#include <argos2/common/control_interface/swarmanoid/ci_camera_sensor.h>
+#include <argos2/common/control_interface/ci_camera_sensor.h>
 
 namespace argos {
 

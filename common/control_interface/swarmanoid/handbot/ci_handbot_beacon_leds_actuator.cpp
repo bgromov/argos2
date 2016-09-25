@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/handbot/ci_handbot_beacon_leds_actuator.h>
+ * @file common/control_interface/handbot/ci_handbot_beacon_leds_actuator.h
  *
  * @brief This file provides the definition of handbot LEDs actuator.
  *

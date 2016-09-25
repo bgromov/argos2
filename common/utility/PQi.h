@@ -28,7 +28,7 @@
  */
 
 /**
-* @file <common/utility_classes/PQi.h>
+* @file common/utility_classes/PQi.h
 *
 * @brief This file provides the definition and implementation of an
 * index-heap-based priority queue. It is taken from Sedgewick's "Algorithms 

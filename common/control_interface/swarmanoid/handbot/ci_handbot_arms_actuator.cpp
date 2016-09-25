@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/swarmanoid/handbot/ci_handbot_arms_actuator.cpp>
+ * @file common/control_interface/swarmanoid/handbot/ci_handbot_arms_actuator.cpp
  *
  * @brief This file provides the implementation of the common interface to the
  *        handbot arms actuators (head, arms and grippers).

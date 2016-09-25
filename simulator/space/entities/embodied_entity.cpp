@@ -14,9 +14,9 @@
  */
 
 #include "embodied_entity.h"
+#include "composable_entity.h"
 #include <argos2/simulator/space/space.h>
 #include <simulator.h>
-#include <visitors/entity_visitor.h>
 #include <argos2/common/utility/string_utilities.h>
 #include <argos2/common/utility/math/matrix3x3.h>
 
@@ -28,6 +28,7 @@ namespace argos {
    void CEmbodiedEntity::Init(TConfigurationNode& t_tree) {
       CPositionalEntity::Init(t_tree);
       m_bBoundingBoxRecalculationNeeded = true;
+      m_bMovable = true;
    }
 
    /****************************************/
@@ -35,9 +36,10 @@ namespace argos {
 
    void CEmbodiedEntity::Reset() {
       CPositionalEntity::Reset();
+
       /* Reset collision data */
-      ResetCollisionDetected();
-      SetCollisionNumber(0);
+      ClearCollisionDetected();
+      m_unNumCollisions = 0;
       m_bBoundingBoxRecalculationNeeded = true;
    }
 
@@ -70,6 +72,12 @@ namespace argos {
          /* Update space position */
          SetPosition(c_position);
          SetOrientation(c_orientation);
+	 if( HasParent() ) {
+	    CComposableEntity* pcEntity = dynamic_cast<CComposableEntity*>(&GetParent());
+	    if( pcEntity != NULL ) {
+	       pcEntity->UpdateComponents();
+	    }
+	 }
          return true;
       }
       else {

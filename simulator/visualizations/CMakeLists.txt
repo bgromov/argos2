@@ -7,7 +7,7 @@ set(QT_USE_QTOPENGL true)
 find_package(Qt4)
 if(QT4_FOUND)
   # QT4 found, is it the minimum required version?
-  if(QT_VERSION_MAJOR GREATER 3 AND QT_VERSION_MINOR GREATER 1)
+  if(QT_VERSION_MAJOR GREATER 3 AND QT_VERSION_MINOR GREATER 2)
     # Is the QTOpenGL module present?
     if(QT_QTOPENGL_FOUND)
       # QT is OK, now check for OpenGL
@@ -20,11 +20,9 @@ if(QT4_FOUND)
           
           # All the required libraries are OK
           set(ARGOS_COMPILE_QTOPENGL true)
-	  if( APPLE )
-	    message("Including Dir:")
-	    message(${OPENGL_INCLUDE_DIR}/Headers)
-	    include_directories(${OPENGL_INCLUDE_DIR}/Headers)
-	  endif( APPLE )
+	        if( APPLE )
+	          include_directories(${OPENGL_INCLUDE_DIR}/Headers)
+	        endif( APPLE )
           
           # Now check for SDL (optional)
           set(SDL_BUILDING_LIBRARY true)
@@ -49,9 +47,9 @@ if(QT4_FOUND)
       message(STATUS "QtOpenGL module not found. Skipping compilation of QT-OpenGL visualization.")
     endif(QT_QTOPENGL_FOUND)
 
-  else(QT_VERSION_MAJOR GREATER 3 AND QT_VERSION_MINOR GREATER 1)
-    message(STATUS "Minimum required version for Qt (>= 4.2) not found. Skipping compilation of QT-OpenGL visualization.")
-  endif(QT_VERSION_MAJOR GREATER 3 AND QT_VERSION_MINOR GREATER 1)
+  else(QT_VERSION_MAJOR GREATER 3 AND QT_VERSION_MINOR GREATER 2)
+    message(STATUS "Minimum required version for Qt (>= 4.3) not found. Skipping compilation of QT-OpenGL visualization.")
+  endif(QT_VERSION_MAJOR GREATER 3 AND QT_VERSION_MINOR GREATER 2)
   
 else(QT4_FOUND)
   message(STATUS "Qt4 not found, skipping compilation of QT-OpenGL visualization.")

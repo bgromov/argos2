@@ -31,6 +31,27 @@ namespace argos {
 
    void ManageCloseGeomsAddingContactJointsCallback(void* pt_data, dGeomID t_geom1, dGeomID t_geom2) {
       CDynamics3DEngine::SGeomCheckData* psGeomCheckData = reinterpret_cast<CDynamics3DEngine::SGeomCheckData*>(pt_data);
+      SDynamics3DEngineGeomData* psGeomData1 = reinterpret_cast<SDynamics3DEngineGeomData*>(dGeomGetData(t_geom1));
+      SDynamics3DEngineGeomData* psGeomData2 = reinterpret_cast<SDynamics3DEngineGeomData*>(dGeomGetData(t_geom2));
+      if(psGeomData1 != NULL && psGeomData2 != NULL) {
+         if(psGeomData1->Type == GEOM_GRIPPABLE && psGeomData2->Type == GEOM_MAGNETIC_GRIPPER) {
+            SDynamics3DEngineGripperData* psGripperData = reinterpret_cast<SDynamics3DEngineGripperData*>
+               (psGeomData2->Data);
+
+            if(psGripperData->GripperEntity.IsLocked() && !psGripperData->BodyGripped){
+               psGeomCheckData->Engine.ManageCloseGeomsGrippingBody(psGeomCheckData, t_geom2, t_geom1);
+               return;
+            }
+         }
+         else if(psGeomData2->Type == GEOM_GRIPPABLE && psGeomData1->Type == GEOM_MAGNETIC_GRIPPER) {
+            SDynamics3DEngineGripperData* psGripperData = reinterpret_cast<SDynamics3DEngineGripperData*>
+               (psGeomData1->Data);
+            if(psGripperData->GripperEntity.IsLocked() && !psGripperData->BodyGripped){
+               psGeomCheckData->Engine.ManageCloseGeomsGrippingBody(psGeomCheckData, t_geom1, t_geom2); 
+               return;
+            }
+         }
+      }
       psGeomCheckData->Engine.ManageCloseGeomsAddingContactJoints(psGeomCheckData, t_geom1, t_geom2);
    }
 
@@ -74,7 +95,7 @@ namespace argos {
       m_tSpaceID = dHashSpaceCreate(0);
       dSpaceSetSublevel(m_tSpaceID, 0);
       m_tContactJointGroupID = dJointGroupCreate(0);
-      dWorldSetGravity(m_tWorldID, 0.0f, 0.0f, -9.81f);
+      dWorldSetGravity(m_tWorldID, m_cGravity.GetX(), m_cGravity.GetY(), m_cGravity.GetZ());
       dWorldSetERP(m_tWorldID, m_fERP);
       dWorldSetCFM(m_tWorldID, m_fCFM);
       dWorldSetQuickStepNumIterations(m_tWorldID, m_unIterations);
@@ -83,12 +104,15 @@ namespace argos {
       m_ptContacts = new dContact[m_unMaxContacts];
       for(UInt32 i  = 0; i < m_unMaxContacts; ++i) {
          ::memset(&(m_ptContacts[i].surface), 0, sizeof(dSurfaceParameters));
-         m_ptContacts[i].surface.mode = dContactMu2;
-         m_ptContacts[i].surface.mu = dInfinity;
-         m_ptContacts[i].surface.mu2 = dInfinity;
+         m_ptContacts[i].surface.mode   = dContactMu2 | dContactBounce | dContactSlip1 | dContactSlip2;
+         m_ptContacts[i].surface.mu     = 10;
+         m_ptContacts[i].surface.mu2    = 10;
+         m_ptContacts[i].surface.bounce = 0.0f;
+         m_ptContacts[i].surface.slip1  = 0.1f;
+         m_ptContacts[i].surface.slip2  = 0.1f;
       }
       /* Add a planar floor */
-      m_tFloor = dCreatePlane(m_tSpaceID, 0, 0, 1.0f, 0.0f);
+      m_tFloor = dCreatePlane(m_tSpaceID, 0.0f, 0.0f, 1.0f, 0.0f);
       /* Set the random seed from a random number taken from ARGoS RNG */
       m_pcRNG = CARGoSRandom::CreateRNG("argos");
       dRandSetSeed(m_pcRNG->Uniform(CRange<UInt32>(1,65535)));
@@ -145,6 +169,7 @@ namespace argos {
       SGeomCheckData sGeomCheckData(*this);
       dSpaceCollide(m_tSpaceID, &sGeomCheckData, &ManageCloseGeomsAddingContactJointsCallback);
       /* Perform the physics step */
+//      dWorldQuickStep(m_tWorldID, m_fSimulationClockTick);
       dWorldStep(m_tWorldID, m_fSimulationClockTick);
       /* Update the simulated space */
       for(TDynamics3DEntityMap::iterator it = m_tPhysicsEntities.begin();
@@ -286,6 +311,39 @@ namespace argos {
          /* Update the contact presence flag */
          ps_data->AreContactsPresent = (unContacts == 0);
       }
+   }
+
+   /****************************************/
+   /****************************************/
+
+   void CDynamics3DEngine::ManageCloseGeomsGrippingBody(SGeomCheckData* ps_data, dGeomID t_geom_gripper, 
+                                                        dGeomID t_geom_grippable) {
+      /* Let's check for collisions among Geoms */
+      UInt32 maxContacts = 5;
+      size_t unContacts = dCollide(t_geom_gripper, t_geom_grippable, maxContacts, 
+                                   &m_ptContacts->geom, sizeof(dContact));
+
+      /* If no collision is detected, we're done */
+      if(unContacts == 0) {
+         return;
+      }
+      /* Otherwise, let's manage the gripping contact */
+      /* Get the body ids */
+      dBodyID tGripperBody   = dGeomGetBody(t_geom_gripper);
+      dBodyID tGrippableBody = dGeomGetBody(t_geom_grippable);
+      
+      /* Create a fixed joint between the bodies */
+      dJointID tGrippingJoint;
+      tGrippingJoint = dJointCreateFixed(m_tWorldID, 0);
+      dJointAttach(tGrippingJoint, tGripperBody, tGrippableBody);
+      dJointSetFixed(tGrippingJoint);
+
+      SDynamics3DEngineGeomData* psGeomData = reinterpret_cast<SDynamics3DEngineGeomData*>
+         (dGeomGetData(t_geom_gripper));
+      SDynamics3DEngineGripperData* psGripperData = reinterpret_cast<SDynamics3DEngineGripperData*>
+         (psGeomData->Data);
+      psGripperData->BodyGripped      = true;
+      psGripperData->GrippingJointID  = tGrippingJoint;
    }
 
    /****************************************/

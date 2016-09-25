@@ -25,6 +25,7 @@
 
 #include <argos2/common/utility/math/general.h>
 #include <argos2/common/utility/math/angles.h>
+#include <argos2/common/utility/math/matrix2x2.h>
 #include <argos2/common/utility/string_utilities.h>
 #include <iostream>
 #include <cmath>
@@ -314,6 +315,12 @@ namespace argos {
 
       inline CVector2 operator-() const {
          return CVector2(-m_fX, -m_fY);
+      }
+
+      inline CVector2 operator*(const CMatrix2x2& c_matrix) {
+         CVector2 cResult(m_fX*c_matrix(0) + m_fY*c_matrix(2),
+			  m_fX*c_matrix(1) + m_fY*c_matrix(3));
+         return cResult;
       }
 
       inline friend std::ostream& operator<<(std::ostream& os,

@@ -54,6 +54,34 @@ namespace argos {
    /****************************************/
    /****************************************/
 
+   void MagneticGripperGrippableCollisionPostStep(cpSpace* pt_space, void* p_obj, void* p_data) {
+      /* Get the shapes involved */
+      cpShape* ptGripperShape = reinterpret_cast<cpShape*>(p_obj);
+      cpShape* ptGrippableShape = reinterpret_cast<cpShape*>(p_data);
+      /* Get a reference to the gripper data */
+      SDynamics2DEngineGripperData& sGripperData = *reinterpret_cast<SDynamics2DEngineGripperData*>(ptGripperShape->data);
+      /* The gripper is locked or unlocked? */
+      if(sGripperData.GripperEntity.IsUnlocked()) {
+         /* The gripper is locked. If it was gripping an object,
+          * release it. Then, process the collision normally */
+      	 if(sGripperData.GripperEntity.IsGripping()) {
+            sGripperData.ClearConstraints();
+      	 }
+      }
+      else if(! sGripperData.GripperEntity.IsGripping()) {
+         /* The gripper is unlocked and free, create the joints */
+         /* Create a constraint */
+         sGripperData.GripConstraint = cpSpaceAddConstraint(pt_space,
+                                                            cpPivotJointNew(
+                                                               ptGripperShape->body,
+                                                               ptGrippableShape->body,
+                                                               sGripperData.GripperAnchor));
+         sGripperData.GripConstraint->maxBias = 0.95f; // Correct overlap
+         sGripperData.GripConstraint->maxForce = 10000.0f; // Max correction speed
+         sGripperData.GripperEntity.SetGrippedEntity(*reinterpret_cast<CEmbodiedEntity*>(ptGrippableShape->data));
+      }
+   }
+
    int MagneticGripperGrippableCollisionBegin(cpArbiter* pt_arb, cpSpace* pt_space, void* p_data) {
       /* Get the shapes involved */
       CP_ARBITER_GET_SHAPES(pt_arb, ptGripperShape, ptGrippableShape);
@@ -70,40 +98,45 @@ namespace argos {
       CP_ARBITER_GET_SHAPES(pt_arb, ptGripperShape, ptGrippableShape);
       /* Get a reference to the gripper data */
       SDynamics2DEngineGripperData& sGripperData = *reinterpret_cast<SDynamics2DEngineGripperData*>(ptGripperShape->data);
-      /* The gripper is locked or unlocked? */
-      if(sGripperData.GripperEntity.IsUnlocked()) {
-         /* The gripper is locked. If it was gripping an object,
-          * release it. Then, process the collision normally */
-      	 if(sGripperData.GripperEntity.IsGripping()) {
-            sGripperData.ClearConstraints();
-      	 }
-         return 1;
-      }
-      else if(! sGripperData.GripperEntity.IsGripping()) {
-         /* The gripper is unlocked and free, create the joints */
-         /* Prevent gripper from slipping */
-         pt_arb->e = 0.0f; // No elasticity
-         pt_arb->u = 1.0f; // Max friction
-         pt_arb->surface_vr = cpvzero; // No surface velocity
+      /*
+       * When to process gripping:
+       * 1. when the robot was gripping and it just unlocked the gripper
+       * 2. when the robot was not gripping and it just locked the gripper
+       *    in this case, also precalculate the anchor point
+       * Otherwise ignore it
+       */
+      bool bGrippingJustUnlocked = (sGripperData.GripperEntity.IsGripping() && sGripperData.GripperEntity.IsUnlocked());
+      bool bNotGrippingJustLocked = (!sGripperData.GripperEntity.IsGripping() && sGripperData.GripperEntity.IsLocked());
+      if(bNotGrippingJustLocked) {
          /* Calculate the anchor point on the grippable body
             as the centroid of the contact points */
-         cpVect tGrippableAnchor = cpvzero;
-         for(SInt32 i = 0; i < pt_arb->numContacts; ++i) {
-            tGrippableAnchor = cpvadd(tGrippableAnchor, cpArbiterGetPoint(pt_arb, i));
+         sGripperData.GripperAnchor = cpvzero;
+         for(SInt32 i = 0; i < cpArbiterGetCount(pt_arb); ++i) {
+            sGripperData.GripperAnchor = cpvadd(sGripperData.GripperAnchor, cpArbiterGetPoint(pt_arb, i));
          }
-         tGrippableAnchor = cpvmult(tGrippableAnchor, 1.0f / pt_arb->numContacts);
-         /* Create a constraint */
-         sGripperData.GripConstraint = cpSpaceAddConstraint(pt_space,
-                                                            cpPivotJointNew(
-                                                               ptGripperShape->body,
-                                                               ptGrippableShape->body,
-                                                               tGrippableAnchor));
-         sGripperData.GripConstraint->biasCoef = 0.95f; // Correct overlap
-         sGripperData.GripConstraint->maxBias  = 0.01f; // Max correction speed
-         sGripperData.GripperEntity.SetGrippedEntity(*reinterpret_cast<CEmbodiedEntity*>(ptGrippableShape->data));
+         sGripperData.GripperAnchor = cpvmult(sGripperData.GripperAnchor, 1.0f / cpArbiterGetCount(pt_arb));
       }
-      /* Ignore the collision, the objects are gripped already */
-      return 0;
+      if(bGrippingJustUnlocked || bNotGrippingJustLocked) {
+         /* Instruct the engine to process gripping in a post-step callback */
+         cpSpaceAddPostStepCallback(
+            pt_space,
+            MagneticGripperGrippableCollisionPostStep,
+            ptGripperShape,
+            ptGrippableShape
+            );
+      }
+      /* Always return false, anyway the gripper is a sensor shape */
+      return false;
+   }
+
+   void GrippableNormalCollisionPostSolve(cpArbiter* pt_arb, cpSpace* pt_space, void* p_data) {
+  	 cpVect totalImpulse = cpArbiterTotalImpulse(pt_arb);
+  	 cpVect totalImpulseWithFriction = cpArbiterTotalImpulseWithFriction(pt_arb);
+   }
+
+   void GrippableGrippableCollisionPostSolve(cpArbiter* pt_arb, cpSpace* pt_space, void* p_data) {
+  	 cpVect totalImpulse = cpArbiterTotalImpulse(pt_arb);
+  	 cpVect totalImpulseWithFriction = cpArbiterTotalImpulseWithFriction(pt_arb);
    }
 
    /****************************************/
@@ -197,9 +230,9 @@ namespace argos {
       /* Resize the space hash.
          This has dramatic effects on performance.
          TODO: - find optimal parameters automatically (average entity size)
-      */
-      cpSpaceResizeStaticHash(m_ptSpace, m_fStaticHashCellSize, m_nStaticHashCells);
+      cpSpaceReindexStaticHash(m_ptSpace, m_fStaticHashCellSize, m_nStaticHashCells);
       cpSpaceResizeActiveHash(m_ptSpace, m_fActiveHashCellSize, m_nActiveHashCells);
+      */
       /* Gripper-Gripped callback functions */
       cpSpaceAddCollisionHandler(
          m_ptSpace,
@@ -210,6 +243,24 @@ namespace argos {
          NULL,
          NULL,
          NULL);
+      cpSpaceAddCollisionHandler(
+      		m_ptSpace,
+      		SHAPE_GRIPPABLE,
+      		SHAPE_NORMAL,
+      		NULL,
+      		NULL,
+      		GrippableNormalCollisionPostSolve,
+      		NULL,
+      		NULL);
+      cpSpaceAddCollisionHandler(
+          m_ptSpace,
+          SHAPE_GRIPPABLE,
+          SHAPE_GRIPPABLE,
+          NULL,
+          NULL,
+          GrippableGrippableCollisionPostSolve,
+          NULL,
+          NULL);
       /* Add boundaries, if specified */
       if(! m_vecSegments.empty()) {
          cpShape* ptSegment;
@@ -244,6 +295,7 @@ namespace argos {
           it != m_tPhysicsEntities.end(); ++it) {
          it->second->Reset();
       }
+      cpSpaceReindexStatic(m_ptSpace);
    }
 
    /****************************************/
@@ -291,6 +343,7 @@ namespace argos {
 
    void CDynamics2DEngine::AddEntity(CEntity& c_entity) {
       c_entity.Accept(m_cAddVisitor);
+      cpResetShapeIdCounter();
    }
 
    /****************************************/

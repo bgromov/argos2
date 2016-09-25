@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <argos2/common/control_interface/swarmanoid/eyebot/ci_eyebot_speech_actuator.cpp>
+ * @file argos2/common/control_interface/swarmanoid/eyebot/ci_eyebot_speech_actuator.cpp
  *
  * @brief This file provides the definition of eyebot speech actuator.
  *

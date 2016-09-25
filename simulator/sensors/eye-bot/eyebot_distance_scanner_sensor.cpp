@@ -106,13 +106,12 @@ namespace argos {
             GetEntity().GetControllableEntity().AddIntersectionPoint(c_ray, sIntersection.TOnRay);
          }
          /* There is an intersection! */
-         /* NO: WE KEEP METERS FOR NOW! - The distance is returned in meters, but the reading must be in cm */ 
-         return c_ray.GetDistance(sIntersection.TOnRay); // * 100.0f;
+         return c_ray.GetDistance(sIntersection.TOnRay) * 100.0f;
       }
       else {
          /* No intersection */
          if(m_bShowRays) GetEntity().GetControllableEntity().AddCheckedRay(false, c_ray);
-         return DISTANCE_SCANNER_RANGE;  // Return maximum instead of -2 as for footbot
+         return DISTANCE_SCANNER_RANGE * 100.0f;  // Return maximum instead of -2 as for footbot
       }
    }
 

@@ -15,7 +15,7 @@
 
 
 /**
- * @file <common/control_interface/handbot/ci_handbot_retrieve_book_actuator.cpp>
+ * @file common/control_interface/handbot/ci_handbot_retrieve_book_actuator.cpp
  *
  * @brief This file provides the common interface implementation of handbot retrieve book actuator.
  *

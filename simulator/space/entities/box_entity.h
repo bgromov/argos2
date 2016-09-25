@@ -73,10 +73,6 @@ namespace argos {
          m_fMass = f_mass;
       }
 
-      inline bool IsMovable() const {
-         return m_bMovable;
-      }
-
       inline bool IsVisible() const {
          return m_bVisible;
       }
@@ -96,7 +92,6 @@ namespace argos {
       std::vector<CVector3> m_vecBaseLEDPositions;
       CVector3 m_cSize;
       Real m_fMass;
-      bool m_bMovable;
       bool m_bVisible;
 
    };

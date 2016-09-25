@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <argos2/common/control_interface/swarmanoid/eyebot/ci_eyebot_speech_actuator.h>
+ * @file argos2/common/control_interface/swarmanoid/eyebot/ci_eyebot_speech_actuator.h
  *
  * @brief This file provides the definition of
  *

@@ -21,8 +21,10 @@
 
 #include "kinematics2d_add_visitor.h"
 #include "kinematics2d_box.h"
+#include "kinematics2d_cylinder.h"
 #include "kinematics2d_footbot.h"
 #include "kinematics2d_eyebot.h"
+#include "kinematics2d_epuck.h"
 #include "kinematics2d_engine.h"
 #include <argos2/simulator/space/entities/embodied_entity.h>
 
@@ -33,6 +35,16 @@ namespace argos {
   
   void CKinematics2DAddVisitor::Visit(CBoxEntity& c_entity) {
     CKinematics2DBox* pcEntity = new CKinematics2DBox(m_cEngine, c_entity);
+    m_cEngine.AddPhysicsEntity(c_entity.GetId(), *pcEntity);
+    c_entity.GetEmbodiedEntity().AddPhysicsEngine(m_cEngine);
+    c_entity.GetEmbodiedEntity().AddPhysicsEngineEntity(m_cEngine.GetId(), *pcEntity);
+  }
+
+  /****************************************/
+  /****************************************/
+
+  void CKinematics2DAddVisitor::Visit(CCylinderEntity& c_entity) {
+    CKinematics2DCylinder* pcEntity = new CKinematics2DCylinder(m_cEngine, c_entity);
     m_cEngine.AddPhysicsEntity(c_entity.GetId(), *pcEntity);
     c_entity.GetEmbodiedEntity().AddPhysicsEngine(m_cEngine);
     c_entity.GetEmbodiedEntity().AddPhysicsEngineEntity(m_cEngine.GetId(), *pcEntity);
@@ -54,6 +66,17 @@ namespace argos {
 
   void CKinematics2DAddVisitor::Visit(CEyeBotEntity& c_entity) {
     CKinematics2DEyeBot* pcEntity = new CKinematics2DEyeBot(m_cEngine, c_entity);
+    m_cEngine.AddPhysicsEntity(c_entity.GetId(), *pcEntity);
+    m_cEngine.AddControllableEntity(c_entity.GetControllableEntity());
+    c_entity.GetEmbodiedEntity().AddPhysicsEngine(m_cEngine);
+    c_entity.GetEmbodiedEntity().AddPhysicsEngineEntity(m_cEngine.GetId(), *pcEntity);
+  }
+
+  /****************************************/
+  /****************************************/
+
+  void CKinematics2DAddVisitor::Visit(CEPuckEntity& c_entity) {
+    CKinematics2DEPuck* pcEntity = new CKinematics2DEPuck(m_cEngine, c_entity);
     m_cEngine.AddPhysicsEntity(c_entity.GetId(), *pcEntity);
     m_cEngine.AddControllableEntity(c_entity.GetControllableEntity());
     c_entity.GetEmbodiedEntity().AddPhysicsEngine(m_cEngine);

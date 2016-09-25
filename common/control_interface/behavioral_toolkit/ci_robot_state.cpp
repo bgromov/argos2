@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/behavioral_toolkit/ci_robot_state.cpp>
+ * @file common/control_interface/behavioral_toolkit/ci_robot_state.cpp
  *
  * @brief This file provides the control interface implementation for the robot
  * state needed by the behavioral toolkit.

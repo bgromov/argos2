@@ -112,6 +112,12 @@ namespace argos {
                          const std::vector<SAdditionalLED>& vec_additional_leds = std::vector<SAdditionalLED>(),
                          bool b_visible = true);
 
+      CBoothEntity& AddBooth(const std::string& str_id,
+                               const CVector3& c_position,
+                               const CQuaternion& c_orientation,
+                               const std::string& str_controller_id,
+                               const std::string& str_physics_id);
+
       CCylinderEntity& AddCylinder(const std::string& str_id,
                                    const CVector3& c_position,
                                    const CQuaternion& c_orientation,

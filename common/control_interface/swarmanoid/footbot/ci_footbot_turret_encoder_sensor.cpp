@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/swarmanoid/footbot/ci_footbot_turret_encoder_sensor.cpp>
+ * @file common/control_interface/swarmanoid/footbot/ci_footbot_turret_encoder_sensor.cpp
  *
  * @brief This file provides the common interface definition of the footbot turret encoder
  * sensor. The sensor provides a measure of the rotation of the turret.

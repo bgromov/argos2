@@ -24,15 +24,18 @@
 
 #include <argos2/simulator/space/entities/entity.h>
 #include <argos2/common/utility/math/vector3.h>
+#include <argos2/simulator/space/space_hash.h>
 
 namespace argos {
 
-   template <SInt32 MSG_SIZE> class CRABEquippedEntity : public CEntity {
+   class CRABEquippedEntity : public CEntity {
 
    public:
 
-      CRABEquippedEntity(CEntity* pc_parent) :
+      CRABEquippedEntity(CEntity* pc_parent, size_t un_msg_size) :
          CEntity(pc_parent),
+         m_unMsgSize(un_msg_size),
+         m_punData(new UInt8[un_msg_size]),
          m_fRange(0.0f) {
          bool bFound = false;
          size_t i = 0;
@@ -49,15 +52,16 @@ namespace argos {
          if(!bFound) {
             THROW_ARGOSEXCEPTION("The total amount of range and bearing devices cannot be more than 65535.");
          }
-         ::memset(m_punData, 0, MSG_SIZE);
+         ::memset(m_punData, 0, m_unMsgSize);
       }
       virtual ~CRABEquippedEntity() {
          /* Mark the ID as available */
          AVAILABLE_IDS[m_unNumericId] = 1;
+         delete[] m_punData;
       }
 
       virtual void Reset() {
-         ::memset(m_punData, 0, MSG_SIZE);
+         ::memset(m_punData, 0, m_unMsgSize);
       }
 
       inline const CVector3& GetPosition() const {
@@ -68,12 +72,16 @@ namespace argos {
          m_cPosition = c_position;
       }
 
+      inline size_t GetMsgSize() const {
+         return m_unMsgSize;
+      }
+
       inline void GetData(UInt8* pun_data) const {
-         ::memcpy(pun_data, m_punData, MSG_SIZE);
+         ::memcpy(pun_data, m_punData, m_unMsgSize);
       }
 
       inline void SetData(const UInt8* pun_data) {
-         ::memcpy(m_punData, pun_data, MSG_SIZE);
+         ::memcpy(m_punData, pun_data, m_unMsgSize);
       }
 
       inline Real GetRange() const {
@@ -89,7 +97,7 @@ namespace argos {
       }
 
       inline void ClearData() {
-         ::memset(m_punData, 0, MSG_SIZE);
+         ::memset(m_punData, 0, m_unMsgSize);
       }
 
       inline virtual void Accept(CEntityVisitor& visitor) {
@@ -97,13 +105,14 @@ namespace argos {
       }
 
       inline virtual std::string GetTypeDescription() const {
-         return "rab_equipped_entity<" + ToString(MSG_SIZE) + ">";
+         return "rab_equipped_entity";
       }
 
    protected:
 
       CVector3 m_cPosition;
-      UInt8 m_punData[MSG_SIZE];
+      size_t m_unMsgSize;
+      UInt8* m_punData;
       Real m_fRange;
       UInt16 m_unNumericId;
 
@@ -113,7 +122,27 @@ namespace argos {
 
    };
 
-   template <SInt32 MSG_SIZE> std::vector<UInt16> CRABEquippedEntity<MSG_SIZE>::AVAILABLE_IDS(65535, 1);
+   typedef std::vector<CRABEquippedEntity*> TRABEquippedEntityList;
+   typedef std::tr1::unordered_set<CRABEquippedEntity*> TRABEquippedEntitySet;
+
+   /****************************************/
+   /****************************************/
+
+   class CRABEquippedEntitySpaceHashUpdater : public CSpaceHashUpdater<CRABEquippedEntity> {
+
+   public:
+
+      virtual void operator()(CAbstractSpaceHash<CRABEquippedEntity>& c_space_hash,
+                              CRABEquippedEntity& c_element);
+
+   private:
+
+      SInt32 m_nCenterI, m_nCenterJ, m_nCenterK;
+
+   };
+
+   /****************************************/
+   /****************************************/
 
 }
 

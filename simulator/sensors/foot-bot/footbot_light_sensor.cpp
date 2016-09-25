@@ -34,6 +34,7 @@ namespace argos {
       m_bShowRays(false),
       m_cSensorSpacing(CRadians::TWO_PI / NUM_READINGS),
       m_cSensorHalfSpacing(m_cSensorSpacing / 2.0),
+      m_bCheckOcclusions(true),
       m_pcRNG(NULL),
       m_fNoiseLevel(0.0f) {}
 
@@ -53,7 +54,8 @@ namespace argos {
          GetNodeAttributeOrDefault(t_tree, "show_rays", m_bShowRays, m_bShowRays);
          /* Parse noise level */
          GetNodeAttributeOrDefault(t_tree, "noise_level", m_fNoiseLevel, m_fNoiseLevel);
-         m_fNoiseLevel *= FOOTBOT_LIGHT_SENSOR_RANGE.GetMax();
+         /* Parse occlusion check */
+         GetNodeAttributeOrDefault(t_tree, "check_occlusions", m_bCheckOcclusions, m_bCheckOcclusions);
       }
       catch(CARGoSException& ex) {
          THROW_ARGOSEXCEPTION_NESTED("Initialization error in foot-bot light sensor.", ex);
@@ -80,6 +82,15 @@ namespace argos {
       }
    }
 
+   static Real ScaleReading(const CRadians& c_angular_distance) {
+      if(c_angular_distance > CRadians::PI_OVER_TWO) {
+         return 0.0f;
+      }
+      else {
+         return (1.0f - 2.0f * c_angular_distance / CRadians::PI);
+      }
+   }
+
    /****************************************/
    /****************************************/
 
@@ -97,8 +108,8 @@ namespace argos {
       GetEntity().GetEmbodiedEntity().GetOrientation().ToEulerAngles(cOrientationZ, cTmp1, cTmp2);
       /* Buffer for calculating the light--foot-bot distance */
       CVector3 cLightDistance;
-      /* Buffer for the angle of the sensor wrt to the foot-bot */
-      CRadians cSensorAngle;
+      /* Buffer for the angle of the light wrt to the foot-bot */
+      CRadians cAngleLightWrtFootbot;
       /* Initialize the occlusion check ray start to the baseline of the foot-bot */
       CRay cOcclusionCheckRay;
       cOcclusionCheckRay.SetStart(cFootBotPosition);
@@ -128,9 +139,9 @@ namespace argos {
                /* Set the ray end */
                cOcclusionCheckRay.SetEnd(cLightPosition);
                /* Check occlusion between the foot-bot and the light */
-               if(! m_cSpace.GetClosestEmbodiedEntityIntersectedByRay(sIntersectionData,
-                                                                      cOcclusionCheckRay,
-                                                                      tIgnoreEntities)) {
+               if( ! m_bCheckOcclusions ||
+                   ! m_cSpace.GetClosestEmbodiedEntityIntersectedByRay(sIntersectionData, cOcclusionCheckRay, tIgnoreEntities))
+               {
                   /* The light is not occluded */
                   if(m_bShowRays) GetEntity().GetControllableEntity().AddCheckedRay(false, cOcclusionCheckRay);
                   /* Get the distance between the light and the foot-bot */
@@ -139,17 +150,31 @@ namespace argos {
                      The greater the intensity, the smaller the distance */
                   cLightDistance /= cLight.GetIntensity();
                   /* Get the angle wrt to foot-bot rotation */
-                  cSensorAngle = cLightDistance.GetZAngle();
-                  cSensorAngle -= cOrientationZ;
-                  /* Find reading corresponding to the sensor */
-                  SInt32 nReadingIdx = (cSensorAngle - m_cSensorHalfSpacing) / m_cSensorSpacing;
+                  cAngleLightWrtFootbot = cLightDistance.GetZAngle();
+                  cAngleLightWrtFootbot -= cOrientationZ;
+
+                  /* Find closest sensor index to point at which ray hits footbot body */
+                  // Rotate whole body by half a sensor spacing (corresponding to placement of first sensor)
+                  // Division says how many sensor spacings there are between first sensor and point at which ray hits footbot body
+                  // Increase magnitude of result of division to ensure correct rounding
+                  Real fIdx = (cAngleLightWrtFootbot - m_cSensorHalfSpacing) / m_cSensorSpacing;
+                  SInt32 nReadingIdx = (fIdx > 0) ? fIdx + 0.5f : fIdx - 0.5f;
+
                   /* Set the actual readings */
                   Real fReading = cLightDistance.Length();
-                  m_tReadings[Modulo(nReadingIdx-2, NUM_READINGS)].Value += ComputeReading(fReading * 1.5);
-                  m_tReadings[Modulo(nReadingIdx-1, NUM_READINGS)].Value += ComputeReading(fReading * 1.25);
-                  m_tReadings[Modulo(nReadingIdx,   NUM_READINGS)].Value += ComputeReading(fReading);
-                  m_tReadings[Modulo(nReadingIdx+1, NUM_READINGS)].Value += ComputeReading(fReading * 1.25);
-                  m_tReadings[Modulo(nReadingIdx+2, NUM_READINGS)].Value += ComputeReading(fReading * 1.5);
+
+                  // Take 6 readings before closest sensor and 6 readings after - thus we
+                  // process sensors that are with 180 degrees of intersection of light
+                  // ray with robot body
+                  for( SInt32 nIndexOffset = -6; nIndexOffset < 7; nIndexOffset++ )
+                  {
+                     UInt32 unIdx = Modulo(nReadingIdx + nIndexOffset, NUM_READINGS);
+                     CRadians cAngularDistanceFromOptimalLightReceptionPoint = Abs((cAngleLightWrtFootbot - m_tReadings[unIdx].Angle).SignedNormalize());
+                     // ComputeReading gives value as if sensor was perfectly in line with
+                     // light ray. We then linearly decrease actual reading from 1 (dist
+                     // 0) to 0 (dist PI/2)
+                     m_tReadings[unIdx].Value += ComputeReading(fReading) * ScaleReading(cAngularDistanceFromOptimalLightReceptionPoint);
+                  }
                }
                else {
                   /* The ray is occluded */
@@ -167,7 +192,7 @@ namespace argos {
       for(size_t i = 0; i < m_tReadings.size(); ++i) {
          /* Apply noise */
          if(m_fNoiseLevel > 0.0f) {
-            m_tReadings[i].Value += m_pcRNG->Uniform(CRange<Real>(-m_fNoiseLevel, m_fNoiseLevel));
+            m_tReadings[i].Value += m_tReadings[i].Value * m_pcRNG->Uniform(CRange<Real>(-m_fNoiseLevel, m_fNoiseLevel));
          }
          /* Clamp the value if outside range */
          CCI_FootBotLightSensor::FOOTBOT_LIGHT_SENSOR_RANGE.TruncValue(m_tReadings[i].Value);
@@ -233,7 +258,24 @@ namespace argos {
                    "      ...\n"
                    "    </my_controller>\n"
                    "    ...\n"
-                   "  </controllers>\n",
+                   "  </controllers>\n\n"
+                   "By default, if the line of sight between a sensor in the ring and the light is\n"
+                   "occluded, that sensor's reading is zero. In reality, sometimes this is not\n"
+                   "true and you don't want occlusions to be checked. Try the following parameter:\n\n"
+                   "  <controllers>\n"
+                   "    ...\n"
+                   "    <my_controller ...>\n"
+                   "      ...\n"
+                   "      <sensors>\n"
+                   "        ...\n"
+                   "        <footbot_light implementation=\"rot_z_only\"\n"
+                   "                       check_occlusions=\"false\" />\n"
+                   "        ...\n"
+                   "      </sensors>\n"
+                   "      ...\n"
+                   "    </my_controller>\n"
+                   "    ...\n"
+                   "  </controllers>\n\n",
                    "Under development"
       )
 

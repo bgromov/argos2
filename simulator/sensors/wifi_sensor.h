@@ -23,8 +23,8 @@
 #define WIFI_SENSOR_H
 
 namespace argos {
-   class CWiFiSensor;
-   class CControllableEntity;
+  class CWiFiSensor;
+  class CControllableEntity;
 }
 
 #include <argos2/simulator/sensors/simulated_sensor.h>
@@ -34,32 +34,48 @@ namespace argos {
 
 namespace argos {
 
-   class CWiFiSensor : public CSimulatedSensor,
-                       public CCI_WiFiSensor {
+  class CWiFiSensor : public CSimulatedSensor,
+		      public CCI_WiFiSensor {
 
-   public:
+  public:
 
-      CWiFiSensor();
-      virtual ~CWiFiSensor() {}
+    CWiFiSensor();
+    virtual ~CWiFiSensor() {}
 
-      virtual void Init(TConfigurationNode& t_tree);
+    virtual void Init(TConfigurationNode& t_tree);
 
-      inline virtual CEntity& GetEntity() {
-         return *m_pcEntity;
-      }
-      virtual void SetEntity(CEntity& c_entity);
-      
-      virtual void Update();
-      virtual void Reset();
+    inline virtual CEntity& GetEntity() {
+      return *m_pcEntity;
+    }
+    virtual void SetEntity(CEntity& c_entity);
 
-      void GetReceivedMessages(CCI_WiFiActuator::TMessageList& t_messages);
+    virtual void Update();
+    virtual void Reset();
 
-   private:
+    void GetReceivedMessages(TMessageList& t_messages);
 
-      CSpace& m_cSpace;
-      CEntity* m_pcEntity;
-      CWiFiEquippedEntity* m_pcWiFiEquippedEntity;
-   };
+    void GetReceivedMessages_Local(TMessageList& t_messages){}
+    void GetReceivedMessages_Extern(TMessageList& t_messages){}
+
+
+    /*Added by michal*/
+    void GetPositionInfo(CVector3& position); // Possibility to obtain coordinates via this sensor (thus, may also work as a virtual, ideal GPS-like device)
+    virtual void GetOrientationInfo(CQuaternion& orientation);	// Similarly, obtain the robot's orientation
+
+  private:
+
+    void UpdateWithRange();
+    void UpdateWithNoRange();
+    CSpace& m_cSpace;
+    CEntity* m_pcEntity;
+    CWiFiEquippedEntity* m_pcWiFiEquippedEntity;
+    /*Added by Marco*/
+    TMessageList m_tMessages;
+    /* Random number generator */
+    CARGoSRandom::CRNG* m_pcRNG;
+    /* Used as a range for uniform number generation , represents the range of valid prabability values, i.e. [0,1]*/
+    CRange<Real> ProbRange;
+  };
 
 }
 

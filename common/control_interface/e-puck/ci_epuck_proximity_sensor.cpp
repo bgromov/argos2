@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/epuck/ci_epuck_proximity_sensor.cpp>
+ * @file common/control_interface/epuck/ci_epuck_proximity_sensor.cpp
  *
  * @brief This file provides the implementation of the epuck proximity sensor.
  *

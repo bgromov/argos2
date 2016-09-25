@@ -22,6 +22,7 @@
 #include "dynamics3d_add_visitor.h"
 #include "dynamics3d_box.h"
 #include "dynamics3d_cylinder.h"
+#include "dynamics3d_footbot.h"
 #include "dynamics3d_eyebot.h"
 #include "dynamics3d_engine.h"
 #include <argos2/simulator/space/entities/embodied_entity.h>
@@ -44,6 +45,17 @@ namespace argos {
    void CDynamics3DAddVisitor::Visit(CCylinderEntity& c_entity) {
       CDynamics3DCylinder* pcEntity = new CDynamics3DCylinder(m_cEngine, c_entity);
       m_cEngine.AddPhysicsEntity(c_entity.GetId(), *pcEntity);
+      c_entity.GetEmbodiedEntity().AddPhysicsEngine(m_cEngine);
+      c_entity.GetEmbodiedEntity().AddPhysicsEngineEntity(m_cEngine.GetId(), *pcEntity);
+   }
+
+   /****************************************/
+   /****************************************/
+
+   void CDynamics3DAddVisitor::Visit(CFootBotEntity& c_entity) {
+      CDynamics3DFootBot* pcEntity = new CDynamics3DFootBot(m_cEngine, c_entity);
+      m_cEngine.AddPhysicsEntity(c_entity.GetId(), *pcEntity);
+      m_cEngine.AddControllableEntity(c_entity.GetControllableEntity());
       c_entity.GetEmbodiedEntity().AddPhysicsEngine(m_cEngine);
       c_entity.GetEmbodiedEntity().AddPhysicsEngineEntity(m_cEngine.GetId(), *pcEntity);
    }

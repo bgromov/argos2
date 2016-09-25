@@ -55,6 +55,9 @@ namespace argos {
          m_pcLedEquippedEntity = &(GetEntity().GetLEDEquippedEntity());
       }
 
+      virtual void SwitchBodyLed(bool b_switched_on) {}
+      virtual void SwitchFrontLed(bool b_switched_on) {}
+
       virtual void Update();
       virtual void Reset();
 

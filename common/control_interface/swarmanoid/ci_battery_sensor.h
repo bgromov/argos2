@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/argos/ci_battery_sensor.h>
+ * @file common/control_interface/argos/ci_battery_sensor.h
  *
  * @brief This file provides the definition of the generic battery sensor
  * interface for all argos robots.

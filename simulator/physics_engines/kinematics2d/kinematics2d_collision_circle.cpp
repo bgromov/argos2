@@ -62,11 +62,20 @@ namespace argos {
     Real mu1    = (-b + sqrt(bb4ac)) / (2 * a);
     Real mu2    = (-b - sqrt(bb4ac)) / (2 * a);
     
-    Real mu = Min(mu1,mu2);
-    if( mu < 0 || mu > 1 ) mu = Max(mu1,mu2);
+    Real mu_min = Min(mu1,mu2);
+    Real mu_max = Max(mu1,mu2);
 
-    f_distance = mu * c_ray.GetLength();    
-    return true;
+    if( mu_min > 0 && mu_min <=1 ) {
+       f_distance = mu_min;
+       return true;
+    }
+
+    if( mu_max > 0 && mu_max <=1 ) {
+       f_distance = mu_max;
+       return true;
+    }
+
+    return false;
   }
   
 

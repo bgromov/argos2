@@ -31,6 +31,7 @@ namespace argos {
 #include <argos2/common/control_interface/swarmanoid/ci_range_and_bearing_sensor.h>
 #include <argos2/simulator/space/entities/rab_equipped_entity.h>
 #include <argos2/simulator/space/space.h>
+#include <argos2/common/utility/argos_random.h>
 
 namespace argos {
 
@@ -64,10 +65,13 @@ namespace argos {
 
       CSpace& m_cSpace;
       CSpaceHash<CEmbodiedEntity, CEmbodiedEntitySpaceHashUpdater>& m_cEmbodiedSpaceHash;
+      CSpaceHash<CRABEquippedEntity, CRABEquippedEntitySpaceHashUpdater>& m_cRABEquippedSpaceHash;
       CEntity* m_pcEntity;
-      CRABEquippedEntity<10>* m_pcRABEquippedEntity;
+      CRABEquippedEntity* m_pcRABEquippedEntity;
       CEmbodiedEntity* m_pcEmbodiedEntity;
       CControllableEntity* m_pcControllableEntity;
+      CARGoSRandom::CRNG* m_pcRNG;
+      Real m_fDistanceNoiseStdDev;
 
       bool m_bShowRays;
       bool m_bCheckOcclusions;

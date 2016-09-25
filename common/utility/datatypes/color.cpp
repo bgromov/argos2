@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/utility/datatypes/color.cpp>
+ * @file common/utility/datatypes/color.cpp
  *
  * @brief This file provides 
  *

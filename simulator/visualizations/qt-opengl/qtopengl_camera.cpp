@@ -20,13 +20,6 @@
  */
 
 #include "qtopengl_camera.h"
-#ifdef __APPLE__
-#include <gl.h>
-#include <glu.h>
-#else
-#include <GL/gl.h>
-#include <GL/glu.h>
-#endif
 #include <QPoint>
 #include <argos2/common/utility/math/quaternion.h>
 #include <argos2/common/utility/logging/argos_log.h>
@@ -91,7 +84,7 @@ namespace argos {
       Up.CrossProduct(Left).Normalize();
       /* Get optional optics parameters */
       Real fValue;
-      GetNodeAttributeOrDefault(t_tree, "lens_focal_length", fValue, 20.0f);
+      GetNodeAttributeOrDefault<Real>(t_tree, "lens_focal_length", fValue, 20.0f);
       LensFocalLength = fValue * 0.001f;
       CalculateYFieldOfView();
    }

@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/behavioral_toolkit/ci_robot_state.h>
+ * @file common/control_interface/behavioral_toolkit/ci_robot_state.h
  *
  * @brief This file provides the control interface definition for the robot state
  * needed by the behavioral toolkit. In particular, this type represents

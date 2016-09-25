@@ -87,7 +87,7 @@ namespace argos {
       m_pcControllableEntity(new CControllableEntity(this)),
       m_pcLEDEquippedEntity(new CLedEquippedEntity(this)),
       m_pcDistanceScannerEquippedEntity(new CDistanceScannerEquippedEntity(this)),
-      m_pcRABEquippedEntity(new CRABEquippedEntity<10>(this)),
+      m_pcRABEquippedEntity(new CRABEquippedEntity(this, 10)),
       m_bAttachedToCeiling(false) {
       /* Add LEDs */
       for(UInt32 i = 0; i < 16; ++i) {
@@ -169,7 +169,7 @@ namespace argos {
       else if(str_component == "distance_scanner_equipped_entity") {
          return *m_pcDistanceScannerEquippedEntity;
       }
-      else if(str_component == "rab_equipped_entity<10>") {
+      else if(str_component == "rab_equipped_entity") {
          return *m_pcRABEquippedEntity;
       }
       else {
@@ -185,7 +185,7 @@ namespace argos {
               str_component == "controllable_entity"              ||
               str_component == "led_equipped_entity"              ||
               str_component == "distance_scanner_equipped_entity" ||
-              str_component == "rab_equipped_entity<10>");
+              str_component == "rab_equipped_entity");
    }
 
    /****************************************/

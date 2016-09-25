@@ -53,9 +53,9 @@ namespace argos {
       /* Let's check if it is a composable entity with a RAB component */
       CComposableEntity* pcComposableEntity = dynamic_cast<CComposableEntity*>(&c_entity);
       if(pcComposableEntity != NULL &&
-         pcComposableEntity->HasComponent("rab_equipped_entity<10>")) {
+         pcComposableEntity->HasComponent("rab_equipped_entity")) {
          /* All OK */
-         m_pcRABEquippedEntity = &(pcComposableEntity->GetComponent< CRABEquippedEntity<10> >("rab_equipped_entity<10>"));
+         m_pcRABEquippedEntity = &(pcComposableEntity->GetComponent<CRABEquippedEntity>("rab_equipped_entity"));
          /* Also, set the transmission range */
          m_pcRABEquippedEntity->SetRange(m_fRange);
       }
@@ -94,6 +94,6 @@ namespace argos {
                      "The Swarmanoid range and bearing actuator",
                      "Carlo Pinciroli [cpinciro@ulb.ac.be]",
                      "TODO",
-                     "Under development"
+                     "Usable"
       );
 }

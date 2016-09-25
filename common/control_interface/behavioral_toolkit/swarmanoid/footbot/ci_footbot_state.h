@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/behavioral_toolkit/swarmanoid/footbot/ci_footbot_state.h>
+ * @file common/control_interface/behavioral_toolkit/swarmanoid/footbot/ci_footbot_state.h
  *
  * @brief This file provides the control interface behavioral toolkit definition for a foot-bot state.
  * Check file ci_robot_state.h for the full explanation.
@@ -36,7 +36,7 @@ namespace argos {
 #include <argos2/common/control_interface/behavioral_toolkit/swarmanoid/ci_swarmanoid_robot_state.h>
 #include <argos2/common/utility/math/angles.h>
 
-/** Sensors includes */
+/* Sensor includes */
 #include <argos2/common/control_interface/swarmanoid/footbot/ci_footbot_base_ground_sensor.h>
 #include <argos2/common/control_interface/swarmanoid/footbot/ci_footbot_proximity_sensor.h>
 #include <argos2/common/control_interface/swarmanoid/footbot/ci_footbot_distance_scanner_sensor.h>
@@ -49,8 +49,11 @@ namespace argos {
 #include <argos2/common/control_interface/swarmanoid/footbot/ci_footbot_gripper_sensor.h>
 #include <argos2/common/control_interface/swarmanoid/footbot/ci_footbot_ceiling_camera_sensor.h>
 #include <argos2/common/control_interface/swarmanoid/footbot/ci_footbot_omnidirectional_camera_sensor.h>
+#include <argos2/common/control_interface/swarmanoid/footbot/ci_footbot_gyroscopic_sensor.h>
+#include <argos2/common/control_interface/swarmanoid/footbot/ci_footbot_accelerometer_sensor.h>
 
-/** Actuators includes */
+/* Actuator includes */
+#include <argos2/common/control_interface/swarmanoid/footbot/ci_footbot_base_leds_actuator.h>
 #include <argos2/common/control_interface/swarmanoid/footbot/ci_footbot_beacon_actuator.h>
 #include <argos2/common/control_interface/swarmanoid/footbot/ci_footbot_wheels_actuator.h>
 #include <argos2/common/control_interface/swarmanoid/footbot/ci_footbot_gripper_actuator.h>
@@ -90,6 +93,8 @@ namespace argos {
             m_pcGripperSensor               (NULL),
             m_pcCeilingCameraSensor         (NULL),
             m_pcOmnidirectionalCameraSensor (NULL),
+            m_pcGyroscopicSensor            (NULL),
+            m_pcAccelerometerSensor         (NULL),
 
             /** Initialize all sensors booleans */
             m_bIsUsingBaseGroundSensor              (false),
@@ -104,11 +109,14 @@ namespace argos {
             m_bIsUsingGripperSensor                 (false),
             m_bIsUsingCeilingCameraSensor           (false),
             m_bIsUsingOmnidirectionalCameraSensor   (false),
+            m_bIsUsingGyroscopicSensor              (false),
+            m_bIsUsingAccelerometerSensor           (false),
 
             /** Initialize other sensor related variables */
             m_bResetEncoderSensor                   (false),
 
             /** Initialize all the actuators */
+            m_pcBaseLedsActuator        (NULL),
             m_pcBeaconActuator          (NULL),
             m_pcWheelsActuator          (NULL),
             m_pcGripperActuator         (NULL),
@@ -117,6 +125,7 @@ namespace argos {
             m_pcDistanceScannerActuator (NULL),
 
             /** Initialize all actuators booleans */
+            m_bIsUsingBaseLeds                (false),
             m_bIsUsingBeacon                  (false),
             m_bIsUsingWheelsActuator          (false),
             m_bIsUsingGripperActuator         (false),
@@ -125,6 +134,7 @@ namespace argos {
             m_bIsUsingDistanceScannerActuator (false),
 
             /** Initialize all actuators refresh booleans */
+            m_bRefreshBaseLeds                     (false),
             m_bRefreshBeacon                       (false),
             m_bRefreshWheelsActuator               (false),
             m_bRefreshGripperActuator              (false),
@@ -137,6 +147,8 @@ namespace argos {
             m_bRefreshBaseGroundSensorCalibration  (false),
 
             /** Initialize the actuated values */
+            m_cActuatedBaseCameraLedColor     (CColor::BLACK),
+            m_cActuatedBaseImxLedColor        (CColor::BLACK),
             m_cActuatedBeaconColor            (CColor::BLACK),
             m_fActuatedLeftWheelSpeed         (0.0),
             m_fActuatedRightWheelSpeed        (0.0),
@@ -187,6 +199,8 @@ namespace argos {
                 m_pcTurretEncoderSensor         = c_footbot_state.m_pcTurretEncoderSensor;
                 m_pcCeilingCameraSensor         = c_footbot_state.m_pcCeilingCameraSensor;
                 m_pcOmnidirectionalCameraSensor = c_footbot_state.m_pcOmnidirectionalCameraSensor;
+                m_pcGyroscopicSensor            = c_footbot_state.m_pcGyroscopicSensor;
+                m_pcAccelerometerSensor         = c_footbot_state.m_pcAccelerometerSensor;
 
                 /** Copy the sensors booleans */
                 m_bIsUsingBaseGroundSensor              = c_footbot_state.m_bIsUsingBaseGroundSensor;
@@ -200,12 +214,15 @@ namespace argos {
                 m_bIsUsingTurretEncoderSensor           = c_footbot_state.m_bIsUsingTurretEncoderSensor;
                 m_bIsUsingCeilingCameraSensor           = c_footbot_state.m_bIsUsingCeilingCameraSensor;
                 m_bIsUsingOmnidirectionalCameraSensor   = c_footbot_state.m_bIsUsingOmnidirectionalCameraSensor;
+                m_bIsUsingGyroscopicSensor              = c_footbot_state.m_bIsUsingGyroscopicSensor;
+                m_bIsUsingAccelerometerSensor           = c_footbot_state.m_bIsUsingAccelerometerSensor;
 
                 /** Copy other sensor related variables */
                 m_bResetEncoderSensor     = c_footbot_state.m_bResetEncoderSensor;
                 m_tLightSensorReadings    = c_footbot_state.m_tLightSensorReadings;
 
                 /** Copy the references to the actuators */
+                m_pcBaseLedsActuator        = c_footbot_state.m_pcBaseLedsActuator;
                 m_pcBeaconActuator          = c_footbot_state.m_pcBeaconActuator;
                 m_pcWheelsActuator          = c_footbot_state.m_pcWheelsActuator;
                 m_pcGripperActuator         = c_footbot_state.m_pcGripperActuator;
@@ -214,6 +231,7 @@ namespace argos {
                 m_pcDistanceScannerActuator = c_footbot_state.m_pcDistanceScannerActuator;
 
                 /** Copy the actuators booleans */
+                m_bIsUsingBaseLeds                = c_footbot_state.m_bIsUsingBaseLeds;
                 m_bIsUsingBeacon                  = c_footbot_state.m_bIsUsingBeacon;
                 m_bIsUsingWheelsActuator          = c_footbot_state.m_bIsUsingWheelsActuator;
                 m_bIsUsingGripperActuator         = c_footbot_state.m_bIsUsingGripperActuator;
@@ -222,6 +240,7 @@ namespace argos {
                 m_bIsUsingDistanceScannerActuator = c_footbot_state.m_bIsUsingDistanceScannerActuator;
 
                 /** Copy the actuators refresh booleans */
+                m_bRefreshBaseLeds                     = c_footbot_state.m_bRefreshBaseLeds;
                 m_bRefreshBeacon                       = c_footbot_state.m_bRefreshBeacon;
                 m_bRefreshWheelsActuator               = c_footbot_state.m_bRefreshWheelsActuator;
                 m_bRefreshGripperActuator              = c_footbot_state.m_bRefreshGripperActuator;
@@ -232,6 +251,8 @@ namespace argos {
                 m_bRefreshDistanceScannerActuatorRPM   = c_footbot_state.m_bRefreshDistanceScannerActuatorRPM;
 
                 /** Copy the actuated commands */
+                m_cActuatedBaseCameraLedColor         = c_footbot_state.m_cActuatedBaseCameraLedColor;
+                m_cActuatedBaseImxLedColor            = c_footbot_state.m_cActuatedBaseImxLedColor;
                 m_cActuatedBeaconColor                = c_footbot_state.m_cActuatedBeaconColor;
                 m_fActuatedLeftWheelSpeed             = c_footbot_state.m_fActuatedLeftWheelSpeed;
                 m_fActuatedRightWheelSpeed            = c_footbot_state.m_fActuatedRightWheelSpeed;
@@ -564,10 +585,85 @@ namespace argos {
             return m_pcOmnidirectionalCameraSensor->GetCameraReadings();
         }
 
+        virtual inline const CCI_FootBotGyroscopicSensor::SReading& GetGyroscopicSensorReadings()
+        {
+            CHECK_IS_SENSOR_USED_HELPER(GYROSCOPIC_SENSOR_XML_NAME, m_bIsUsingGyroscopicSensor, "GetGyroscopicSensorReadings");
+            return m_pcGyroscopicSensor->GetReading();
+        }
+
+        virtual inline const CCI_FootBotAccelerometerSensor::SReading& GetAccelerometerReadings()
+        {
+            CHECK_IS_SENSOR_USED_HELPER(ACCELEROMETER_SENSOR_XML_NAME, m_bIsUsingAccelerometerSensor, "GetAccelerometerSensorReadings");
+            return m_pcAccelerometerSensor->GetReading();
+        }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         //   ACTUATORS SETTERS METHODS
         /////////////////////////////////////////////////////////////////////////////////////////////////
+
+        /**
+         *
+         * @brief Sets the base camera led color
+         * notice that the actual color will be set in the ApplyState() method
+         *
+         * @param c_color color to be set
+         * @see CColor
+         *
+         **/
+        inline virtual void SetBaseCameraLedColor(const CColor& c_color)
+        {
+            CHECK_IS_ACTUATOR_USED_HELPER(BASE_LEDS_ACTUATOR_XML_NAME, m_bIsUsingBaseLeds, "SetBaseCameraLedColor");
+            m_bRefreshBaseLeds = true;
+            m_cActuatedBaseCameraLedColor = c_color;
+        }
+
+        /**
+         *
+         * @brief Sets the base camera led intensity
+         * notice that the actual intensity will be set in the ApplyState() method
+         *
+         * @param un_intensity intensity to be set
+         * @see CColor
+         *
+         **/
+        inline virtual void SetBaseCameraLedIntensity(UInt8 un_intensity)
+        {
+            CHECK_IS_ACTUATOR_USED_HELPER(BASE_LEDS_ACTUATOR_XML_NAME, m_bIsUsingBaseLeds, "SetBaseCameraLedIntensity");
+            m_bRefreshBaseLeds = true;
+            m_cActuatedBaseCameraLedColor.SetAlpha(un_intensity);
+        }
+
+        /**
+         *
+         * @brief Sets the base imx led color
+         * notice that the actual color will be set in the ApplyState() method
+         *
+         * @param c_color color to be set
+         * @see CColor
+         *
+         **/
+        inline virtual void SetBaseImxLedColor(const CColor& c_color)
+        {
+            CHECK_IS_ACTUATOR_USED_HELPER(BASE_LEDS_ACTUATOR_XML_NAME, m_bIsUsingBaseLeds, "SetBaseImxLedColor");
+            m_bRefreshBaseLeds = true;
+            m_cActuatedBaseImxLedColor = c_color;
+        }
+
+        /**
+         *
+         * @brief Sets the base imx led intensity
+         * notice that the actual intensity will be set in the ApplyState() method
+         *
+         * @param un_intensity intensity to be set
+         * @see CColor
+         *
+         **/
+        inline virtual void SetBaseImxLedIntensity(UInt8 un_intensity)
+        {
+            CHECK_IS_ACTUATOR_USED_HELPER(BASE_LEDS_ACTUATOR_XML_NAME, m_bIsUsingBaseLeds, "SetBaseImxLedIntensity");
+            m_bRefreshBaseLeds = true;
+            m_cActuatedBaseImxLedColor.SetAlpha(un_intensity);
+        }
 
         /**
          *
@@ -757,6 +853,26 @@ namespace argos {
 
         /**
          *
+         * @brief Disables the ASEBA routine that checks for a gripped object each time the gripper is opened
+         *
+         */
+        inline void DisableCheckForObjectGrippedRoutine() {
+        	CHECK_IS_ACTUATOR_USED_HELPER(GRIPPER_ACTUATOR_XML_NAME, m_bIsUsingGripperActuator, "DisableCheckForObjectGrippedRoutine");
+        	m_pcGripperActuator -> DisableCheckForObjectGrippedRoutine();
+        }
+
+        /**
+         *
+         * @brief Enables the ASEBA routine that checks for a gripped object each time the gripper is opened
+         *
+         */
+        inline void EnableCheckForObjectGrippedRoutine() {
+        	CHECK_IS_ACTUATOR_USED_HELPER(GRIPPER_ACTUATOR_XML_NAME, m_bIsUsingGripperActuator, "EnableCheckForObjectGrippedRoutine");
+        	m_pcGripperActuator -> EnableCheckForObjectGrippedRoutine();
+        }
+
+        /**
+         *
          * @brief Enables the distance scanner
          *
          *
@@ -937,6 +1053,38 @@ namespace argos {
         //   WARNING: many of these methods return the actuated commands that are going to be send.
         //            Therefore the values are not measures of the real state of the robot.
         ///////////////////////////////////////////////////////////////////////////////////////////
+
+        /**
+         *
+         * @brief Returns the current target color for the base camera LED
+         * notice that the actual color could be different
+         *
+         * @return target led color
+         * @see CColor
+         * @see CCI_FootBotBaseLedsActuator
+         *
+         **/
+        inline virtual CColor GetActuatedBaseCameraLedColor()
+        {
+            CHECK_IS_ACTUATOR_USED_HELPER(BASE_LEDS_ACTUATOR_XML_NAME, m_bIsUsingBaseLeds, "GetActuatedBaseCameraLedColor");
+            return m_cActuatedBaseCameraLedColor;
+        }
+
+        /**
+         *
+         * @brief Returns the current target color for the base imx LED
+         * notice that the actual color could be different
+         *
+         * @return target led color
+         * @see CColor
+         * @see CCI_FootBotBaseLedsActuator
+         *
+         **/
+        inline virtual CColor GetActuatedBaseImxLedColor()
+        {
+            CHECK_IS_ACTUATOR_USED_HELPER(BASE_LEDS_ACTUATOR_XML_NAME, m_bIsUsingBaseLeds, "GetActuatedBaseImxLedColor");
+            return m_cActuatedBaseImxLedColor;
+        }
 
         /**
          *
@@ -1176,6 +1324,8 @@ namespace argos {
         CCI_FootBotGripperSensor*               m_pcGripperSensor;
         CCI_FootBotCeilingCameraSensor*         m_pcCeilingCameraSensor;
         CCI_FootBotOmnidirectionalCameraSensor* m_pcOmnidirectionalCameraSensor;
+        CCI_FootBotGyroscopicSensor*            m_pcGyroscopicSensor;
+        CCI_FootBotAccelerometerSensor*         m_pcAccelerometerSensor;
 
         /** Sensors booleans */
         bool m_bIsUsingBaseGroundSensor;
@@ -1190,6 +1340,8 @@ namespace argos {
         bool m_bIsUsingGripperSensor;
         bool m_bIsUsingCeilingCameraSensor;
         bool m_bIsUsingOmnidirectionalCameraSensor;
+        bool m_bIsUsingGyroscopicSensor;
+        bool m_bIsUsingAccelerometerSensor;
 
         /** Variables related to sensors */
         bool m_bResetEncoderSensor;
@@ -1208,12 +1360,15 @@ namespace argos {
         static const std::string GRIPPER_SENSOR_XML_NAME;
         static const std::string CEILING_CAMERA_SENSOR_XML_NAME;
         static const std::string OMNIDIRECTIONAL_CAMERA_SENSOR_XML_NAME;
+        static const std::string GYROSCOPIC_SENSOR_XML_NAME;
+        static const std::string ACCELEROMETER_SENSOR_XML_NAME;
 
         ///////////////
         //    ACTUATORS
         ///////////////
 
         /** References to the actuators */
+        CCI_FootBotBaseLedsActuator*        m_pcBaseLedsActuator;
         CCI_FootBotBeaconActuator*          m_pcBeaconActuator;
         CCI_FootBotWheelsActuator*          m_pcWheelsActuator;
         CCI_FootBotGripperActuator*         m_pcGripperActuator;
@@ -1222,6 +1377,7 @@ namespace argos {
         CCI_FootBotDistanceScannerActuator* m_pcDistanceScannerActuator;
 
         /** Actuators booleans */
+        bool m_bIsUsingBaseLeds;
         bool m_bIsUsingBeacon;
         bool m_bIsUsingWheelsActuator;
         bool m_bIsUsingGripperActuator;
@@ -1230,6 +1386,7 @@ namespace argos {
         bool m_bIsUsingDistanceScannerActuator;
 
         /** Actuator refresh booleans */
+        bool m_bRefreshBaseLeds;
         bool m_bRefreshBeacon;
         bool m_bRefreshWheelsActuator;
         bool m_bRefreshGripperActuator;
@@ -1242,6 +1399,8 @@ namespace argos {
         bool m_bRefreshBaseGroundSensorCalibration;
 
         /** Actuators commands variables */
+        CColor                                  m_cActuatedBaseCameraLedColor;
+        CColor                                  m_cActuatedBaseImxLedColor;
         CColor                                  m_cActuatedBeaconColor;
         Real                                    m_fActuatedLeftWheelSpeed;
         Real                                    m_fActuatedRightWheelSpeed;
@@ -1255,6 +1414,7 @@ namespace argos {
         Real                                    m_fActuatedDistanceScannerRPM;
 
         /* XML actuator names */
+        static const std::string BASE_LEDS_ACTUATOR_XML_NAME;
         static const std::string BEACON_ACTUATOR_XML_NAME;
         static const std::string WHEELS_ACTUATOR_XML_NAME;
         static const std::string GRIPPER_ACTUATOR_XML_NAME;

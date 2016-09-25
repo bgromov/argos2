@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/logging/argos_log.h>
+ * @file common/logging/argos_log.h
  *
  * @brief This file provides some useful logging and debugging macros.
  *

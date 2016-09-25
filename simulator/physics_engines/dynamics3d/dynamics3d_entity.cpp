@@ -108,10 +108,12 @@ namespace argos {
       if(dCollide(tRay, reinterpret_cast<dGeomID>(m_tEntitySpace), 1, &tIntersection, sizeof(dContactGeom)) > 0) {
          /* There is an intersecton */
          f_t_on_ray = tIntersection.depth / fRayLength;
+         dGeomDestroy(tRay);
          return true;
       }
       else {
          /* No intersection detected */
+         dGeomDestroy(tRay);
          return false;
       }
    }

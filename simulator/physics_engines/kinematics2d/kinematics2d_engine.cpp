@@ -175,7 +175,7 @@ namespace argos {
   bool CKinematics2DEngine::CheckCollisions( const CKinematics2DCollisionCircle* pc_circle, const CKinematics2DCollisionRectangle* pc_rectangle ) {
     /* Rototranslate the plane so that the rectangle is axis aligned and centered in O */
     CVector2 center = pc_circle->GetPosition() - pc_rectangle->GetPosition();
-    center.Rotate(pc_rectangle->GetOrientation() );
+    center.Rotate( -pc_rectangle->GetOrientation() );
     center.Absolute();
     
     /* Find the Voronoi Region that the circle is in, exploiting the symmetries */
@@ -213,6 +213,7 @@ namespace argos {
 	bool it2_enabled = it2->second->IsEnabled();
 	TKinematics2DCollisionType it2_type = it2->second->GetCollisionType();
 
+
 	// skip collision detection if both entity are disabled or if
 	// one of them has no collision model
 	if( (!it1_enabled && !it2_enabled) ||
@@ -221,6 +222,7 @@ namespace argos {
 	  continue;
 	}
 	
+
 	// check intersection between bounding boxes
 	if( !it1->second->GetEmbodiedEntity().GetBoundingBox().Intersects( it2->second->GetEmbodiedEntity().GetBoundingBox() ) ) {
 	  continue;
@@ -254,10 +256,10 @@ namespace argos {
 	/* reset to previous positions if collision is detected */
 	if( collision_detected ) {
 	  it1->second->RevertPositionAndOrientation();
-	  it1->second->GetEmbodiedEntity().SetCollisionDetected();
+	  it1->second->GetEmbodiedEntity().SetCollisionDetected(it2->second->GetEmbodiedEntity());
 	  
 	  it2->second->RevertPositionAndOrientation();
-	  it2->second->GetEmbodiedEntity().SetCollisionDetected();
+	  it2->second->GetEmbodiedEntity().SetCollisionDetected(it1->second->GetEmbodiedEntity());
  	}
       }
     }

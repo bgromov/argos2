@@ -28,7 +28,9 @@ namespace argos {
 }
 
 #include <argos2/simulator/physics_engines/dynamics3d/dynamics3d_entity.h>
+#include <argos2/simulator/physics_engines/dynamics3d/dynamics3d_engine.h>
 #include <argos2/simulator/space/entities/box_entity.h>
+
 
 namespace argos {
 
@@ -45,8 +47,10 @@ namespace argos {
 
    private:
 
-      CBoxEntity& m_cBoxEntity;
-      dGeomID     m_tGeom;
+      CBoxEntity&                m_cBoxEntity;
+      dGeomID                    m_tGeom;
+      SDynamics3DEngineGeomData  m_sGeomData;
+
    };
 
 }

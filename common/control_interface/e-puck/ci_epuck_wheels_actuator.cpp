@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/epuck/ci_epuck_wheels_actuator.cpp>
+ * @file common/control_interface/epuck/ci_epuck_wheels_actuator.cpp
  *
  * @brief This file provides the definition of the epuck wheels actuator.
  *

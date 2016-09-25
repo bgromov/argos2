@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/ci_range_and_bearing_actuator.h>
+ * @file common/control_interface/ci_range_and_bearing_actuator.h
  *
  * @brief This file provides the definition of the actuator part of the
  *        range and bearing system.

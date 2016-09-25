@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/ci_range_and_bearing_sensor.h>
+ * @file common/control_interface/ci_range_and_bearing_sensor.h
  *
  * @brief This file provides the definition of the sensor part of the
  *        range and bearing system.

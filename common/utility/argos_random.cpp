@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/utility_classes/argos_random.cpp>
+ * @file common/utility_classes/argos_random.cpp
  *
  * @brief This file provides the definition of
  *
@@ -37,7 +37,7 @@ namespace argos {
    /****************************************/
    /****************************************/
 
-   std::map<std::string, CARGoSRandom::CCategory> CARGoSRandom::m_mapCategories;
+   std::map<std::string, CARGoSRandom::CCategory*> CARGoSRandom::m_mapCategories;
 
 #ifndef CROSSCOMPILING
    /* Creates an array of all the available generator types, terminated by a null pointer */
@@ -46,9 +46,9 @@ namespace argos {
 
    /* Checks that a category exists. It internally creates an iterator that points to the category, if found.  */
 #define CHECK_CATEGORY(category)                                        \
-   std::map<std::string, CCategory>::iterator itCategory = m_mapCategories.find(category); \
+   std::map<std::string, CCategory*>::iterator itCategory = m_mapCategories.find(category); \
    if(itCategory == m_mapCategories.end()) {                            \
-      THROW_ARGOSEXCEPTION("CARGoSRandom::CreateRNG: can't create an RNG in category \"" << category << "\" because it doesnt exist."); \
+      THROW_ARGOSEXCEPTION("CARGoSRandom:: can't find category \"" << category << "\"."); \
    }
 
    /****************************************/
@@ -258,6 +258,21 @@ namespace argos {
    /****************************************/
    /****************************************/
 
+   CRadians CARGoSRandom::CRNG::Uniform(const CRange<CRadians>& c_range) {
+#ifndef CROSSCOMPILING
+      return c_range.GetMin() + gsl_rng_uniform(m_ptRNG) * c_range.GetSpan();
+#else
+      UInt32 unNumber;
+      random_r(m_ptRNG, reinterpret_cast<int32_t*>(&unNumber));
+      CRadians cRetVal;
+      m_pcIntegerRNGRange->MapValueIntoRange(cRetVal, unNumber, c_range);
+      return cRetVal;
+#endif
+   }
+   
+   /****************************************/
+   /****************************************/
+
    Real CARGoSRandom::CRNG::Uniform(const CRange<Real>& c_range) {
 #ifndef CROSSCOMPILING
       return c_range.GetMin() + gsl_rng_uniform(m_ptRNG) * c_range.GetSpan();
@@ -342,6 +357,27 @@ namespace argos {
    /****************************************/
    /****************************************/
 
+   Real CARGoSRandom::CRNG::Rayleigh(Real f_sigma) {
+#ifndef CROSSCOMPILING
+      return gsl_ran_rayleigh(m_ptRNG, f_sigma);
+#else
+      /* Draw a number uniformly from (0,1) --- bounds excluded */
+      Real fValue;
+      CRange<Real> cUnitRange(0.0f, 1.0f);
+      do {
+         fValue = Uniform(cUnitRange);
+      }
+      while(! cUnitRange.WithinMinBoundExcludedMaxBoundExcluded(fValue));
+      /* Calculate the value to return from the definition of Rayleigh distribution
+       * http://en.wikipedia.org/wiki/Rayleigh_distribution#Generating_Rayleigh-distributed_random_variates
+       */
+      return f_sigma * Sqrt(-2.0f * Log(fValue));
+#endif
+   }
+
+   /****************************************/
+   /****************************************/
+
    CARGoSRandom::CCategory::CCategory(const std::string& str_id,
                                       UInt32 un_seed) :
       m_strId(str_id),
@@ -357,6 +393,16 @@ namespace argos {
       m_cSeeder(0),
       m_cSeedRange(1, std::numeric_limits<UInt32>::max()) {
       LoadState(c_buffer);
+   }
+
+   /****************************************/
+   /****************************************/
+
+   CARGoSRandom::CCategory::~CCategory() {
+      while(! m_vecRNGList.empty()) {
+         delete m_vecRNGList.back();
+         m_vecRNGList.pop_back();
+      }
    }
 
    /****************************************/
@@ -449,14 +495,14 @@ namespace argos {
    bool CARGoSRandom::CreateCategory(const std::string& str_category,
                                      UInt32 un_seed) {
       /* Is there a category already? */
-      std::map<std::string, CCategory>::iterator itCategory = m_mapCategories.find(str_category);
+      std::map<std::string, CCategory*>::iterator itCategory = m_mapCategories.find(str_category);
       if(itCategory == m_mapCategories.end()) {
          /* No, create it */
          m_mapCategories.insert(
             std::pair<std::string,
-                      CARGoSRandom::CCategory>(str_category,
-                                               CARGoSRandom::CCategory(str_category,
-                                                                       un_seed)));
+                      CARGoSRandom::CCategory*>(str_category,
+                                                new CARGoSRandom::CCategory(str_category,
+                                                                            un_seed)));
          return true;
       }
       return false;
@@ -467,7 +513,20 @@ namespace argos {
 
    CARGoSRandom::CCategory& CARGoSRandom::GetCategory(const std::string& str_category) {
       CHECK_CATEGORY(str_category);
-      return itCategory->second;
+      return *(itCategory->second);
+   }
+
+   /****************************************/
+   /****************************************/
+
+   bool CARGoSRandom::ExistsCategory(const std::string& str_category) {
+     try {
+       CHECK_CATEGORY(str_category);
+       return true;
+     }
+     catch(CARGoSException& ex) {
+       return false;
+     }
    }
 
    /****************************************/
@@ -475,6 +534,7 @@ namespace argos {
 
    void CARGoSRandom::RemoveCategory(const std::string& str_category) {
       CHECK_CATEGORY(str_category);
+      delete itCategory->second;
       m_mapCategories.erase(itCategory);
    }
 
@@ -484,7 +544,7 @@ namespace argos {
    CARGoSRandom::CRNG* CARGoSRandom::CreateRNG(const std::string& str_category,
                                                const std::string& str_type) {
       CHECK_CATEGORY(str_category);
-      return itCategory->second.CreateRNG(str_type);
+      return itCategory->second->CreateRNG(str_type);
    }
    
    /****************************************/
@@ -492,7 +552,7 @@ namespace argos {
 
    UInt32 CARGoSRandom::GetSeedOf(const std::string& str_category) {
       CHECK_CATEGORY(str_category);
-      return itCategory->second.GetSeed();
+      return itCategory->second->GetSeed();
    }
 
    /****************************************/
@@ -501,7 +561,7 @@ namespace argos {
    void CARGoSRandom::SetSeedOf(const std::string& str_category,
                                 UInt32 un_seed) {
       CHECK_CATEGORY(str_category);
-      itCategory->second.SetSeed(un_seed);
+      itCategory->second->SetSeed(un_seed);
    }
 
    /****************************************/
@@ -511,10 +571,10 @@ namespace argos {
       /* Dump the number of categories */
       c_buffer << m_mapCategories.size();
       /* Dump the categories */
-      for(std::map<std::string, CCategory>::iterator itCategory = m_mapCategories.begin();
+      for(std::map<std::string, CCategory*>::iterator itCategory = m_mapCategories.begin();
           itCategory != m_mapCategories.end();
           ++itCategory) {
-         itCategory->second.SaveState(c_buffer);
+         itCategory->second->SaveState(c_buffer);
       }
    }
 
@@ -527,9 +587,9 @@ namespace argos {
       c_buffer >> unCategories;
       /* Restore the categories */
       for(UInt32 i = 0; i < unCategories; ++i) {
-         CCategory cCat(c_buffer);
+         CCategory* pcCat = new CCategory(c_buffer);
          m_mapCategories.insert(
-            std::pair<std::string, CARGoSRandom::CCategory>(cCat.GetId(), cCat));
+            std::pair<std::string, CARGoSRandom::CCategory*>(pcCat->GetId(), pcCat));
       }
    }
 
@@ -537,10 +597,10 @@ namespace argos {
    /****************************************/
 
    void CARGoSRandom::Reset() {
-      for(std::map<std::string, CCategory>::iterator itCategory = m_mapCategories.begin();
+      for(std::map<std::string, CCategory*>::iterator itCategory = m_mapCategories.begin();
           itCategory != m_mapCategories.end();
           ++itCategory) {
-         itCategory->second.ResetRNGs();
+         itCategory->second->ResetRNGs();
       }
    }
 

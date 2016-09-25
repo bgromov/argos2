@@ -7,8 +7,11 @@ set(argos2_simulator_qtopengl_renderer_HEADERS
 )
 
 set(argos2_simulator_qtopengl_renderer_HEADERS_models
+  models/qtopengl_booth.h
   models/qtopengl_box.h
   models/qtopengl_cylinder.h
+  models/qtopengl_tile.h
+  models/qtopengl_bluebot.h
   models/qtopengl_footbot.h
   models/qtopengl_epuck.h
   models/qtopengl_eyebot.h
@@ -33,8 +36,11 @@ qt4_wrap_cpp(argos2_simulator_qtopengl_renderer_MOC_IMPLEMENTATIONS
 
 set(argos2_simulator_qtopengl_renderer_IMPLEMENTATIONS
   ${argos2_simulator_qtopengl_renderer_MOC_IMPLEMENTATIONS}
+  models/qtopengl_booth.cpp
   models/qtopengl_box.cpp
   models/qtopengl_cylinder.cpp
+  models/qtopengl_tile.cpp
+  models/qtopengl_bluebot.cpp
   models/qtopengl_footbot.cpp
   models/qtopengl_epuck.cpp
   models/qtopengl_eyebot.cpp

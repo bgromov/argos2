@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <common/control_interface/ci_actuator.h>
+ * @file common/control_interface/ci_actuator.h
  *
  * @brief This file provides the control interface for all actuators.
  *

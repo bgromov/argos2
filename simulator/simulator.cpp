@@ -31,7 +31,8 @@
 #include <string>
 #include <sys/time.h>
 #include <argos2/simulator/space/space_no_threads.h>
-#include <argos2/simulator/space/space_multi_thread.h>
+#include <argos2/simulator/space/space_multi_thread_scatter_gather.h>
+#include <argos2/simulator/space/space_multi_thread_h_dispatch.h>
 #include <argos2/simulator/dynamic_linking/dynamic_linking_manager.h>
 #include <argos2/common/utility/logging/argos_log.h>
 #include <argos2/common/utility/profiler/profiler.h>
@@ -204,13 +205,18 @@ namespace argos {
       m_mapPhysicsEngines.clear();
       m_vecPhysicsEngines.clear();
 
-      /* Destroy swarmanoid space */
+      /* Destroy simulated space */
       if(m_pcSpace != NULL) {
          m_pcSpace->Destroy();
       }
 
       /* Close dynamic linking */
       m_pcDynamicLinkingManager->Destroy();
+
+      /* Get rid of ARGoS category */
+      if(CARGoSRandom::ExistsCategory("argos")) {
+         CARGoSRandom::RemoveCategory("argos");
+      }
 
       /* Stop profiling and flush the data */
       if(IsProfiling()) {
@@ -285,7 +291,19 @@ namespace argos {
             }
             else {
                LOG << "[INFO] Using " << m_unThreads << " parallel threads" << std::endl;
-               m_pcSpace = new CSpaceMultiThread;
+               std::string strThreadingMethod = "scatter-gather";
+               GetNodeAttributeOrDefault(tSystem, "method", strThreadingMethod, strThreadingMethod);
+               if(strThreadingMethod == "scatter-gather") {
+                  LOG << "[INFO] Using threading method \"scatter-gather\"" << std::endl;
+                  m_pcSpace = new CSpaceMultiThreadScatterGather;
+               }
+               else if(strThreadingMethod == "h-dispatch") {
+                  LOG << "[INFO] Using threading method \"h-dispatch\"" << std::endl;
+                  m_pcSpace = new CSpaceMultiThreadHDispatch;
+               }
+               else {
+                  THROW_ARGOSEXCEPTION("Error parsing the <system> tag. Unknown threading method \"" << strThreadingMethod << "\". Available methods: \"scatter-gather\" and \"h-dispatch\".");
+               }
             }
          }
          else {
@@ -331,12 +349,14 @@ namespace argos {
 
          /* Set the maximum simulation ticks (in ticks) */
          Real fExpLength;
-         GetNodeAttributeOrDefault(tExperiment,
-                                   "length",
-                                   fExpLength,
-                                   0.0f);
+         GetNodeAttributeOrDefault<Real>(tExperiment,
+                                         "length",
+                                         fExpLength,
+                                         0.0f);
          m_unMaxSimulationClock = fExpLength * unTicksPerSec;
-         LOG << "[INFO] Total experiment length in clock ticks = " << m_unMaxSimulationClock << std::endl;
+         LOG << "[INFO] Total experiment length in clock ticks = "
+             << (m_unMaxSimulationClock ? ToString(m_unMaxSimulationClock) : "unlimited")
+             << std::endl;
 
          /* Get the profiling tag, if present */
          if(NodeExists(t_tree, "profiling")) {
@@ -482,12 +502,14 @@ namespace argos {
                 itMatchingEntities != tMatchingEntities.end(); ++itMatchingEntities) {
                CEntity& cEntity = **itMatchingEntities;
                /* Add the entity to the engine */
+               /*
                LOG << "[INFO] Adding entity \""
                    << cEntity.GetId()
                    << "\" to engine \""
                    << pcEngine->GetId()
                    << "\""
                    << std::endl;
+               */
                pcEngine->AddEntity(cEntity);
                /* Is the entity composable with a controllable component? */
                CComposableEntity* pcComposableEntity = dynamic_cast<CComposableEntity*>(&cEntity);

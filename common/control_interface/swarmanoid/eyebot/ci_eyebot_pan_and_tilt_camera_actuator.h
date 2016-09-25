@@ -14,7 +14,7 @@
  */
 
 /**
- * @file <argos2/common/control_interface/eyebot/ci_eyebot_pan_and_tilt_camera_actuator.h>
+ * @file argos2/common/control_interface/eyebot/ci_eyebot_pan_and_tilt_camera_actuator.h
  *
  * @brief This file provides the definition of the eyebot pan and tilt actuator.
  *
