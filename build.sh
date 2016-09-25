@@ -7,7 +7,7 @@ function build_common() {
     echo "cmake ../../../common -DCMAKE_INSTALL_PREFIX=${PREFIX} -G 'Eclipse CDT4 - Unix Makefiles' -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} || { echo 'cmake failed' 1>&2; exit 1; }" | sh
     
     # compile
-    make ${INSTALL}|| { echo "make failed" 1>&2; exit 1; }
+    make ${INSTALL} || { echo "make failed" 1>&2; exit 1; }
 }
 
 function build_simulator() {
